@@ -434,6 +434,34 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 .zone-sub  { font-size:10px; color:var(--fg-sub); }
 .zone-rate { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; flex-shrink:0; }
 
+/* ── KPI trend delta ── */
+.kpi-delta { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; padding:2px 7px; border-radius:6px; margin-top:5px; }
+.delta-up   { background:var(--green-lt); color:var(--green); }
+.delta-dn   { background:var(--red-lt);   color:var(--red); }
+.delta-flat { background:var(--surface-2); color:var(--fg-sub); }
+/* ── Runner streak ── */
+.streak-card { background:linear-gradient(135deg,var(--purple-lt),var(--gold-lt)); border:1px solid color-mix(in srgb,var(--purple) 18%,transparent); border-radius:12px; padding:14px 16px; margin-bottom:12px; display:flex; align-items:center; gap:14px; }
+.streak-num  { font-size:36px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--gold); line-height:1; flex-shrink:0; }
+/* ── Transaction ledger ── */
+.ledger-entry { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:12px; }
+.ledger-entry:last-child { border-bottom:none; }
+.le-type { font-weight:600; }
+.le-time { color:var(--fg-sub); font-size:10px; margin-top:1px; }
+.le-amt  { font-weight:700; font-variant-numeric:tabular-nums; color:var(--green); flex-shrink:0; }
+/* ── Price anchor ── */
+.price-was { text-decoration:line-through; color:var(--fg-sub); font-size:11px; font-weight:400; margin-right:5px; }
+/* ── SLA bar ── */
+.sla-row  { display:flex; align-items:center; gap:8px; padding:7px 0; font-size:11px; border-bottom:1px solid var(--border); margin-bottom:10px; }
+.sla-lbl  { font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-sub); flex-shrink:0; }
+.sla-clock{ font-weight:700; font-variant-numeric:tabular-nums; color:var(--blue); flex-shrink:0; }
+.sla-track{ flex:1; height:4px; background:var(--surface-2); border-radius:2px; overflow:hidden; }
+.sla-fill { height:100%; background:var(--blue); border-radius:2px; transition:width .5s; }
+.sla-max  { font-size:9px; color:var(--fg-sub); flex-shrink:0; }
+/* ── Milestone markers ── */
+.milestones { position:relative; padding-top:22px; }
+.ms { position:absolute; top:0; font-size:8px; font-weight:700; transform:translateX(-50%); white-space:nowrap; }
+.ms::after { content:''; position:absolute; top:14px; left:50%; transform:translateX(-50%); width:1.5px; height:6px; background:currentColor; opacity:.5; }
+
 /* ── Toast ── */
 #toasts {
   position: fixed;
@@ -493,18 +521,18 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <span class="brand-sub">Foundation</span>
     </div>
     <div class="hdr-metrics">
-      <div class="hm">
+      <button class="hm" style="background:none;border:none;cursor:pointer;color:inherit;font-family:inherit;padding:2px 7px;border-radius:6px;transition:background .12s" onmouseenter="this.style.background='rgba(255,255,255,.09)'" onmouseleave="this.style.background='none'" onclick="go('tower')" aria-label="Open Control Tower">
         <span class="hm-lbl">Escrow</span>
         <span class="hm-val c-gold" id="hdr-escrow">TZS 38.4M</span>
-      </div>
+      </button>
       <div class="hm">
         <span class="hm-lbl">Network</span>
         <span class="hm-val c-lime"><span class="live-dot"></span>100% Live</span>
       </div>
-      <div class="hm" id="hm-corridor" style="display:flex">
+      <button class="hm" id="hm-corridor" style="background:none;border:none;cursor:pointer;color:inherit;font-family:inherit;padding:2px 7px;border-radius:6px;transition:background .12s" onmouseenter="this.style.background='rgba(255,255,255,.09)'" onmouseleave="this.style.background='none'" onclick="go('hauler')" aria-label="Open Hauler">
         <span class="hm-lbl">Corridor</span>
         <span class="hm-val c-blue">Dar · Mrg · Tng</span>
-      </div>
+      </button>
     </div>
     <button id="reset-btn" onclick="resetSim()">↺ Reset</button>
   </div>
@@ -538,21 +566,25 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <div class="kpi-lbl">Revolving Escrow</div>
       <div class="kpi-val fg-green" id="kpi-escrow">TZS 38.4M</div>
       <div class="kpi-sub">Production buffer</div>
+      <div class="kpi-delta delta-up">↑ +12.4% this cycle</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Backhaul in Transit</div>
       <div class="kpi-val fg-blue">7,200 kg</div>
       <div class="kpi-sub">16 active pallets</div>
+      <div class="kpi-delta delta-flat">→ On schedule · 4h est.</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Girls Protected</div>
       <div class="kpi-val fg-purple">12,480</div>
       <div class="kpi-sub">−90% truancy rate</div>
+      <div class="kpi-delta delta-up">↑ +840 this month</div>
     </div>
     <div class="kpi">
       <div class="kpi-lbl">Runner Cash Margin</div>
       <div class="kpi-val fg-gold">+40%</div>
       <div class="kpi-sub">TZS 200 per pack</div>
+      <div class="kpi-delta delta-up">↑ vs 28% market avg</div>
     </div>
   </div>
 
@@ -658,6 +690,12 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       </div>
     </div>
 
+    <div class="sla-row">
+      <span class="sla-lbl">Delivery SLA</span>
+      <span class="sla-clock" id="sla-remaining">48h 00m</span>
+      <div class="sla-track"><div class="sla-fill" id="sla-fill" style="width:100%"></div></div>
+      <span class="sla-max">48h window</span>
+    </div>
     <div id="h-step-1" class="step s-active">
       <span class="step-ico">📦</span>
       <div class="step-body">
@@ -723,6 +761,19 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 <!-- ══ MAMA JASIRI ════════════════════════════════════════ -->
 <section id="panel-mama" class="panel">
   <h2>Mama Jasiri Runner</h2>
+
+  <div class="streak-card">
+    <div>
+      <div class="streak-num" id="streak-num">7</div>
+      <div style="font-size:10px;font-weight:600;color:var(--fg-sub);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">day streak</div>
+    </div>
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:700;font-size:13px">Active Seller Streak</div>
+      <div style="font-size:11px;color:var(--fg-sub);margin-top:2px">Next milestone: 30 days → Silver Tier (+TZS 500 bonus)</div>
+      <div class="track" style="margin-top:7px;height:6px"><div class="fill fill-gold" id="streak-bar" style="width:23%"></div></div>
+      <div style="font-size:9px;color:var(--fg-sub);margin-top:3px">7 of 30 days to Silver tier</div>
+    </div>
+  </div>
 
   <div class="card">
     <div class="card-title">Daily Zero-Debt Consignment</div>
@@ -827,7 +878,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
     <div class="row" style="margin-bottom:12px;align-items:flex-start">
       <div>
         <div style="font-weight:700;font-size:14px">🩺 Taulo za Kike — Sanitary Pads</div>
-        <div class="text-sub text-sm">Price cap: TZS 500 &nbsp;|&nbsp; Margin: TZS 200</div>
+        <div class="text-sub text-sm"><span class="price-was">TZS 1,200</span>Cap: TZS 500 &nbsp;·&nbsp; +TZS 200 margin</div>
       </div>
       <span class="badge bdg-green">Stock: <span id="duka-pads">24</span></span>
     </div>
@@ -838,7 +889,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
     <div class="row" style="margin-bottom:12px;align-items:flex-start">
       <div>
         <div style="font-weight:700;font-size:14px">👶 Nepi za Watoto — Diapers</div>
-        <div class="text-sub text-sm">Voucher redemption: TZS 3,500 &nbsp;|&nbsp; Margin: TZS 1,000</div>
+        <div class="text-sub text-sm"><span class="price-was">TZS 5,500</span>Voucher: TZS 3,500 &nbsp;·&nbsp; +TZS 1,000 margin</div>
       </div>
       <span class="badge bdg-blue">Stock: <span id="duka-diapers">12</span></span>
     </div>
@@ -849,7 +900,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
     <div class="row" style="margin-bottom:12px;align-items:flex-start">
       <div>
         <div style="font-weight:700;font-size:14px">🌸 Kikombe cha Hedhi — Menstrual Cup</div>
-        <div class="text-sub text-sm">Retail: TZS 5,000 &nbsp;|&nbsp; Margin: TZS 1,500 (+30%)</div>
+        <div class="text-sub text-sm"><span class="price-was">TZS 8,000</span>Retail: TZS 5,000 &nbsp;·&nbsp; +TZS 1,500 (30%)</div>
       </div>
       <span class="badge bdg-purple">Stock: <span id="duka-cups">8</span></span>
     </div>
@@ -868,6 +919,11 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
         <div class="text-sub text-sm">Vouchers redeemed</div>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent Sales</div>
+    <div id="duka-ledger"><div class="text-sub text-sm" style="text-align:center;padding:6px 0">No sales yet — make your first transaction.</div></div>
   </div>
 
   <div class="dark-card">
@@ -898,11 +954,16 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <span style="font-size:22px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums" id="tower-escrow">TZS 38.4M</span>
       <span class="text-sub text-sm">Target: TZS 100M</span>
     </div>
-    <div class="track" style="height:14px;margin-bottom:6px">
-      <div class="fill" id="tower-bar" style="width:38.4%;background:linear-gradient(90deg,var(--green),color-mix(in srgb,var(--green) 60%,var(--gold)))"></div>
+    <div class="milestones">
+      <span class="ms fg-gold" style="left:38.2%">38.2M</span>
+      <span class="ms fg-blue" style="left:60%">60M</span>
+      <span class="ms" style="left:99%;color:var(--fg-sub)">100M</span>
+      <div class="track" style="height:14px">
+        <div class="fill" id="tower-bar" style="width:38.4%;background:linear-gradient(90deg,var(--green),color-mix(in srgb,var(--green) 60%,var(--gold)))"></div>
+      </div>
     </div>
-    <div class="text-sub text-sm" style="margin-bottom:12px">
-      Call-off threshold: TZS 38.2M &mdash; <span style="color:var(--green);font-weight:600">✅ Threshold met</span>
+    <div class="text-sub text-sm" style="margin-top:6px;margin-bottom:12px">
+      <span class="mono bold" style="color:var(--gold)">Batch #7</span> · Day 12 of 38.5 · <span style="color:var(--green);font-weight:600">✅ Call-off threshold met</span>
     </div>
     <button class="btn bg-green" id="calloff-btn" onclick="towerCalloff()">
       Trigger Factory Call-Off PO — 30% Advance Wire
@@ -967,7 +1028,7 @@ function mkState() {
   return {
     escrow: 38420000,
     hauler: { step: 0, wallet: 0, trips: 0 },
-    mama:   { sold: 0, profit: 0 },
+    mama:   { sold: 0, profit: 0, streak: 7 },
     school: {
       block_a: { fill: 85, buf: 120 },
       block_b: { fill: 72, buf: 98  },
@@ -982,7 +1043,7 @@ function mkState() {
       ],
       coupons: 0
     },
-    duka: { pads:24, diapers:12, cups:8, profit:0, vouchers:0 },
+    duka: { pads:24, diapers:12, cups:8, profit:0, vouchers:0, ledger:[] },
     master: { calloff:false, carrier:false, frozen:0, quarantined:0 },
     ussdStep: 'idle'
   };
@@ -1070,6 +1131,9 @@ function resetSim() {
   if (cr) { cr.textContent = '🔄 Backup Carrier Rollover (Posta Standby)'; cr.className = 'btn bg-blue'; }
   txt('burn-count', 0);
   ussdReset();
+  renderStreak();
+  const sf2 = $('sla-fill'); if (sf2) sf2.style.width = '100%';
+  const sr2 = $('sla-remaining'); if (sr2) sr2.textContent = '48h 00m';
   toast('Simulation reset to initial state', 'info');
 }
 
@@ -1133,6 +1197,8 @@ function haulerAction() {
   } else if (h.step === 1) {
     h.step = 2;
     $('tra-placard').hidden = false;
+    const sf = $('sla-fill'); if (sf) sf.style.width = '94%';
+    const sr = $('sla-remaining'); if (sr) sr.textContent = '45h 12m';
     toast('Factory gate-out scan confirmed. TRA transit placard activated — weighbridge exempt.', 'success');
   } else if (h.step === 2) {
     h.step = 3;
@@ -1195,8 +1261,10 @@ function mamaReconcile() {
   reconciling = true;
   const cap = S.mama.sold * 300;
   S.escrow += cap;
+  S.mama.streak++;
   sync();
-  toast(`Kikoba reconciliation complete. TZS ${cap.toLocaleString()} base capital returned to dual-key lockbox. Quota cleared.`, 'success');
+  renderStreak();
+  toast(`Day ${S.mama.streak} streak! TZS ${cap.toLocaleString()} base capital returned to Kikoba lockbox. Quota cleared.`, 'success');
   setTimeout(() => { S.mama.sold = 0; S.mama.profit = 0; reconciling = false; renderMama(); }, 1800);
 }
 function renderMama() {
@@ -1208,6 +1276,13 @@ function renderMama() {
   txt('m-remaining', 10 - m.sold);
   txt('m-capital', fmtF(m.sold * 300));
   txt('m-profit', fmtF(m.profit));
+}
+
+function renderStreak() {
+  txt('streak-num', S.mama.streak);
+  const pct = Math.min((S.mama.streak / 30) * 100, 100);
+  const bar = $('streak-bar');
+  if (bar) bar.style.width = pct + '%';
 }
 
 // USSD
@@ -1334,10 +1409,15 @@ function clinicStamp(i) {
 // ══════════════════════════════════════════════════════════
 // DUKA
 // ══════════════════════════════════════════════════════════
+function ledgerPush(type, price, amt) {
+  S.duka.ledger.unshift({ type, price, amt, time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) });
+  if (S.duka.ledger.length > 5) S.duka.ledger.pop();
+}
 function dukaSellPads() {
   if (S.duka.pads <= 0) { toast('Pads out of stock — place restock order', 'warning'); return; }
   S.duka.pads--;
   S.duka.profit += 200;
+  ledgerPush('Taulo za Kike (Pads)', 'TZS 500', '+TZS 200');
   toast('Pad sold at TZS 500 — +TZS 200 merchant margin. Stock updated.', 'success');
   renderDuka();
 }
@@ -1346,6 +1426,7 @@ function dukaVoucher() {
   S.duka.diapers--;
   S.duka.profit += 1000;
   S.duka.vouchers++;
+  ledgerPush('Nepi za Watoto (Voucher)', 'TZS 3,500', '+TZS 1,000');
   toast('MoH voucher redeemed — diapers dispensed at TZS 3,500. +TZS 1,000 merchant margin.', 'success');
   renderDuka();
 }
@@ -1353,6 +1434,7 @@ function dukaSellCup() {
   if (S.duka.cups <= 0) { toast('Menstrual cups out of stock — place restock order', 'warning'); return; }
   S.duka.cups--;
   S.duka.profit += 1500;
+  ledgerPush('Kikombe cha Hedhi (Cup)', 'TZS 5,000', '+TZS 1,500');
   toast('Menstrual cup sold at TZS 5,000 — +TZS 1,500 merchant margin (30%). Stock updated.', 'success');
   renderDuka();
 }
@@ -1371,6 +1453,15 @@ function renderDuka() {
   txt('duka-cups',    S.duka.cups);
   txt('duka-profit',  fmtF(S.duka.profit));
   txt('duka-vouchers',S.duka.vouchers);
+  const ledg = $('duka-ledger');
+  if (!ledg) return;
+  if (!S.duka.ledger.length) {
+    ledg.innerHTML = '<div class="text-sub text-sm" style="text-align:center;padding:6px 0">No sales yet — make your first transaction.</div>';
+    return;
+  }
+  ledg.innerHTML = S.duka.ledger.map(e =>
+    `<div class="ledger-entry"><div><div class="le-type">${e.type}</div><div class="le-time">${e.time} · ${e.price}</div></div><div class="le-amt">${e.amt}</div></div>`
+  ).join('');
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1430,6 +1521,7 @@ document.addEventListener('DOMContentLoaded', () => {
   sync();
   renderHauler();
   renderMama();
+  renderStreak();
   renderDisp();
   renderClinic();
   renderDuka();
