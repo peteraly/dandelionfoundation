@@ -979,7 +979,12 @@ function toast(msg, type='success') {
   const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
   const el = document.createElement('div');
   el.className = `toast t-${type}`;
-  el.innerHTML = `<span style="flex-shrink:0">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  const ico = document.createElement('span');
+  ico.style.flexShrink = '0';
+  ico.textContent = icons[type] || 'ℹ️';
+  const txt = document.createElement('span');
+  txt.textContent = msg;
+  el.append(ico, txt);
   const dismiss = () => { el.classList.add('out'); setTimeout(()=>el.remove(), 220); };
   el.addEventListener('click', dismiss);
   $('toasts').appendChild(el);
@@ -1020,6 +1025,7 @@ function sync() {
 // ══════════════════════════════════════════════════════════
 function resetSim() {
   S = mkState();
+  reconciling = false;
   sync();
   renderHauler();
   renderMama();
@@ -1152,13 +1158,16 @@ function mamaSchool() {
   toast('2 cartons delivered to Jangwani Secondary. Dispensers restocked. +TZS 2,000 service fee.', 'success');
   renderMama();
 }
+let reconciling = false;
 function mamaReconcile() {
+  if (reconciling) { toast('Reconciliation already in progress', 'warning'); return; }
   if (S.mama.sold < 3) { toast('Sell at least 3 packs before end-of-day reconciliation', 'warning'); return; }
+  reconciling = true;
   const cap = S.mama.sold * 300;
   S.escrow += cap;
   sync();
   toast(`Kikoba reconciliation complete. TZS ${cap.toLocaleString()} base capital returned to dual-key lockbox. Quota cleared.`, 'success');
-  setTimeout(() => { S.mama.sold = 0; S.mama.profit = 0; renderMama(); }, 1800);
+  setTimeout(() => { S.mama.sold = 0; S.mama.profit = 0; reconciling = false; renderMama(); }, 1800);
 }
 function renderMama() {
   const m = S.mama;
@@ -1313,8 +1322,10 @@ function dukaVoucher() {
 function dukaSweep() {
   if (S.duka.profit === 0) { toast('No profit balance to sweep — complete sales first', 'warning'); return; }
   const cap = Math.floor(S.duka.profit * 0.6);
+  S.duka.profit = S.duka.profit - Math.floor(S.duka.profit * 0.6);
   S.escrow += cap;
   sync();
+  renderDuka();
   toast(`M-Pesa sweep triggered: TZS ${cap.toLocaleString()} wholesale capital → Revolving Escrow.`, 'success');
 }
 function renderDuka() {
