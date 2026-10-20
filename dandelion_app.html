@@ -538,6 +538,34 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
           <button class="btn bsm" style="background:#FEE2E2;color:#991B1B;border:none;font-size:11px" onclick="triggerQuarantine()">🚨 Quarantine Batch</button>
         </div>
 
+        <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span>Depot Releases · Awaiting Pickup</span>
+          <span class="tag tp" style="font-size:10px;text-transform:none;letter-spacing:0">C-0047 · Active</span>
+        </div>
+        <div style="border:1.5px solid var(--w);border-radius:13px;overflow:hidden;margin-bottom:14px;background:var(--sur)">
+          <div style="display:flex;align-items:center;padding:10px 13px;background:var(--sur2);border-bottom:1px solid var(--bdr)">
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Consignment C-0047 · Kariakoo Depot</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:1px">50 packs · P-001 · Seal SL-C0047-A · Boda: Juma M.</div>
+            </div>
+            <span id="depot-release-badge" style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:#FEF3C7;color:#92400E;flex-shrink:0">Awaiting Pickup</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:0;padding:13px 13px 11px">
+            <div style="text-align:center;padding-right:16px;border-right:1px solid var(--bdr)">
+              <div style="font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Release PIN</div>
+              <div id="depot-pin-display" style="font-size:34px;font-weight:800;letter-spacing:.22em;color:var(--p);font-family:monospace;line-height:1">7723</div>
+              <div style="font-size:10px;color:var(--tx2);margin-top:3px">Read to driver · single use</div>
+            </div>
+            <div style="flex:1;padding-left:16px;display:flex;flex-direction:column;gap:5px">
+              <div style="font-size:11px;color:var(--tx2)">📍 → Jangwani Primary</div>
+              <div style="font-size:11px;color:var(--tx2)">🕐 Ready since 08:45 EAT</div>
+              <div style="font-size:11px;color:var(--tx2)">💰 Transit fee: TZS 1,500</div>
+              <button class="btn bsm" style="font-size:10px;background:#EDE9FE;color:#5B21B6;border:none;margin-top:4px;align-self:flex-start" onclick="reissueDepotPin()">Re-issue PIN</button>
+            </div>
+          </div>
+          <div id="depot-release-log" style="padding:8px 13px;background:var(--sur2);border-top:1px solid var(--bdr);font-size:11px;color:var(--tx2)">Waiting for Juma to arrive at depot · PIN not yet entered</div>
+        </div>
+
         <div class="sh">Cohort Economics · Self-Funding Proof</div>
         <div style="border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:14px">
           <div style="display:flex;align-items:center;padding:11px 13px;background:var(--sur2);border-bottom:1px solid var(--bdr);gap:4px">
@@ -1507,6 +1535,10 @@ function refreshObs(){
       h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;margin-bottom:10px"><div style="font-size:12px;font-weight:600;color:#065F46">✓ No active incidents</div></div>';
     }
     h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px"><div style="font-size:11px;color:var(--tx2);margin-bottom:5px">M-Pesa Float</div><div style="font-size:18px;font-weight:700;color:var(--p)">TZS '+(15000+comp*500).toLocaleString()+'</div></div>';
+    var pinBg=S.bodaLoadChecked?'#D1FAE5':(S.bodaPinAttempts>=3?'#FEE2E2':'#FEF3C7');
+    var pinColor=S.bodaLoadChecked?'#065F46':(S.bodaPinAttempts>=3?'#991B1B':'#92400E');
+    var pinStatus=S.bodaLoadChecked?'✓ Released to Juma':(S.bodaPinAttempts>=3?'🔒 Locked — re-issue':'Awaiting Pickup');
+    h+='<div style="background:'+pinBg+';border:1px solid var(--bdr);border-radius:10px;padding:11px;margin-top:8px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:11px;color:var(--tx2);margin-bottom:3px">C-0047 · Depot Release</div><div style="font-size:13px;font-weight:700;color:'+pinColor+'">'+pinStatus+'</div></div><div style="text-align:right"><div style="font-size:10px;color:var(--tx2)">PIN</div><div style="font-size:20px;font-weight:800;font-family:monospace;letter-spacing:.12em;color:var(--p)">7723</div></div></div>';
     if(S.cvrGateout){
       h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;margin-top:10px"><div style="font-size:11px;font-weight:700;color:#065F46;margin-bottom:3px">💵 B2B Wire Settled</div><div style="font-size:11px;color:#047857">TZS 19,950,000 → Bakhresa · Ref NMB-GATE-2026-0842 · 940ms</div></div>';
     }
@@ -2228,6 +2260,7 @@ function bodaPinIn(i,el){
     const CORRECT='7723';
     if(pin===CORRECT){
       S.bodaLoadChecked=true;
+      updateDepotRelease('released');
       logEvent('📦','Boda','Depot PIN verified ✔ Seal SL-C0047-A · 50 packs collected from Kariakoo Depot · Ready for school delivery','verify');
       const res=document.getElementById('boda-pin-result');
       if(res) res.innerHTML='<div style="background:#D1FAE5;border-radius:8px;padding:8px 10px;font-size:11px;color:#065F46">✓ Depot PIN verified · Seal SL-C0047-A · 50 packs released to you</div>';
@@ -2247,6 +2280,7 @@ function bodaPinIn(i,el){
         document.getElementById('bp0').focus();
       } else {
         if(res) res.innerHTML='<div style="background:#FEE2E2;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B">🔒 3 failed attempts — release held. Depot supervisor must re-issue PIN via the Operator dashboard.</div>';
+        updateDepotRelease('locked');
         for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c) c.disabled=true;}
       }
     }
@@ -2259,6 +2293,34 @@ function bodaLoadMismatch(){
     +'Notify depot agent. Ref C-0047 put on hold. Do not take custody until re-counted and re-sealed by depot supervisor.'
     +'<br><button class="btn bw" style="margin-top:8px;padding:7px 12px;font-size:12px;width:auto" onclick="showToast(\'Incident IC-BODA-\'+Date.now().toString().slice(-4)+\' logged\')">Log &amp; Report</button>'
     +'</div>';
+}
+
+function updateDepotRelease(state){
+  var badge=document.getElementById('depot-release-badge');
+  var log=document.getElementById('depot-release-log');
+  var ts=new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  if(state==='released'){
+    if(badge){badge.style.background='#D1FAE5';badge.style.color='#065F46';badge.textContent='✓ Released to Juma';}
+    if(log) log.innerHTML='<span style="color:#065F46;font-weight:600">✓ PIN entered at '+ts+' · Seal confirmed · 50 packs accepted by driver</span>';
+  } else if(state==='locked'){
+    if(badge){badge.style.background='#FEE2E2';badge.style.color='#991B1B';badge.textContent='🔒 Locked — Re-issue';}
+    if(log) log.innerHTML='<span style="color:#991B1B;font-weight:600">⚠️ 3 failed PIN attempts · Tap "Re-issue PIN" to unlock for driver</span>';
+  }
+  refreshObs();
+}
+function reissueDepotPin(){
+  S.bodaPinAttempts=0;
+  var badge=document.getElementById('depot-release-badge');
+  var log=document.getElementById('depot-release-log');
+  if(badge){badge.style.background='#FEF3C7';badge.style.color='#92400E';badge.textContent='Awaiting Pickup';}
+  if(log) log.innerHTML='<span style="color:#92400E;font-weight:600">🔄 PIN re-issued · Read PIN <strong>7723</strong> to driver again · Lockout cleared</span>';
+  // Re-enable boda PIN inputs
+  for(var j=0;j<4;j++){var c=document.getElementById('bp'+j);if(c){c.value='';c.disabled=false;}}
+  var res=document.getElementById('boda-pin-result');
+  if(res) res.innerHTML='<div style="background:#EDE9FE;border-radius:8px;padding:8px 10px;font-size:11px;color:#5B21B6">🔄 Operator cleared lockout · Please re-enter PIN</div>';
+  showToast('Lockout cleared · Instruct Juma to re-enter PIN 7723');
+  logEvent('🔑','Operator','Depot PIN re-issued for C-0047 · Lockout cleared · Driver may retry','alert');
+  refreshObs();
 }
 
 // Converter
