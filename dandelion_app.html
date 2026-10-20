@@ -1421,6 +1421,19 @@ function refreshObs(){
     h+='<div style="font-size:22px;font-weight:700;margin-top:3px">TZS '+(sh.sold*200).toLocaleString()+'</div>';
     h+='<div style="font-size:11px;opacity:.75;margin-top:2px">'+sh.sold+' / '+sh.quota+' packs \xb7 TZS '+(sh.sold*300).toLocaleString()+' to Kikoba</div>';
     h+='</div>';
+    if(queue.length>0){
+      h+='<div style="font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:7px">📋 New Orders</div>';
+      queue.forEach(function(o){
+        h+='<div style="background:var(--sur2);border:1.5px solid var(--w);border-radius:11px;padding:11px;margin-bottom:9px">';
+        h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">';
+        h+='<div style="font-size:26px">'+o.pemo+'</div>';
+        h+='<div><div style="font-size:13px;font-weight:600">'+o.pname+' \xd7 '+o.qty+'</div>';
+        h+='<div style="font-size:11px;color:var(--tx2)">'+o.consumer+' \xb7 '+o.ward+' Ward</div>';
+        h+='<div style="font-size:11px;color:var(--tx2);font-family:monospace">TZS '+o.total.toLocaleString()+' \xb7 '+o.id+'</div></div></div>';
+        h+='<button onclick="acceptOrd(\''+o.id+'\')" style="width:100%;padding:9px;background:var(--w);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">✓ Accept Order</button>';
+        h+='</div>';
+      });
+    }
     if(inProgress.length>0){
       var cur=inProgress[0];
       h+='<div style="background:var(--sur2);border:1.5px solid var(--p);border-radius:11px;padding:11px;margin-bottom:10px">';
@@ -1428,6 +1441,9 @@ function refreshObs(){
       h+='<div style="font-size:13px;font-weight:600">'+cur.pemo+' '+cur.pname+' \xd7 '+cur.qty+'</div>';
       h+='<div style="font-size:12px;color:var(--tx2);margin-top:2px">→ '+cur.consumer+' \xb7 '+cur.ward+' Ward</div>';
       h+='</div>';
+    }
+    if(queue.length===0&&inProgress.length===0&&done.length===0){
+      h+='<div style="text-align:center;padding:20px 12px;color:var(--tx2)"><div style="font-size:32px;margin-bottom:6px">💤</div><div style="font-size:13px">No orders yet — place one from the Consumer view</div></div>';
     }
   } else if(role==='matron'){
     var incoming=S.orders.filter(function(o){return ['placed','accepted','enroute'].includes(o.status);});
