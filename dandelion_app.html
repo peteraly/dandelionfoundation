@@ -390,6 +390,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
     <!-- RUNNER: APP ORDER DETAIL -->
     <div class="sc" id="sc-r-order"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Order Details</h2></div><div class="pc" id="r-order-body"></div></div>
 
+    <!-- RUNNER: EN ROUTE BRIEF -->
+    <div class="sc" id="sc-runner-enroute"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Active Delivery</h2></div><div class="pc" id="runner-enroute-body"></div></div>
+
     <!-- DELIVERY CONFIRM -->
     <div class="sc" id="sc-deliver"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Confirm Delivery</h2></div><div class="pc" id="deliver-body"></div></div>
 
@@ -1443,10 +1446,20 @@ function refreshObs(){
     }
     if(inProgress.length>0){
       var cur=inProgress[0];
+      var earn=cur.qty*200;var kikoba=cur.qty*300;
       h+='<div style="background:var(--sur2);border:1.5px solid var(--p);border-radius:11px;padding:11px;margin-bottom:10px">';
-      h+='<div style="font-size:11px;color:var(--p);font-weight:600;margin-bottom:4px">🚀 In Progress</div>';
-      h+='<div style="font-size:13px;font-weight:600">'+cur.pemo+' '+cur.pname+' \xd7 '+cur.qty+'</div>';
-      h+='<div style="font-size:12px;color:var(--tx2);margin-top:2px">→ '+cur.consumer+' \xb7 '+cur.ward+' Ward</div>';
+      h+='<div style="font-size:11px;color:var(--p);font-weight:600;margin-bottom:7px">🚀 '+(cur.status==='accepted'?'Accepted — Head Out':'En Route — At Destination')+'</div>';
+      h+='<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px">';
+      h+='<div style="font-size:26px">'+cur.pemo+'</div>';
+      h+='<div><div style="font-size:13px;font-weight:600">'+cur.pname+' \xd7 '+cur.qty+'</div>';
+      h+='<div style="font-size:12px;color:var(--tx2)">'+fmtName(cur.consumer)+' \xb7 '+cur.ward+' Ward</div>';
+      h+='<div style="font-size:11px;color:var(--tx2)">TZS '+earn.toLocaleString()+' M-Pesa \xb7 TZS '+kikoba.toLocaleString()+' Kikoba</div></div>';
+      h+='</div>';
+      if(cur.status==='accepted'){
+        h+='<button onclick="renderRunnerEnroute(\''+cur.id+'\');nav(\'runner-enroute\')" style="width:100%;padding:9px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">View Delivery Brief →</button>';
+      } else {
+        h+='<button onclick="renderDeliver();nav(\'deliver\')" style="width:100%;padding:9px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">📍 Complete Handoff →</button>';
+      }
       h+='</div>';
     }
     if(queue.length===0&&inProgress.length===0&&done.length===0){
@@ -1624,6 +1637,48 @@ function acceptOrd(id){
   if(S.order&&S.order.id===id) renderTrack();
   refreshObs();
   S.order=o;S.dtaps=0;S.dlvStep=0;S.dlvScanned=0;S.dlvOtp='';
+  renderRunnerEnroute(o.id);nav('runner-enroute');
+}
+
+function fmtName(n){
+  var p=(n||'Customer').trim().split(/\s+/);
+  return p.length>=2?p[0]+' '+p[1][0]+'.':p[0];
+}
+
+function renderRunnerEnroute(id){
+  var o=S.orders.find(function(x){return x.id===id;});if(!o) return;
+  var earn=o.qty*200;var kikoba=o.qty*300;
+  var el=document.getElementById('runner-enroute-body');if(!el) return;
+  var h='';
+  h+='<div style="background:linear-gradient(135deg,#4F46E5 0%,#7C3AED 100%);border-radius:14px;padding:16px;color:#fff;margin-bottom:14px">';
+  h+='<div style="font-size:11px;opacity:.75;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Deliver to</div>';
+  h+='<div style="font-size:22px;font-weight:700;margin-bottom:2px">'+fmtName(o.consumer)+'</div>';
+  h+='<div style="font-size:14px;opacity:.85">📍 '+o.ward+' Ward</div>';
+  h+='<div style="font-size:12px;opacity:.65;margin-top:4px;font-family:monospace">'+o.id+'</div>';
+  h+='</div>';
+  h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:12px;padding:13px;margin-bottom:12px">';
+  h+='<div style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px">Order</div>';
+  h+='<div style="display:flex;align-items:center;gap:11px">';
+  h+='<div style="font-size:34px">'+o.pemo+'</div>';
+  h+='<div><div style="font-size:15px;font-weight:600">'+o.pname+'</div>';
+  h+='<div style="font-size:13px;color:var(--tx2)">'+o.qty+' pack'+(o.qty>1?'s':'')+' · TZS '+o.total.toLocaleString()+' paid</div></div>';
+  h+='</div></div>';
+  h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:12px;padding:13px;margin-bottom:16px">';
+  h+='<div style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px">Your earnings this delivery</div>';
+  h+='<div style="display:flex;gap:8px">';
+  h+='<div style="flex:1;background:#EEF2FF;border-radius:9px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#4F46E5">TZS '+earn.toLocaleString()+'</div><div style="font-size:11px;color:#4F46E5;margin-top:2px;opacity:.75">Your pocket</div></div>';
+  h+='<div style="flex:1;background:#ECFDF5;border-radius:9px;padding:10px;text-align:center"><div style="font-size:18px;font-weight:700;color:#059669">TZS '+kikoba.toLocaleString()+'</div><div style="font-size:11px;color:#059669;margin-top:2px;opacity:.75">Kikoba safe</div></div>';
+  h+='</div></div>';
+  h+='<button onclick="markedArrived(\''+id+'\')" style="width:100%;padding:14px;background:var(--p);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.01em">📍 I\'ve Arrived — Begin Handoff</button>';
+  h+='<p style="font-size:11px;color:var(--tx2);text-align:center;margin-top:10px">This starts the 3-factor delivery confirmation. Do not hand over packs before completing all steps.</p>';
+  el.innerHTML=h;
+}
+
+function markedArrived(id){
+  var o=S.orders.find(function(x){return x.id===id;});if(!o) return;
+  o.status='enroute';
+  renderTrack();refreshObs();
+  logEvent('🛥','Runner','En route → arrived at '+fmtName(o.consumer)+' \xb7 '+o.ward+' Ward \xb7 beginning handoff','info');
   renderDeliver();nav('deliver');
 }
 
