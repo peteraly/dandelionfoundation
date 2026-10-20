@@ -305,6 +305,18 @@ body::before {
       <option value="runner_amina">Amina Kimaro — Mama Jasiri</option>
       <option value="runner_fatuma">Fatuma Salim — Mama Jasiri</option>
       <option value="duka_temeke">Duka ya Afya, Temeke</option>
+      <option value="boda_courier">Juma Hassan — Boda Courier</option>
+      <option value="vsla_jua_kali">Kikoba Jua Kali VSLA</option>
+    </optgroup>
+    <optgroup label="Managers">
+      <option value="school_matron">Mama Zawadi — School Matron</option>
+      <option value="rch_nurse">Nurse Amina Yusuf — RCH Clinic</option>
+    </optgroup>
+    <optgroup label="Consumers">
+      <option value="young_mother">Zainab Omar — Young Mother</option>
+    </optgroup>
+    <optgroup label="Regulators">
+      <option value="weo_temeke">WEO Temeke Ward</option>
     </optgroup>
     <optgroup label="Coordination">
       <option value="admin">Dandelion Foundation (Admin)</option>
@@ -323,12 +335,14 @@ body::before {
 
 <!-- ══ PANEL: BROWSE & ORDER ═════════════════════════════════ -->
 <div id="panel-browse" class="panel on">
+  <div id="browse-surplus"></div>
   <div id="catalog-section">
     <div class="sec-hdr" style="margin-bottom:6px">
-      <h2>Available Now</h2>
+      <h2 id="browse-heading">Available Now</h2>
       <span class="text-sub text-sm" id="catalog-role-hint">Select items to add to your order</span>
     </div>
     <div class="catalog-grid" id="catalog-grid"></div>
+    <div id="role-view" hidden></div>
   </div>
 
   <!-- Cart (shown for buyer roles) -->
@@ -407,6 +421,12 @@ const PROFILES = {
   runner_fatuma:  { name: 'Fatuma Salim',               type: 'runner',    role: 'supplier', tag: 'Runner',      location: 'Temeke, Dar es Salaam',    color: 'gold' },
   duka_temeke:    { name: 'Duka ya Afya, Temeke',       type: 'duka',      role: 'supplier', tag: 'ADDO Duka',   location: 'Temeke, Dar es Salaam',    color: 'blue' },
   admin:          { name: 'Dandelion Foundation',       type: 'admin',     role: 'admin',    tag: 'Admin',       location: 'Dar es Salaam',            color: 'green' },
+  boda_courier:   { name: 'Juma Hassan — Boda Courier', type: 'courier',   role: 'supplier', tag: 'Courier',     location: 'Kinondoni, Dar es Salaam', color: 'orange' },
+  vsla_jua_kali:  { name: 'Kikoba Jua Kali VSLA',       type: 'vsla',      role: 'supplier', tag: 'VSLA Circle', location: 'Ilala, Dar es Salaam',     color: 'gold' },
+  school_matron:  { name: 'Mama Zawadi (Matron)',        type: 'matron',    role: 'manager',  tag: 'Matron',      location: 'Jangwani Secondary School', color: 'teal' },
+  rch_nurse:      { name: 'Nurse Amina Yusuf',           type: 'nurse',     role: 'manager',  tag: 'RCH Nurse',   location: 'Mnazi Mmoja Clinic',       color: 'blue' },
+  young_mother:   { name: 'Zainab Omar',                 type: 'consumer',  role: 'consumer', tag: 'Young Mother',location: 'Temeke, Dar es Salaam',    color: 'purple' },
+  weo_temeke:     { name: 'WEO Temeke Ward',             type: 'regulator', role: 'regulator',tag: 'WEO',         location: 'Temeke, Dar es Salaam',   color: 'gold' },
 };
 
 const CATALOG = [
@@ -415,7 +435,7 @@ const CATALOG = [
     price: 500, unit: 'pack', icon: '🌸', color: 'purple',
     desc: 'Ultra-thin day pads, 8-count. Price-capped at TZS 500.',
     category: 'product',
-    canFulfill: ['mega_factory','dar_depot','runner_amina','runner_fatuma','duka_temeke']
+    canFulfill: ['mega_factory','dar_depot','runner_amina','runner_fatuma','duka_temeke','boda_courier','vsla_jua_kali']
   },
   {
     id: 'pads_carton', name: 'Sanitary Pads — Carton', swahili: 'Taulo za Kike (Sanduku)',
@@ -443,7 +463,7 @@ const CATALOG = [
     price: 2000, unit: 'visit', icon: '🏫', color: 'green',
     desc: 'Runner visits, restocks coinless dispensers on campus.',
     category: 'service',
-    canFulfill: ['runner_amina','runner_fatuma']
+    canFulfill: ['runner_amina','runner_fatuma','boda_courier']
   },
   {
     id: 'health_training', name: 'Health Worker Training', swahili: 'Mafunzo ya Afya',
@@ -491,9 +511,12 @@ function timeAgo(ts) {
   return `${Math.floor(s/3600)}h ago`;
 }
 function prof() { return PROFILES[currentProfile]; }
-function isBuyer() { return prof().role === 'buyer'; }
+function isBuyer()    { return prof().role === 'buyer'; }
 function isSupplier() { return prof().role === 'supplier'; }
-function isAdmin() { return prof().role === 'admin'; }
+function isAdmin()    { return prof().role === 'admin'; }
+function isManager()  { return prof().role === 'manager'; }
+function isConsumer() { return prof().role === 'consumer'; }
+function isRegulator(){ return prof().role === 'regulator'; }
 
 function statusBadge(status) {
   const map = {
@@ -568,13 +591,192 @@ function setFilter(f, btn) {
   renderOrderBoard();
 }
 
+// ── SURPLUS CARD DATA ────────────────────────────────────────
+const SURPLUS = {
+  jangwani:       { h:'School Supply Channel',      in_:'Term-start requisition',        out:'Pad cartons + dispenser restocks', s:'Zero stockouts → attendance continuity. No procurement overhead.' },
+  mnazi_clinic:   { h:'MoH Voucher Pipeline',       in_:'Vaccination stamps (authority)', out:'Diaper coupons + CHW training',   s:'Each stamp drives a product redemption + mother return visit.' },
+  temeke_ward:    { h:'Cross-Subsidy Coordinator',  in_:'WEO authorization + budget',    out:'Bulk community orders',            s:'Rural zones supplied at urban price caps via ward budget.' },
+  tabata_group:   { h:'Community Bulk Buyer',       in_:'Pooled group demand',            out:'Cups + health training sessions',  s:'Group purchasing power → same products, lower per-unit cost.' },
+  morogoro_school:{ h:'Regional School Buyer',      in_:'Term-start requisition',         out:'Pad cartons (region-wide)',        s:'Cross-regional order consolidation — single delivery point.' },
+  tanga_ward:     { h:'Rural Ward Access',          in_:'Rural budget allocation',        out:'Pads + incinerator cycles',        s:'USSD ordering (*150*88#) — works on feature phones, no internet.',         ussd:true },
+  mega_factory:   { h:'Volume Manufacturer',        in_:'Raw materials + capacity',       out:'1M+ units/month',                  s:'Direct-to-network → zero distributor markup. TRA §59 covers all shipments.', tra:true },
+  dar_depot:      { h:'Buffer Warehouse',           in_:'Storage + handling staff',       out:'3-day safety stock buffer',        s:'Utilization fees + just-in-time fulfillment — no dead stock.',              tra:true },
+  runner_amina:   { h:'Mama Jasiri Runner',         in_:'Time + local knowledge',         out:'Pack sales + dispenser restocks',  s:'TZS 300/pack. Zero upfront capital — float returned at reconciliation.',    zero:true, ussd:true },
+  runner_fatuma:  { h:'Mama Jasiri Runner',         in_:'Time + local knowledge',         out:'Pack sales + dispenser restocks',  s:'TZS 300/pack. Zero upfront capital — float returned at reconciliation.',    zero:true, ussd:true },
+  duka_temeke:    { h:'ADDO Registered Duka',       in_:'Shop license + stock',           out:'Regulated retail sales',           s:'WEO-certified restocking + cross-sell basket lift on each transaction.',   weo:true },
+  boda_courier:   { h:'Last-Mile Courier',          in_:'Motorcycle + feature phone',     out:'Delivered orders at door',         s:'TZS 300–600/delivery. Consistent gig income, no dead runs.',                ussd:true },
+  vsla_jua_kali:  { h:'Kikoba VSLA Circle',         in_:'Group trust + daily float',      out:'Consignment float distribution',   s:'TZS 0 owed if 0 sold — zero capital risk vs. microfinance at 24% APR.',    zero:true },
+  school_matron:  { h:'Campus Health Manager',      in_:'Dispensing authority + keys',    out:'Free pad access for all students', s:'Truancy reduction = school KPI. Stipend: TZS 15,000/month.' },
+  rch_nurse:      { h:'Vaccination Stamp Authority',in_:'RCH visit stamp power',          out:'Encrypted diaper coupons',         s:'Each stamp → diaper coupon issued → family return visit captured.' },
+  young_mother:   { h:'Voucher Beneficiary',        in_:'Birth record + vaccination',     out:'Diapers at TZS 3,500 (capped)',    s:'Market TZS 7,000 → voucher TZS 3,500. 50% price protection.',               ussd:true },
+  weo_temeke:     { h:'Ward Compliance Authority',  in_:'Ward certification power',       out:'WEO badge on compliant merchants', s:'Compliance data → budget allocation justification → policy capital.' },
+  admin:          { h:'Platform Governor',          in_:'Escrow + protocol rules',        out:'Flywheel governance',              s:'Mission KPIs at zero retailer markup. Every actor surplus-positive.' },
+};
+
+function getSurplusCard(id) {
+  const d = SURPLUS[id]; if (!d) return '';
+  const badges = [
+    d.tra  ? `<span class="badge" style="background:var(--blue-lt);color:var(--blue)">🛡 TRA §59 Transit Placard</span>` : '',
+    d.zero ? `<span class="badge" style="background:var(--green-lt);color:var(--green)">✓ TZS 0 owed if 0 sold</span>` : '',
+    d.weo  ? `<span class="badge" style="background:var(--gold-lt);color:var(--gold)">⭐ WEO Certified Merchant</span>` : '',
+    d.ussd ? `<span class="badge" style="background:var(--teal-lt);color:var(--teal)">📱 *150*88# USSD Access</span>` : '',
+  ].filter(Boolean).join(' ');
+  return `<div class="card" style="border-left:3px solid var(--green);margin-bottom:14px">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--fg-sub)">Your Marketplace Value</span>
+      ${badges}
+    </div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:8px">${d.h}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;margin-bottom:8px">
+      <div><span style="color:var(--fg-sub);font-weight:600">You bring</span><br>${d.in_}</div>
+      <div><span style="color:var(--fg-sub);font-weight:600">You deliver</span><br>${d.out}</div>
+    </div>
+    <div style="font-size:12px;color:var(--green);font-weight:600;border-top:1px solid var(--border);padding-top:8px">↑ Surplus: ${d.s}</div>
+  </div>`;
+}
+
+// ── ROLE-SPECIFIC VIEWS ───────────────────────────────────────
+function renderManagerView() {
+  const p = prof();
+  if (p.type === 'matron') {
+    const restocks = orders.filter(o => o.items && o.items.some(i => i.catalog.id === 'dispenser_restock'));
+    return `<div class="card"><div class="card-title">Dispenser Status — Campus View</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:14px">
+        ${[['Block A',85],['Block B',72],['Scholar',45]].map(([b,pct]) => {
+          const col = pct > 60 ? 'var(--green)' : pct > 30 ? 'var(--gold)' : 'var(--red)';
+          return `<div class="kpi" style="border-color:${col}50"><div class="kpi-val" style="color:${col}">${pct}%</div><div class="kpi-label">${b} Dispenser</div></div>`;
+        }).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--fg-sub);margin-bottom:12px">${restocks.length} restock order${restocks.length!==1?'s':''} placed this session.</div>
+      <div class="card-title">Quick Actions</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="oc-btn bg-green" onclick="quickRestock()">Request Dispenser Restock</button>
+        <button class="oc-btn bg-ghost" onclick="goTab('orders',document.querySelector('.ntab[data-tab=orders]'))">View Order Board</button>
+      </div>
+      <div style="margin-top:12px;font-size:12px;color:var(--fg-sub)">Monthly stipend: <strong style="color:var(--fg)">TZS 15,000</strong> — credited on reconciliation day.</div>
+    </div>`;
+  }
+  if (p.type === 'nurse') {
+    const queue = ['Fatuma Hassan — Pentavalent (3rd)','Grace Mwangi — Rotavirus (2nd)','Aisha Salim — Measles-Rubella'];
+    return `<div class="card"><div class="card-title">RCH Coupon Issuance Panel</div>
+      <div style="margin-bottom:12px;font-size:13px">Each vaccination stamp issues an encrypted diaper coupon (valid 14 days) to the mother's phone for any registered ADDO duka.</div>
+      <div style="background:var(--surf2);border-radius:10px;padding:12px;margin-bottom:12px">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--fg-sub);margin-bottom:8px">Today's Queue</div>
+        ${queue.map((row,i) => `
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+            <div style="flex:1;font-size:13px">${row}</div>
+            <button class="oc-btn bg-teal" style="font-size:11px" onclick="issueRCHCoupon(${i})">Stamp &amp; Issue Coupon</button>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:12px;color:var(--fg-sub)">Coupon data syncs to MoH morbidity dashboard weekly.</div>
+    </div>`;
+  }
+  return '';
+}
+
+function renderConsumerView() {
+  const code = `NEPI-ZBOM-${rnd(4)}`;
+  return `<div class="card"><div class="card-title">Your Active Voucher</div>
+    <div style="background:var(--green-lt);border:1px solid var(--green);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--green);letter-spacing:.07em">Diaper Voucher — Active</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;margin:4px 0">${code}</div>
+          <div style="font-size:12px;color:var(--fg-sub)">Expires in 14 days</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:700;color:var(--green)">TZS 3,500</div>
+          <div style="font-size:11px;text-decoration:line-through;color:var(--fg-sub)">Market: TZS 7,000</div>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:4px">Nearest registered duka:</div>
+    <div style="font-size:14px;font-weight:700;color:var(--teal)">Duka ya Afya, Temeke</div>
+    <div style="font-size:12px;color:var(--fg-sub);margin-top:2px">Show your voucher code at the counter. 1 pack (20 count).</div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--surf2);border-radius:8px;font-size:12px">
+      <span style="font-weight:700">No smartphone?</span> Dial <strong>*150*88#</strong> to check your voucher status or find nearby dukas.
+    </div>
+  </div>`;
+}
+
+function renderRegulatorView() {
+  const wardOrders = orders.filter(o => o.profile && o.profile.location && o.profile.location.includes('Temeke'));
+  const delivered = wardOrders.filter(o => o.status === 'delivered').length;
+  const open = wardOrders.filter(o => o.status === 'open').length;
+  return `<div class="card"><div class="card-title">Ward Compliance Dashboard — Temeke</div>
+    <div class="kpi-grid" style="margin-bottom:14px">
+      ${[
+        { val:3,         label:'WEO-Certified Merchants', color:'var(--green)' },
+        { val:delivered, label:'Orders Fulfilled',         color:'var(--teal)' },
+        { val:open,      label:'Open Requests',            color:'var(--gold)' },
+        { val:'12%',     label:'Truancy Rate (est.)',       color:'var(--red)' },
+      ].map(k => `<div class="kpi"><div class="kpi-val" style="color:${k.color}">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join('')}
+    </div>
+    <div class="card-title">Certified Merchants in Ward</div>
+    ${['Duka ya Afya, Temeke','Amina Kimaro — Mama Jasiri','Fatuma Salim — Mama Jasiri'].map(m =>
+      `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+        <span class="badge" style="background:var(--gold-lt);color:var(--gold)">⭐ WEO</span>
+        <span style="font-size:13px;font-weight:600">${m}</span>
+      </div>`).join('')}
+    <div style="margin-top:12px;font-size:12px;color:var(--fg-sub)">Certification data feeds TRA/MoH monthly compliance report. Next audit: 15 Nov 2026.</div>
+  </div>`;
+}
+
+function quickRestock() {
+  cart = { dispenser_restock: 1 };
+  toast('Restock request added to cart — switch to a buyer profile to submit', 'info');
+}
+
+function issueRCHCoupon(i) {
+  const names = ['Fatuma Hassan','Grace Mwangi','Aisha Salim'];
+  toast(`Stamp issued + coupon dispatched to ${names[i]}'s phone. Valid 14 days at any registered duka.`, 'success');
+  log(`Nurse Amina Yusuf stamped vaccination + issued coupon to ${names[i]}`, 'var(--teal)');
+  renderOverview();
+  renderManagerView && renderCatalog();
+}
+
 // ── CATALOG ──────────────────────────────────────────────────
 function renderCatalog() {
   const grid = $('catalog-grid');
   if (!grid) return;
   const p = prof();
 
-  // Buyers see catalog to order; suppliers see "what you can fulfill"
+  // Surplus card — every role sees their value signal
+  const surplusEl = $('browse-surplus');
+  if (surplusEl) surplusEl.innerHTML = getSurplusCard(currentProfile);
+
+  // Manager / consumer / regulator — show role-specific view, hide catalog
+  const roleView = $('role-view');
+  const showCatalog = isBuyer() || isSupplier() || isAdmin();
+  grid.hidden = !showCatalog;
+  const browseSec = $('browse-heading');
+  if (roleView) {
+    if (isManager()) {
+      roleView.hidden = false;
+      roleView.innerHTML = renderManagerView();
+      if (browseSec) browseSec.textContent = p.type === 'matron' ? 'Campus Dispenser Panel' : 'RCH Coupon Panel';
+    } else if (isConsumer()) {
+      roleView.hidden = false;
+      roleView.innerHTML = renderConsumerView();
+      if (browseSec) browseSec.textContent = 'Your Voucher Wallet';
+    } else if (isRegulator()) {
+      roleView.hidden = false;
+      roleView.innerHTML = renderRegulatorView();
+      if (browseSec) browseSec.textContent = 'Ward Compliance Dashboard';
+    } else {
+      roleView.hidden = true;
+      if (browseSec) browseSec.textContent = 'Available Now';
+    }
+  }
+
+  if (!showCatalog) {
+    const cartSec = $('cart-section');
+    const offerSec = $('offer-section');
+    if (cartSec) cartSec.hidden = true;
+    if (offerSec) offerSec.hidden = true;
+    return;
+  }
+
   const colorMap = { purple:'var(--purple)', teal:'var(--teal)', blue:'var(--blue)', gold:'var(--gold)', green:'var(--green)', orange:'var(--orange)' };
 
   grid.innerHTML = CATALOG.map(item => {
@@ -611,11 +813,10 @@ function renderCatalog() {
     </div>`;
   }).join('');
 
-  // Show/hide cart vs offer section
   const cartSec = $('cart-section');
   const offerSec = $('offer-section');
   if (cartSec) cartSec.hidden = !(isBuyer() || isAdmin());
-  if (offerSec) offerSec.hidden = true; // simplified for now
+  if (offerSec) offerSec.hidden = true;
 
   const hint = $('catalog-role-hint');
   if (hint) {
@@ -801,12 +1002,25 @@ function renderMine() {
   } else if (isSupplier()) {
     if (heading) heading.textContent = 'My Claimed Orders';
     mine = orders.filter(o => o.claimedProfileId === currentProfile);
+  } else if (isManager()) {
+    if (heading) heading.textContent = 'Orders Relevant to My Site';
+    mine = orders.filter(o => ['school','clinic'].includes(o.profile && o.profile.type));
+  } else if (isConsumer()) {
+    if (heading) heading.textContent = 'Redemption History';
+    mine = orders.filter(o => o.profileId === 'mnazi_clinic' && o.items && o.items.some(i => i.catalog.id === 'diapers'));
+  } else if (isRegulator()) {
+    if (heading) heading.textContent = 'Ward Order Activity';
+    mine = orders.filter(o => o.profile && o.profile.location && o.profile.location.includes('Temeke'));
   } else {
     if (heading) heading.textContent = 'All Orders (Admin)';
     mine = orders;
   }
   if (mine.length === 0) {
-    list.innerHTML = `<div class="empty"><div class="empty-icon">${isBuyer() ? '🛒' : '📦'}</div><div class="empty-msg">${isBuyer() ? 'No orders placed yet' : 'No orders claimed yet'}</div><div class="empty-sub">${isBuyer() ? 'Browse the catalog and submit your first request' : 'Visit the Order Board to claim open requests'}</div></div>`;
+    const icons = { buyer:'🛒', supplier:'📦', manager:'🏫', consumer:'🎫', regulator:'📊' };
+    const ico = icons[prof().role] || '📋';
+    const msgs = { buyer:'No orders placed yet', supplier:'No orders claimed yet', manager:'No site orders found', consumer:'No redemptions yet', regulator:'No ward orders found' };
+    const subs = { buyer:'Browse the catalog and submit your first request', supplier:'Visit the Order Board to claim open requests', manager:'Orders from your school or clinic appear here', consumer:'Visit the clinic to receive your first diaper coupon', regulator:'Order activity from Temeke Ward appears here' };
+    list.innerHTML = `<div class="empty"><div class="empty-icon">${ico}</div><div class="empty-msg">${msgs[prof().role] || 'No items'}</div><div class="empty-sub">${subs[prof().role] || ''}</div></div>`;
     return;
   }
   list.innerHTML = mine.map(order => {
@@ -881,6 +1095,7 @@ function updateCounts() {
   let mineCount = 0;
   if (isBuyer()) mineCount = orders.filter(o => o.profileId === currentProfile && ['open','claimed','in_transit'].includes(o.status)).length;
   else if (isSupplier()) mineCount = orders.filter(o => o.claimedProfileId === currentProfile && o.status !== 'delivered').length;
+  else if (isRegulator()) mineCount = orders.filter(o => o.profile && o.profile.location && o.profile.location.includes('Temeke') && o.status === 'open').length;
   const tmc = $('tab-mine-count');
   if (tmc) { tmc.textContent = mineCount; tmc.hidden = mineCount === 0; }
 }
@@ -967,6 +1182,8 @@ function seedDemoOrders() {
   log('Dar Depot claimed ORD-1002 from Mnazi Mmoja Clinic', 'var(--blue)');
   log('Tanga Rural Ward 4 posted ORD-1003 — 50× pads (rural cross-subsidy)', 'var(--gold)');
   log('Amina Kimaro marked ORD-1004 in transit → Tabata Women\'s Group', 'var(--orange)');
+  log('Nurse Amina Yusuf stamped vaccination + issued coupon to Fatuma Hassan', 'var(--teal)');
+  log('WEO Temeke certified Duka ya Afya as compliant merchant', 'var(--gold)');
 }
 
 // ── BOOT ──────────────────────────────────────────────────────
