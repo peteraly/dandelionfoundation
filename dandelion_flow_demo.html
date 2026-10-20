@@ -616,6 +616,20 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
     <span class="badge bdg-blue" id="h-badge">Available</span>
   </div>
 
+  <div class="card" style="background:var(--surface-2);border:1px solid var(--border);margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--fg-sub);margin-bottom:8px">Available Corridors — Select Load</div>
+    <div style="display:grid;gap:8px">
+      <div style="background:var(--green-lt);border:1.5px solid color-mix(in srgb,var(--green) 30%,transparent);border-radius:8px;padding:10px">
+        <div style="font-weight:700;font-size:13px;margin-bottom:2px">BL-2026-0841 &nbsp;<span style="background:var(--green);color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600">ACTIVE</span></div>
+        <div class="text-sub text-sm">Dar es Salaam → Morogoro &nbsp;·&nbsp; 16 pallets (7,200 kg) &nbsp;·&nbsp; TZS 208K</div>
+      </div>
+      <div style="background:var(--blue-lt);border:1px dashed color-mix(in srgb,var(--blue) 30%,transparent);border-radius:8px;padding:10px;opacity:.7">
+        <div style="font-weight:700;font-size:13px;margin-bottom:2px">TRA #0842 — Posta Transport &nbsp;<span style="background:var(--blue);color:#fff;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:600">AVAILABLE</span></div>
+        <div class="text-sub text-sm">Dar es Salaam → Tanga (AMCOS Hub) &nbsp;·&nbsp; 12 pallets (5,400 kg) &nbsp;·&nbsp; TZS 162K</div>
+      </div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">Active Load</div>
     <div style="font-weight:700;font-size:15px;margin-bottom:2px">Load #BL-2026-0841</div>
@@ -826,6 +840,17 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
   </div>
 
   <div class="card">
+    <div class="row" style="margin-bottom:12px;align-items:flex-start">
+      <div>
+        <div style="font-weight:700;font-size:14px">🌸 Kikombe cha Hedhi — Menstrual Cup</div>
+        <div class="text-sub text-sm">Retail: TZS 5,000 &nbsp;|&nbsp; Margin: TZS 1,500 (+30%)</div>
+      </div>
+      <span class="badge bdg-purple">Stock: <span id="duka-cups">8</span></span>
+    </div>
+    <button class="btn" style="background:var(--purple);color:#fff" onclick="dukaSellCup()">🌸 Sell Menstrual Cup at TZS 5,000</button>
+  </div>
+
+  <div class="card">
     <div class="card-title">Merchant Ledger</div>
     <div class="row">
       <div>
@@ -952,7 +977,7 @@ function mkState() {
       ],
       coupons: 0
     },
-    duka: { pads:24, diapers:12, profit:0, vouchers:0 },
+    duka: { pads:24, diapers:12, cups:8, profit:0, vouchers:0 },
     master: { calloff:false, carrier:false, frozen:0, quarantined:0 },
     ussdStep: 'idle'
   };
@@ -1319,18 +1344,26 @@ function dukaVoucher() {
   toast('MoH voucher redeemed — diapers dispensed at TZS 3,500. +TZS 1,000 merchant margin.', 'success');
   renderDuka();
 }
+function dukaSellCup() {
+  if (S.duka.cups <= 0) { toast('Menstrual cups out of stock — place restock order', 'warning'); return; }
+  S.duka.cups--;
+  S.duka.profit += 1500;
+  toast('Menstrual cup sold at TZS 5,000 — +TZS 1,500 merchant margin (30%). Stock updated.', 'success');
+  renderDuka();
+}
 function dukaSweep() {
   if (S.duka.profit === 0) { toast('No profit balance to sweep — complete sales first', 'warning'); return; }
-  const cap = Math.floor(S.duka.profit * 0.6);
-  S.duka.profit = S.duka.profit - Math.floor(S.duka.profit * 0.6);
+  const cap = Math.floor(S.duka.profit * 0.7);
+  S.duka.profit = S.duka.profit - cap;
   S.escrow += cap;
   sync();
   renderDuka();
-  toast(`M-Pesa sweep triggered: TZS ${cap.toLocaleString()} wholesale capital → Revolving Escrow.`, 'success');
+  toast(`M-Pesa sweep triggered: TZS ${cap.toLocaleString()} (70%) wholesale capital → Revolving Escrow. 30% retained as operating float.`, 'success');
 }
 function renderDuka() {
   txt('duka-pads',    S.duka.pads);
   txt('duka-diapers', S.duka.diapers);
+  txt('duka-cups',    S.duka.cups);
   txt('duka-profit',  fmtF(S.duka.profit));
   txt('duka-vouchers',S.duka.vouchers);
 }
