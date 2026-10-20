@@ -1328,14 +1328,13 @@ function renderTrack(){
       ${o.runner?`<div style="font-size:12px;color:var(--tx2)">Runner: <strong style="color:var(--tx)">${o.runner}</strong></div>`:''}
       <div style="font-size:12px;color:var(--tx2);margin-top:3px">Placed today at ${o.placedAt}</div>
     </div>
-    ${['accepted','enroute'].includes(o.status)?`<div style="background:#EEF2FF;border:1.5px solid #4F46E5;border-radius:11px;padding:14px;margin-bottom:14px;text-align:center">
+    ${['accepted','enroute'].includes(o.status)&&o.method==='runner'?`<div style="background:#EEF2FF;border:1.5px solid #4F46E5;border-radius:11px;padding:14px;margin-bottom:14px;text-align:center">
       <div style="font-size:11px;font-weight:600;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">🔐 Your Delivery Code</div>
       <div style="font-size:38px;font-weight:700;font-family:monospace;color:#1E1B4B;letter-spacing:8px">${o.dlvCode||'8419'}</div>
       <div style="font-size:11px;color:#4338CA;margin-top:7px">When your runner arrives, tell them this code verbally.<br>They enter it in their app to confirm handoff.</div>
     </div>`:''}
-    ${o.status==='placed'?`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:14px;text-align:center;color:var(--tx2);font-size:12px">⏳ Waiting for a runner to accept — you'll see your delivery code here once one does.</div>`:''}
-    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:11px;padding:14px;margin-bottom:14px;text-align:center"><div style="font-size:28px">🎉</div><div style="font-size:14px;font-weight:700;color:#065F46;margin-top:6px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa · Code used once and expired</div></div>`:''}
-    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;color:var(--tx2);margin-bottom:9px">💡 <strong>Try it manually:</strong> Switch to Runner → accept this order → deliver it → Matron confirms receipt. Or run the simulation below.</div><button class="btn bp bsm" style="width:100%;padding:10px" onclick="demoSimulate('${o.id}')">▶ Simulate Full Delivery Flow</button></div>`}
+    ${o.status==='placed'&&o.method==='runner'?`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:14px;text-align:center;color:var(--tx2);font-size:12px">⏳ Waiting for a runner to accept — you'll see your delivery code here once one does.</div>`:''}
+    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa · Code used once and expired</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;color:var(--tx2);margin-bottom:9px">💡 <strong>Try it manually:</strong> Switch to Runner → accept this order → deliver it → Matron confirms receipt. Or run the simulation below.</div><button class="btn bp bsm" style="width:100%;padding:10px" onclick="demoSimulate('${o.id}')">▶ Simulate Full Delivery Flow</button></div>`}
     <button class="btn bs" onclick="nav('h-consumer')">Back to Shop</button>
   `;
 }
@@ -1416,7 +1415,7 @@ function refreshObs(){
       }
     }
   } else if(role==='runner'){
-    var queue=S.orders.filter(function(o){return o.status==='placed';});
+    var queue=S.orders.filter(function(o){return o.status==='placed'&&o.method==='runner';});
     var inProgress=S.orders.filter(function(o){return o.status==='accepted'||o.status==='enroute';});
     var done=S.orders.filter(function(o){return o.status==='delivered'||o.status==='completed';});
     h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Runner Dashboard</div>';
@@ -1466,8 +1465,8 @@ function refreshObs(){
       h+='<div style="text-align:center;padding:20px 12px;color:var(--tx2)"><div style="font-size:32px;margin-bottom:6px">💤</div><div style="font-size:13px">No orders yet — place one from the Consumer view</div></div>';
     }
   } else if(role==='matron'){
-    var incoming=S.orders.filter(function(o){return ['placed','accepted','enroute'].includes(o.status);});
-    var delivered2=S.orders.filter(function(o){return ['delivered','completed'].includes(o.status);});
+    var incoming=S.orders.filter(function(o){return ['placed','accepted','enroute'].includes(o.status)&&o.method==='school';});
+    var delivered2=S.orders.filter(function(o){return ['delivered','completed'].includes(o.status)&&o.method==='school';});
     h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Matron Dashboard</div>';
     h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
     h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--p)">'+incoming.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Incoming</div></div>';
@@ -1556,7 +1555,7 @@ function refreshShiftLedger(){
 
 function renderRunnerQ(){
   const el=document.getElementById('r-list');if(!el) return;
-  const q=S.orders.filter(x=>x.status==='placed');
+  const q=S.orders.filter(x=>x.status==='placed'&&x.method==='runner');
   document.getElementById('r-q').textContent=q.length;
   if(q.length===0){el.innerHTML='<div class="es" style="padding:20px"><div class="ei" style="font-size:32px">📭</div><div class="et" style="font-size:14px">No app orders</div><p style="font-size:12px">Use Log OTC Sale for cash transactions.</p></div>';return;}
   el.innerHTML=q.map(o=>`
@@ -1717,7 +1716,7 @@ function renderDeliver(){
     }
   } else if(S.dlvStep===1){
     h+='<div style="font-size:14px;font-weight:600;margin-bottom:4px">Step 2 — Recipient Verification</div>';
-    h+='<div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Ask '+o.consumer+' for her 4-digit delivery code (sent via SMS when you tapped Arrived).</div>';
+    h+='<div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Ask '+o.consumer+' for her 4-digit delivery code shown on her Order Status screen.</div>';
     // PIN display
     h+='<div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">';
     S.dlvOtp.padEnd(4,'_').split('').forEach(function(d){
@@ -1773,7 +1772,7 @@ function dlvOtpSubmit(){
     renderTrack();refreshObs();
     showToast('OTP verified · TZS '+(S.order?S.order.qty*200:0).toLocaleString()+' → M-Pesa');
   } else {
-    showToast('⚠️ Code mismatch — ask customer to re-check SMS');
+    showToast('⚠️ Code mismatch — ask customer to check Order Status screen');
     S.dlvOtp='';
   }
   renderDeliver();
