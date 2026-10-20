@@ -34,6 +34,7 @@
   --hdr-bg:      #0c2e17;
   --hdr-fg:      #c4e0cb;
   --hdr-gold:    #eeb84a;
+  --hdr-gold-on: #1a0e00;
   --hdr-h:       56px;
   color-scheme:  light;
 }
@@ -59,10 +60,11 @@
     --red-lt:     #1c0c0c;
     --orange:     #d07840;
     --orange-lt:  #1c100a;
-    --hdr-bg:     #060f08;
-    --hdr-fg:     #8caa94;
-    --hdr-gold:   #c8940a;
-    color-scheme: dark;
+    --hdr-bg:      #060f08;
+    --hdr-fg:      #8caa94;
+    --hdr-gold:    #c8940a;
+    --hdr-gold-on: #0e0800;
+    color-scheme:  dark;
   }
 }
 :root[data-theme="dark"] {
@@ -86,10 +88,11 @@
   --red-lt:     #1c0c0c;
   --orange:     #d07840;
   --orange-lt:  #1c100a;
-  --hdr-bg:     #060f08;
-  --hdr-fg:     #8caa94;
-  --hdr-gold:   #c8940a;
-  color-scheme: dark;
+  --hdr-bg:      #060f08;
+  --hdr-fg:      #8caa94;
+  --hdr-gold:    #c8940a;
+  --hdr-gold-on: #0e0800;
+  color-scheme:  dark;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -194,6 +197,7 @@ body::before {
   transition: background .12s, color .12s;
 }
 .tb:hover { background:var(--surface-2); color:var(--fg); }
+.tb:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
 .tb.active { background:var(--green); color:#fff; }
 
 /* ── Main content ── */
@@ -258,6 +262,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 }
 .btn:hover:not(:disabled) { filter:brightness(1.08); }
 .btn:active:not(:disabled) { filter:brightness(.92); }
+.btn:focus-visible { outline:2px solid var(--green); outline-offset:3px; }
 .btn:disabled { opacity:.45; cursor:not-allowed; }
 .btn-sm { padding:9px 13px; font-size:12px; min-height:40px; border-radius:8px; }
 .bg-green  { background:var(--green);  color:#fff; }
@@ -299,6 +304,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 .bdg-blue   { background:var(--blue-lt);   color:var(--blue);   border:1px solid color-mix(in srgb,var(--blue) 20%,transparent); }
 .bdg-red    { background:var(--red-lt);    color:var(--red);    border:1px solid color-mix(in srgb,var(--red) 20%,transparent); }
 .bdg-orange { background:var(--orange-lt); color:var(--orange); border:1px solid color-mix(in srgb,var(--orange) 20%,transparent); }
+.bdg-purple { background:var(--purple-lt); color:var(--purple); border:1px solid color-mix(in srgb,var(--purple) 20%,transparent); }
 .bdg-sub    { background:var(--surface-2); color:var(--fg-sub); border:1px solid var(--border); }
 
 /* ── Step rows (hauler) ── */
@@ -311,7 +317,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
   border: 1.5px solid var(--border);
   background: var(--bg);
   margin-bottom: 8px;
-  transition: all .2s;
+  transition: border-color .2s, background .2s, opacity .2s;
 }
 .step.s-done   { border-color:var(--green);  background:var(--green-lt); }
 .step.s-active { border-color:var(--blue);   background:var(--blue-lt); }
@@ -745,15 +751,15 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 
   <div class="col">
     <button class="btn bg-purple" onclick="mamaSell()">
-      <span>🛍️ Sell 1 Pack Door-to-Door</span>
+      <span>Sell 1 Pack Door-to-Door</span>
       <span class="pill">+TZS 200 margin</span>
     </button>
     <button class="btn bg-teal" onclick="mamaSchool()">
-      <span>🏫 Restock School Campus Dispensers</span>
+      <span>Restock School Campus Dispensers</span>
       <span class="pill">+TZS 2,000</span>
     </button>
     <button class="btn bg-orange" onclick="mamaReconcile()">
-      <span>🔐 Kikoba Steel Trunk Reconciliation</span>
+      <span>Kikoba Steel Trunk Reconciliation</span>
       <span class="pill">Clear quota</span>
     </button>
   </div>
@@ -767,7 +773,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <span class="u-dim">Press DIAL to connect to Dandelion network...</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
-      <button class="btn bg-green btn-sm" onclick="ussdDial()">📞 Dial *150*88#</button>
+      <button class="btn bg-green btn-sm" onclick="ussdDial()">Dial *150*88#</button>
       <button class="btn bg-ghost btn-sm" id="ussd-reply" onclick="ussdReply()" hidden>Reply: 1</button>
     </div>
   </div>
@@ -783,8 +789,8 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
   </div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
-    <button class="btn bg-teal" onclick="schoolEmergency()">🚨 Student Emergency Use</button>
-    <button class="btn bg-ghost" onclick="schoolBurn()">🔥 Log Clean-Burn Cycle</button>
+    <button class="btn bg-teal" onclick="schoolEmergency()">Student Emergency Use</button>
+    <button class="btn bg-ghost" onclick="schoolBurn()">Log Clean-Burn Cycle</button>
   </div>
 
   <div class="dark-card">
@@ -825,7 +831,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       </div>
       <span class="badge bdg-green">Stock: <span id="duka-pads">24</span></span>
     </div>
-    <button class="btn bg-green" onclick="dukaSellPads()">💳 Sell Pack at TZS 500</button>
+    <button class="btn bg-green" onclick="dukaSellPads()">Sell Pack — TZS 500</button>
   </div>
 
   <div class="card">
@@ -836,7 +842,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       </div>
       <span class="badge bdg-blue">Stock: <span id="duka-diapers">12</span></span>
     </div>
-    <button class="btn bg-blue" onclick="dukaVoucher()">🎫 Redeem MoH Diaper Voucher at TZS 3,500</button>
+    <button class="btn bg-blue" onclick="dukaVoucher()">Redeem MoH Voucher — TZS 3,500</button>
   </div>
 
   <div class="card">
@@ -847,7 +853,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       </div>
       <span class="badge bdg-purple">Stock: <span id="duka-cups">8</span></span>
     </div>
-    <button class="btn" style="background:var(--purple);color:#fff" onclick="dukaSellCup()">🌸 Sell Menstrual Cup at TZS 5,000</button>
+    <button class="btn bg-purple" onclick="dukaSellCup()">Sell Menstrual Cup — TZS 5,000</button>
   </div>
 
   <div class="card">
@@ -870,15 +876,14 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
         <div style="font-size:15px;font-weight:700;color:#fff">M-Pesa Merchant Till</div>
         <div class="text-sm" style="color:var(--hdr-fg);margin-top:2px">Lipa Namba Integration Active</div>
       </div>
-      <span style="font-size:26px">📱</span>
     </div>
     <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;margin-bottom:10px">
       <div class="dr tra"><span class="k">Till No.</span><span class="v mono">5461237</span></div>
       <div class="dr tra"><span class="k">Business</span><span class="v mono">Duka ya Afya Ltd</span></div>
       <div class="dr tra"><span class="k">Sweep Day</span><span class="v mono">Friday 09:00 EAT</span></div>
     </div>
-    <button class="btn" style="background:var(--hdr-gold);color:#1a1000" onclick="dukaSweep()">
-      💸 Trigger Manual Capital Sweep → Escrow
+    <button class="btn" style="background:var(--hdr-gold);color:var(--hdr-gold-on)" onclick="dukaSweep()">
+      Trigger Capital Sweep → Escrow
     </button>
   </div>
 </section>
@@ -900,7 +905,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       Call-off threshold: TZS 38.2M &mdash; <span style="color:var(--green);font-weight:600">✅ Threshold met</span>
     </div>
     <button class="btn bg-green" id="calloff-btn" onclick="towerCalloff()">
-      🏭 Trigger Factory Call-Off PO (30% Advance Wire)
+      Trigger Factory Call-Off PO — 30% Advance Wire
     </button>
   </div>
 
@@ -911,16 +916,16 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <div class="t-dim">No active alerts — all pricing compliant</div>
     </div>
     <button class="btn bg-red mt" onclick="towerWhistleblower()">
-      📲 Simulate Inbound Whistleblower SMS (0800-710-000)
+      Simulate Whistleblower SMS — 0800-710-000
     </button>
   </div>
 
   <div class="card">
     <div class="card-title">Executive Override Controls</div>
     <div class="col" style="gap:8px">
-      <button class="btn bg-blue" id="carrier-btn" onclick="towerCarrier()">🔄 Backup Carrier Rollover (Posta Standby)</button>
-      <button class="btn bg-orange" onclick="towerFreeze()">🧊 Freeze Compromised Node</button>
-      <button class="btn bg-ghost" onclick="towerQuarantine()">⚠️ Serialized Lot Quarantine</button>
+      <button class="btn bg-blue" id="carrier-btn" onclick="towerCarrier()">Backup Carrier Rollover — Posta Standby</button>
+      <button class="btn bg-orange" onclick="towerFreeze()">Freeze Compromised Node</button>
+      <button class="btn bg-ghost" onclick="towerQuarantine()">Serialized Lot Quarantine</button>
     </div>
   </div>
 
@@ -952,7 +957,7 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
 
 </main>
 
-<div id="toasts"></div>
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
 
 <script>
 // ══════════════════════════════════════════════════════════
@@ -1311,7 +1316,7 @@ function renderClinic() {
       </div>
       ${p.done
         ? `<div class="p-coupon">COUPON-${rnd()} | ${p.name} | Nepi za Watoto @ TZS 3,500 | Valid 14 days | OTP:${rnd()}</div>`
-        : `<button class="btn bg-teal btn-sm" onclick="clinicStamp(${i})">💉 Examine &amp; Stamp Card</button>`}
+        : `<button class="btn bg-teal btn-sm" onclick="clinicStamp(${i})">Examine &amp; Stamp Card</button>`}
     </div>`).join('');
   txt('coupon-badge', `${S.clinic.coupons} coupon${S.clinic.coupons !== 1 ? 's' : ''} sent`);
 }
