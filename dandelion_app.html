@@ -1301,7 +1301,7 @@ function goCheckout(){
 function placeOrder(pid,q,m){
   const p=PRODS.find(x=>x.id===pid);
   const id='ORD-'+S.oid++;
-  const o={id,pid,pname:p.name,pemo:p.emoji,qty:q,price:p.price,total:p.price*q,method:m,status:'placed',consumer:S.user.name||'Fatuma',phone:S.user.phone||'0712 345 678',ward:S.user.ward||'Jangwani',placedAt:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),runner:null};
+  const o={id,pid,pname:p.name,pemo:p.emoji,qty:q,price:p.price,total:p.price*q,method:m,status:'placed',consumer:S.user.name||'Fatuma',phone:S.user.phone||'0712 345 678',ward:S.user.ward||'Jangwani',placedAt:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),runner:null,dlvCode:String(Math.floor(1000+Math.random()*9000))};
   S.orders.push(o);S.order=o;
   document.getElementById('op-open').textContent=S.orders.filter(x=>x.status!=='completed').length;
   renderRunnerQ();renderMatronInc();refreshObs();
@@ -1325,6 +1325,13 @@ function renderTrack(){
       ${o.runner?`<div style="font-size:12px;color:var(--tx2)">Runner: <strong style="color:var(--tx)">${o.runner}</strong></div>`:''}
       <div style="font-size:12px;color:var(--tx2);margin-top:3px">Placed today at ${o.placedAt}</div>
     </div>
+    ${['accepted','enroute'].includes(o.status)?`<div style="background:#EEF2FF;border:1.5px solid #4F46E5;border-radius:11px;padding:14px;margin-bottom:14px;text-align:center">
+      <div style="font-size:11px;font-weight:600;color:#4F46E5;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">🔐 Your Delivery Code</div>
+      <div style="font-size:38px;font-weight:700;font-family:monospace;color:#1E1B4B;letter-spacing:8px">${o.dlvCode||'8419'}</div>
+      <div style="font-size:11px;color:#4338CA;margin-top:7px">When your runner arrives, tell them this code verbally.<br>They enter it in their app to confirm handoff.</div>
+    </div>`:''}
+    ${o.status==='placed'?`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:14px;text-align:center;color:var(--tx2);font-size:12px">⏳ Waiting for a runner to accept — you'll see your delivery code here once one does.</div>`:''}
+    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:11px;padding:14px;margin-bottom:14px;text-align:center"><div style="font-size:28px">🎉</div><div style="font-size:14px;font-weight:700;color:#065F46;margin-top:6px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa · Code used once and expired</div></div>`:''}
     ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;color:var(--tx2);margin-bottom:9px">💡 <strong>Try it manually:</strong> Switch to Runner → accept this order → deliver it → Matron confirms receipt. Or run the simulation below.</div><button class="btn bp bsm" style="width:100%;padding:10px" onclick="demoSimulate('${o.id}')">▶ Simulate Full Delivery Flow</button></div>`}
     <button class="btn bs" onclick="nav('h-consumer')">Back to Shop</button>
   `;
@@ -1622,7 +1629,7 @@ function acceptOrd(id){
 
 function renderDeliver(){
   const o=S.order;if(!o)return;
-  const qty=o.qty;const OTP='8419';
+  const qty=o.qty;const OTP=o.dlvCode||'8419';
   let h='';
   // Header
   h+='<div style="background:var(--sur2);border:1px solid var(--p);border-radius:11px;padding:11px;margin-bottom:14px">';
@@ -1700,7 +1707,7 @@ function dlvScan(){
 function dlvOtpKey(d){if(S.dlvOtp.length<4){S.dlvOtp+=d;renderDeliver();}}
 function dlvOtpBack(){if(S.dlvOtp.length>0){S.dlvOtp=S.dlvOtp.slice(0,-1);renderDeliver();}}
 function dlvOtpSubmit(){
-  const CORRECT='8419';
+  const CORRECT=(S.order&&S.order.dlvCode)||'8419';
   if(S.dlvOtp===CORRECT){
     S.dlvStep=2;
     const o=S.order;
