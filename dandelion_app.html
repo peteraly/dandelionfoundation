@@ -1313,12 +1313,13 @@ function showTrack(id){S.order=S.orders.find(x=>x.id===id);renderTrack();nav('tr
 function renderTrack(){
   const o=S.order;if(!o) return;
   const steps=[{k:'placed',l:'Placed'},{k:'accepted',l:'Accepted'},{k:'enroute',l:'En route'},{k:'delivered',l:'Delivered'}];
-  const si=steps.findIndex(s=>s.k===o.status);
+  const normSt=o.status==='completed'?'delivered':o.status;
+  const si=steps.findIndex(s=>s.k===normSt);
   document.getElementById('track-body').innerHTML=`
     <div style="text-align:center;margin-bottom:18px"><div style="font-size:46px">${o.pemo}</div><div style="font-size:16px;font-weight:600;margin-top:7px">${o.pname} × ${o.qty}</div><div style="font-size:12px;color:var(--tx2);font-family:monospace;margin-top:3px">${o.id}</div></div>
     <div class="sp">${steps.map((s,i)=>`<div class="step ${i<si?'done':i===si?'cur':''}"><div class="sd">${i<si?'✓':i+1}</div><div class="slb">${s.l}</div></div>`).join('')}</div>
     <div class="card" style="padding:13px;margin-bottom:14px">
-      <div style="font-size:13px;font-weight:600;margin-bottom:7px">Status: <span style="color:${['delivered','completed'].includes(o.status)?'var(--a)':'var(--p)'}">${o.status==='placed'?'Waiting for runner':o.status==='accepted'?'Runner accepted':o.status==='delivered'||o.status==='completed'?'✓ Delivered':o.status}</span></div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:7px">Status: <span style="color:${['delivered','completed'].includes(o.status)?'var(--a)':'var(--p)'}">${o.status==='placed'?'Waiting for runner':o.status==='accepted'?'Runner accepted':o.status==='enroute'?'Runner is on the way':o.status==='delivered'||o.status==='completed'?'✓ Delivered':o.status}</span></div>
       ${o.runner?`<div style="font-size:12px;color:var(--tx2)">Runner: <strong style="color:var(--tx)">${o.runner}</strong></div>`:''}
       <div style="font-size:12px;color:var(--tx2);margin-top:3px">Placed today at ${o.placedAt}</div>
     </div>
@@ -1329,6 +1330,9 @@ function renderTrack(){
 
 function demoSimulate(id){
   const o=S.orders.find(x=>x.id===id);if(!o||o.status!=='placed') return;
+  // Disable button immediately to prevent double-tap
+  const simBtn=document.querySelector('button[onclick="demoSimulate(\''+id+'\')"]');
+  if(simBtn){simBtn.disabled=true;simBtn.textContent='⏳ Simulation running…';}
   const steps=[
     [800,'Runner Amina accepted your order','accepted'],
     [2200,'Runner is en route to you','enroute'],
@@ -1347,9 +1351,8 @@ function demoSimulate(id){
   });
 }
 
-var S_obsRole=null;
 function setObsRole(role){
-  S_obsRole=role;
+  S.obsRole=role;
   ['consumer','runner','matron','operator'].forEach(function(r){
     var b=document.getElementById('obsbtn-'+r);
     if(b){b.style.background=r===role?'var(--p)':'var(--sur2)';b.style.color=r===role?'#fff':'var(--tx)';b.style.borderColor=r===role?'var(--p)':'var(--bdr)';}
@@ -1359,7 +1362,7 @@ function setObsRole(role){
 
 function refreshObs(){
   var el=document.getElementById('obs-body');if(!el) return;
-  var role=S_obsRole;
+  var role=S.obsRole;
   if(!role){el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--tx2)"><div style="font-size:44px;margin-bottom:10px">🔭</div><div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:6px">Observer Panel</div><p style="font-size:13px;line-height:1.5">Select a role above to watch their live state as actions happen in the main phone.</p></div>';return;}
   var h='';
   if(role==='consumer'){
@@ -1415,8 +1418,7 @@ function refreshObs(){
     h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--p)">'+incoming.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Incoming</div></div>';
     h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--a)">'+delivered2.length+'</div><div style="font-size:10px;color:#047857;margin-top:2px">Received</div></div>';
     h+='</div>';
-    var mStockEl=document.getElementById('m-stock');
-    var stockVal=mStockEl?parseInt(mStockEl.textContent||'148'):148;
+    var stockVal=148+S.orders.filter(function(o){return ['delivered','completed'].includes(o.status);}).reduce(function(acc,o){return acc+o.qty;},0);
     h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">';
     h+='<div><div style="font-size:11px;color:var(--tx2)">Current stock</div><div style="font-size:22px;font-weight:700">'+stockVal+' packs</div></div>';
     h+='<div style="font-size:28px">📦</div></div>';
@@ -1662,7 +1664,7 @@ function dlvOtpSubmit(){
 
 function doneDeliver(id){
   const o=S.orders.find(x=>x.id===id);if(o) o.status='delivered';
-  renderTrack();refreshObs();
+  renderTrack();refreshObs();renderMatronInc();
   renderRunnerQ();S.hist=[];nav('h-runner');
 }
 
