@@ -809,9 +809,13 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <span>Restock School Campus Dispensers</span>
       <span class="pill">+TZS 2,000</span>
     </button>
-    <button class="btn bg-orange" onclick="mamaReconcile()">
-      <span>Kikoba Steel Trunk Reconciliation</span>
-      <span class="pill">Clear quota</span>
+    <button class="btn bg-orange" id="reconcile-btn" onclick="mamaReconcile()">
+      <span id="reconcile-lbl">Kikoba Steel Trunk — Key A: Treasurer</span>
+      <span class="pill">Step 1 of 2</span>
+    </button>
+    <button class="btn bg-red" onclick="mamaJointLiability()">
+      <span>Joint-Liability Default Protocol</span>
+      <span class="pill">Group guarantee</span>
     </button>
   </div>
 
@@ -868,6 +872,10 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       Awaiting first vaccination stamp...
     </div>
   </div>
+  <button class="btn bg-orange mt" onclick="clinicExpireVouchers()">
+    <span>Simulate 14-Day Voucher Expiry</span>
+    <span class="pill">Subsidy reclaim</span>
+  </button>
 </section>
 
 <!-- ══ DUKA / ADDO ════════════════════════════════════════ -->
@@ -962,12 +970,23 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
         <div class="fill" id="tower-bar" style="width:38.4%;background:linear-gradient(90deg,var(--green),color-mix(in srgb,var(--green) 60%,var(--gold)))"></div>
       </div>
     </div>
-    <div class="text-sub text-sm" style="margin-top:6px;margin-bottom:12px">
+    <div class="text-sub text-sm" style="margin-top:6px;margin-bottom:4px">
       <span class="mono bold" style="color:var(--gold)">Batch #7</span> · Day 12 of 38.5 · <span style="color:var(--green);font-weight:600">✅ Call-off threshold met</span>
+    </div>
+    <div id="c-floor-status" class="text-sub text-sm" style="margin-bottom:12px;font-variant-numeric:tabular-nums">
+      Floor: <span class="mono" style="color:var(--gold)">TZS 38.2M</span> · Status: <span style="color:var(--green);font-weight:600">✅ Above C_floor</span>
     </div>
     <button class="btn bg-green" id="calloff-btn" onclick="towerCalloff()">
       Trigger Factory Call-Off PO — 30% Advance Wire
     </button>
+  </div>
+
+  <div class="card" id="inv-tensor">
+    <div class="card-title">Inventory Conservation Tensor I(t)</div>
+    <div class="term" style="font-size:10px">
+      <div class="t-dim">Physical commodity law: sum(I_j) = I_factory + I_warehouse + I_hauler + I_mama + I_school + I_duka + I_consumer</div>
+      <div id="inv-tensor-rows"><div>Loading node inventory...</div></div>
+    </div>
   </div>
 
   <div class="card">
@@ -1014,6 +1033,36 @@ h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
       <div class="track"><div class="fill fill-orange" style="width:44%"></div></div>
     </div>
   </div>
+
+  <div class="card">
+    <div class="card-title">Batch Economics Convergence Proof</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+        <div class="text-sub text-sm">Cost per 100K-pack batch</div>
+        <div style="font-size:18px;font-weight:700;color:var(--red);font-variant-numeric:tabular-nums">TZS 28.5M</div>
+      </div>
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+        <div class="text-sub text-sm">Escrow recovered per batch</div>
+        <div style="font-size:18px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums">TZS 30.0M</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div style="background:var(--green-lt);border-radius:8px;padding:10px">
+        <div class="text-sub text-sm">Monotonic recovery rate</div>
+        <div style="font-size:20px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums">+5.26%</div>
+      </div>
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px">
+        <div class="text-sub text-sm">Cross-subsidy per pack</div>
+        <div style="font-size:18px;font-weight:700;color:var(--blue);font-variant-numeric:tabular-nums">TZS 0.70</div>
+        <div class="text-sub text-sm">Urban surplus → Rural deficit</div>
+      </div>
+    </div>
+    <div class="term" style="font-size:10px">
+      <div>Universal price ceiling: TZS 500 all zones</div>
+      <div class="t-dim">Zone 1 (Urban): +TZS 0.70/pack surplus  ·  Zone 3 (Rural): -TZS 0.70/pack deficit</div>
+      <div style="color:var(--green)">Cross-subsidization active — welfare floor maintained across 847 nodes</div>
+    </div>
+  </div>
 </section>
 
 </main>
@@ -1028,7 +1077,7 @@ function mkState() {
   return {
     escrow: 38420000,
     hauler: { step: 0, wallet: 0, trips: 0 },
-    mama:   { sold: 0, profit: 0, streak: 7 },
+    mama:   { sold: 0, profit: 0, streak: 7, dualKeyA: false },
     school: {
       block_a: { fill: 85, buf: 120 },
       block_b: { fill: 72, buf: 98  },
@@ -1095,6 +1144,7 @@ function go(name, btn) {
   if (name === 'overview') setTimeout(initChart, 60);
   if (name === 'school')   renderDisp();
   if (name === 'clinic')   renderClinic();
+  if (name === 'tower')    renderInventory();
 }
 function jump(name) { go(name); }
 
@@ -1109,6 +1159,13 @@ function sync() {
   const pct = Math.min(S.escrow / 1e6, 100).toFixed(1);
   const bar = $('tower-bar');
   if (bar) bar.style.width = pct + '%';
+  const floor = 38200000;
+  const cf = $('c-floor-status');
+  if (cf) {
+    const above = S.escrow >= floor;
+    cf.innerHTML = `Floor: <span class="mono" style="color:var(--gold)">TZS 38.2M</span> · Status: <span style="color:${above ? 'var(--green)' : 'var(--red)'};font-weight:600">${above ? '✅ Above C_floor' : '❌ BELOW C_floor — operations paused'}</span>`;
+  }
+  renderInventory();
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1257,15 +1314,42 @@ function mamaSchool() {
 let reconciling = false;
 function mamaReconcile() {
   if (reconciling) { toast('Reconciliation already in progress', 'warning'); return; }
-  if (S.mama.sold < 3) { toast('Sell at least 3 packs before end-of-day reconciliation', 'warning'); return; }
+  if (!S.mama.dualKeyA) {
+    S.mama.dualKeyA = true;
+    const btn = $('reconcile-btn');
+    if (btn) {
+      btn.querySelector('#reconcile-lbl').textContent = 'Kikoba Steel Trunk — Key B: Secretary';
+      btn.querySelector('.pill').textContent = 'Step 2 of 2';
+      btn.className = 'btn bg-green';
+    }
+    toast('Key A (Treasurer) verified. Awaiting Key B (Secretary) to complete dual-custody ceremony.', 'info');
+    return;
+  }
   reconciling = true;
-  const cap = S.mama.sold * 300;
+  S.mama.dualKeyA = false;
+  const sold = S.mama.sold;
+  const cap = sold * 300;
   S.escrow += cap;
   S.mama.streak++;
   sync();
   renderStreak();
-  toast(`Day ${S.mama.streak} streak! TZS ${cap.toLocaleString()} base capital returned to Kikoba lockbox. Quota cleared.`, 'success');
-  setTimeout(() => { S.mama.sold = 0; S.mama.profit = 0; reconciling = false; renderMama(); }, 1800);
+  const bonus = S.mama.streak === 10 ? 15000 : S.mama.streak === 25 ? 15000 : 0;
+  if (bonus) {
+    S.mama.profit += bonus;
+    S.escrow -= bonus;
+    setTimeout(() => toast(`Performance bonus unlocked: TZS ${bonus.toLocaleString()} credited for Day ${S.mama.streak} milestone!`, 'success'), 900);
+  }
+  const msg = sold === 0
+    ? `Zero packs sold — full float returned. Zero liability per runner contract.`
+    : `Day ${S.mama.streak} streak! TZS ${cap.toLocaleString()} base capital (${sold} packs × TZS 300) returned to Kikoba lockbox.`;
+  toast(msg, 'success');
+  const btn = $('reconcile-btn');
+  if (btn) {
+    btn.querySelector('#reconcile-lbl').textContent = 'Kikoba Steel Trunk — Key A: Treasurer';
+    btn.querySelector('.pill').textContent = 'Step 1 of 2';
+    btn.className = 'btn bg-orange';
+  }
+  setTimeout(() => { S.mama.sold = 0; S.mama.profit = bonus ? S.mama.profit : 0; reconciling = false; renderMama(); }, 1800);
 }
 function renderMama() {
   const m = S.mama;
@@ -1276,6 +1360,12 @@ function renderMama() {
   txt('m-remaining', 10 - m.sold);
   txt('m-capital', fmtF(m.sold * 300));
   txt('m-profit', fmtF(m.profit));
+  const btn = $('reconcile-btn');
+  if (btn && !m.dualKeyA) {
+    btn.querySelector('#reconcile-lbl').textContent = 'Kikoba Steel Trunk — Key A: Treasurer';
+    btn.querySelector('.pill').textContent = 'Step 1 of 2';
+    btn.className = 'btn bg-orange';
+  }
 }
 
 function renderStreak() {
@@ -1283,6 +1373,51 @@ function renderStreak() {
   const pct = Math.min((S.mama.streak / 30) * 100, 100);
   const bar = $('streak-bar');
   if (bar) bar.style.width = pct + '%';
+}
+
+function mamaJointLiability() {
+  const groupSize = 5;
+  const defaultAmt = 3000;
+  const perMember = defaultAmt / (groupSize - 1);
+  toast(`Joint-liability trigger: 1 member defaulted TZS ${defaultAmt.toLocaleString()}. ${groupSize - 1} group members each cover TZS ${perMember.toLocaleString()}. Kikoba group guarantee active — no external debt.`, 'warning');
+  setTimeout(() => toast('Group credit score preserved. Defaulting member: remediation plan initiated per Scenario 24.', 'info'), 1200);
+}
+
+function clinicExpireVouchers() {
+  const expiredCount = S.clinic.queue.filter(p => p.done && !p.expired).length;
+  if (expiredCount === 0) { toast('No active coupons to expire — stamp vaccinations first', 'warning'); return; }
+  let recovered = 0;
+  S.clinic.queue.forEach(p => {
+    if (p.done && !p.expired) {
+      p.expired = true;
+      recovered += 3500;
+      S.escrow += 3500;
+    }
+  });
+  sync();
+  renderClinic();
+  toast(`${expiredCount} coupon${expiredCount !== 1 ? 's' : ''} expired after 14 days — TZS ${recovered.toLocaleString()} MoH subsidy reclaimed to revolving escrow.`, 'warning');
+}
+
+function renderInventory() {
+  const rows = $('inv-tensor-rows');
+  if (!rows) return;
+  const pads = S.duka.pads;
+  const diapers = S.duka.diapers;
+  const cups = S.duka.cups;
+  const haulerPacks = S.hauler.step >= 1 && S.hauler.step <= 2 ? 200 : 0;
+  const mamaPacks = 10 - S.mama.sold;
+  const schoolPacks = Math.round((S.school.block_a.buf + S.school.block_b.buf + S.school.scholar.buf) / 3);
+  const ts = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  rows.innerHTML = `
+    <div style="color:var(--hdr-gold)">[${ts}] I(t) snapshot</div>
+    <div>Factory   ████████░░  800,000 packs  (pre-call-off buffer)</div>
+    <div>Warehouse ██████░░░░  240,000 packs  (3-day safety stock)</div>
+    <div>Hauler    ${haulerPacks > 0 ? '████░░░░░░' : '░░░░░░░░░░'}  ${haulerPacks.toString().padStart(6)} packs  (load #BL-2026-0841)</div>
+    <div>Mama      ████████░░   ${mamaPacks.toString().padStart(6)} packs  (float balance)</div>
+    <div>School    ██████░░░░   ${schoolPacks.toString().padStart(6)} packs  (dispenser buffers)</div>
+    <div>Duka      ████░░░░░░   ${(pads+diapers+cups).toString().padStart(6)} units  (pads ${pads} · diapers ${diapers} · cups ${cups})</div>
+    <div class="t-dim">Conservation: sum verified ✅  ·  Variance: 0 units</div>`;
 }
 
 // USSD
@@ -1387,10 +1522,10 @@ function renderClinic() {
           <div class="p-name">${p.name}</div>
           <div class="p-detail">${p.infant} — ${p.vax}</div>
         </div>
-        <span class="badge ${p.done ? 'bdg-green' : 'bdg-gold'}">${p.done ? 'Stamped ✅' : 'Waiting'}</span>
+        <span class="badge ${p.expired ? 'bdg-red' : p.done ? 'bdg-green' : 'bdg-gold'}">${p.expired ? 'Expired' : p.done ? 'Stamped ✅' : 'Waiting'}</span>
       </div>
       ${p.done
-        ? `<div class="p-coupon">COUPON-${rnd()} | ${p.name} | Nepi za Watoto @ TZS 3,500 | Valid 14 days | OTP:${rnd()}</div>`
+        ? `<div class="p-coupon" style="${p.expired ? 'opacity:.5;text-decoration:line-through' : ''}">${p.couponCode || ''}${p.expired ? ' — EXPIRED' : ''}</div>`
         : `<button class="btn bg-teal btn-sm" onclick="clinicStamp(${i})">Examine &amp; Stamp Card</button>`}
     </div>`).join('');
   txt('coupon-badge', `${S.clinic.coupons} coupon${S.clinic.coupons !== 1 ? 's' : ''} sent`);
@@ -1399,10 +1534,11 @@ function clinicStamp(i) {
   const p = S.clinic.queue[i];
   if (p.done) return;
   p.done = true;
+  p.expired = false;
+  p.couponCode = `COUPON-${rnd()} | ${p.name} | Nepi @ TZS 3,500 | Valid 14d | SHA:${rnd()}${rnd()}`;
   S.clinic.coupons++;
-  const code = `COUPON-${rnd()} | ${p.name} | Nepi @ TZS 3,500 | Valid 14d | SHA:${rnd()}${rnd()}`;
   toast(`Vaccination stamped: ${p.vax} for ${p.infant}. Encrypted diaper coupon dispatched to ${p.name.split(' ')[0]}'s phone.`, 'success');
-  txt('last-coupon', code);
+  txt('last-coupon', p.couponCode);
   renderClinic();
 }
 
@@ -1428,6 +1564,7 @@ function dukaVoucher() {
   S.duka.vouchers++;
   ledgerPush('Nepi za Watoto (Voucher)', 'TZS 3,500', '+TZS 1,000');
   toast('MoH voucher redeemed — diapers dispensed at TZS 3,500. +TZS 1,000 merchant margin.', 'success');
+  setTimeout(() => toast('Cross-sell opportunity: 78% of diaper buyers also purchase sanitary pads — suggest Taulo za Kike (+TZS 500, +TZS 200 margin).', 'info'), 900);
   renderDuka();
 }
 function dukaSellCup() {
@@ -1485,10 +1622,11 @@ function towerWhistleblower() {
   const ts = new Date().toLocaleTimeString();
   const sf = $('sentry-feed');
   if (sf) sf.innerHTML = `<div>[ SENTRY ACTIVE ] — Monitoring 847 registered nodes</div>
-<div class="t-warn">⚠️  INBOUND SMS — 0800-710-000  [${ts}]</div>
-<div class="t-alert">📱 "Duka hii inamaliza TZS 800 badala ya 500 — wizi wa bei!"</div>
-<div class="t-warn">🔍 AI MATCH → ${merchant}</div>
-<div class="t-alert">🔒 AUTO: Till LOCKED — all transactions suspended</div>
+<div class="t-warn">INBOUND SMS — 0800-710-000  [${ts}]</div>
+<div class="t-alert">"Duka hii inamaliza TZS 800 badala ya 500 — wizi wa bei!"</div>
+<div class="t-warn">AI MATCH → ${merchant}</div>
+<div class="t-alert">AUTO: Till LOCKED — all transactions suspended</div>
+<div style="color:var(--red)">Omega_j SLASH: ${merchant.split(',')[0]} trust score → 0.00 (was 0.87)</div>
 <div class="t-dim">Case ${caseNo} → compliance@dandelion.tz</div>`;
   toast(`Whistleblower processed. ${merchant} till locked — price gouging detected (TZS 800 vs cap TZS 500).`, 'error');
   setTimeout(() => toast(`Case ${caseNo} assigned to compliance officer`, 'info'), 1100);
