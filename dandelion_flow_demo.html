@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Dandelion Ops Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;600&display=swap"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.3/chart.umd.min.js"></script>
+<style>
+/* ── Token system: deep forest palette, warm amber accent ── */
+:root {
+  --bg:          #f5f7f3;
+  --bg-card:     #ffffff;
+  --fg:          #1a2318;
+  --fg-sub:      #5a6b56;
+  --border:      #dde6d8;
+  --surface-2:   #eef2eb;
+  --green:       #1a6b3a;
+  --green-lt:    #e8f4ec;
+  --gold:        #b87a10;
+  --gold-lt:     #fdf5e0;
+  --blue:        #1a5280;
+  --blue-lt:     #e6eef8;
+  --purple:      #5b3486;
+  --purple-lt:   #f0eaf8;
+  --teal:        #0d7a6b;
+  --teal-lt:     #e5f4f2;
+  --red:         #b03030;
+  --red-lt:      #fdeaea;
+  --orange:      #b85a18;
+  --orange-lt:   #fdf0e4;
+  --hdr-bg:      #0c2e17;
+  --hdr-fg:      #c4e0cb;
+  --hdr-gold:    #eeb84a;
+  --hdr-h:       56px;
+  color-scheme:  light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:         #101a12;
+    --bg-card:    #182018;
+    --fg:         #daeadb;
+    --fg-sub:     #6a8860;
+    --border:     #1e3020;
+    --surface-2:  #141e14;
+    --green:      #3aaa58;
+    --green-lt:   #162818;
+    --gold:       #d4a040;
+    --gold-lt:    #1c180a;
+    --blue:       #4a88c0;
+    --blue-lt:    #0c1620;
+    --purple:     #8860c4;
+    --purple-lt:  #14081e;
+    --teal:       #28a892;
+    --teal-lt:    #081a18;
+    --red:        #d85050;
+    --red-lt:     #1c0c0c;
+    --orange:     #d07840;
+    --orange-lt:  #1c100a;
+    --hdr-bg:     #060f08;
+    --hdr-fg:     #8caa94;
+    --hdr-gold:   #c8940a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg:         #101a12;
+  --bg-card:    #182018;
+  --fg:         #daeadb;
+  --fg-sub:     #6a8860;
+  --border:     #1e3020;
+  --surface-2:  #141e14;
+  --green:      #3aaa58;
+  --green-lt:   #162818;
+  --gold:       #d4a040;
+  --gold-lt:    #1c180a;
+  --blue:       #4a88c0;
+  --blue-lt:    #0c1620;
+  --purple:     #8860c4;
+  --purple-lt:  #14081e;
+  --teal:       #28a892;
+  --teal-lt:    #081a18;
+  --red:        #d85050;
+  --red-lt:     #1c0c0c;
+  --orange:     #d07840;
+  --orange-lt:  #1c100a;
+  --hdr-bg:     #060f08;
+  --hdr-fg:     #8caa94;
+  --hdr-gold:   #c8940a;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* safe-area top band */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px);
+  background: var(--hdr-bg);
+  z-index: 60;
+}
+
+/* ── Header ── */
+#hdr {
+  background: var(--hdr-bg);
+  color: var(--hdr-fg);
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  z-index: 50;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+#hdr-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));
+  height: var(--hdr-h);
+}
+.brand { display:flex; align-items:baseline; gap:6px; flex-shrink:0; }
+.brand-word { font-family:'DM Serif Display',serif; font-size:18px; color:#fff; line-height:1; letter-spacing:-0.01em; }
+.brand-sub  { font-size:10px; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--hdr-fg); }
+.hdr-metrics { display:flex; gap:14px; flex:1; justify-content:center; overflow:hidden; }
+.hm { display:flex; flex-direction:column; align-items:center; gap:1px; min-width:0; }
+.hm-lbl { font-size:9px; font-weight:500; letter-spacing:.08em; text-transform:uppercase; opacity:.65; white-space:nowrap; }
+.hm-val { font-size:13px; font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.c-gold  { color:var(--hdr-gold); }
+.c-lime  { color:#64e87a; }
+.c-blue  { color:#78b8f4; }
+.live-dot { display:inline-block; width:6px; height:6px; background:#4fe870; border-radius:50%; animation:pulse 2s ease-in-out infinite; vertical-align:middle; margin-right:3px; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.25} }
+
+#reset-btn {
+  background: rgba(255,255,255,.07);
+  color: var(--hdr-fg);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-height: 36px;
+  font-family: inherit;
+  transition: background .15s;
+}
+#reset-btn:hover { background:rgba(255,255,255,.13); }
+
+/* ── Tab nav ── */
+#nav {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + var(--hdr-h));
+  z-index: 40;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#nav::-webkit-scrollbar { display:none; }
+#nav-inner {
+  display: flex;
+  gap: 2px;
+  padding: 6px max(12px,env(safe-area-inset-right,0px)) 6px max(12px,env(safe-area-inset-left,0px));
+  min-width: max-content;
+}
+.tb {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--fg-sub);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 36px;
+  font-family: inherit;
+  transition: background .12s, color .12s;
+}
+.tb:hover { background:var(--surface-2); color:var(--fg); }
+.tb.active { background:var(--green); color:#fff; }
+
+/* ── Main content ── */
+#main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px));
+}
+.panel { display:none; }
+.panel.on { display:block; }
+
+/* ── Cards ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--fg-sub);
+  margin-bottom: 12px;
+}
+h2 { font-family:'DM Serif Display',serif; font-size:20px; font-weight:400; text-wrap:balance; margin-bottom:14px; }
+h3 { font-size:13px; font-weight:600; margin-bottom:10px; }
+
+/* ── KPI tiles ── */
+.kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+.kpi { background:var(--bg-card); border:1px solid var(--border); border-radius:12px; padding:14px; }
+.kpi-lbl { font-size:10px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:var(--fg-sub); margin-bottom:4px; }
+.kpi-val { font-size:22px; font-weight:700; line-height:1.1; font-variant-numeric:tabular-nums; }
+.kpi-sub { font-size:11px; color:var(--fg-sub); margin-top:2px; }
+.fg-green  { color:var(--green); }
+.fg-gold   { color:var(--gold); }
+.fg-blue   { color:var(--blue); }
+.fg-purple { color:var(--purple); }
+.fg-teal   { color:var(--teal); }
+.fg-red    { color:var(--red); }
+.fg-orange { color:var(--orange); }
+
+/* ── Buttons ── */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  min-height: 48px;
+  font-family: inherit;
+  letter-spacing: .01em;
+  transition: filter .12s, opacity .12s;
+}
+.btn:hover:not(:disabled) { filter:brightness(1.08); }
+.btn:active:not(:disabled) { filter:brightness(.92); }
+.btn:disabled { opacity:.45; cursor:not-allowed; }
+.btn-sm { padding:9px 13px; font-size:12px; min-height:40px; border-radius:8px; }
+.bg-green  { background:var(--green);  color:#fff; }
+.bg-gold   { background:var(--gold);   color:#fff; }
+.bg-blue   { background:var(--blue);   color:#fff; }
+.bg-purple { background:var(--purple); color:#fff; }
+.bg-teal   { background:var(--teal);   color:#fff; }
+.bg-red    { background:var(--red);    color:#fff; }
+.bg-orange { background:var(--orange); color:#fff; }
+.bg-ghost  { background:var(--surface-2); color:var(--fg); border:1px solid var(--border); }
+.pill {
+  display:inline-flex; align-items:center;
+  padding:2px 7px; border-radius:20px;
+  font-size:10px; font-weight:600;
+  background:rgba(255,255,255,.18);
+}
+
+/* ── Progress bar ── */
+.track { background:var(--surface-2); border-radius:999px; overflow:hidden; height:8px; }
+.fill  { height:100%; border-radius:999px; transition:width .5s cubic-bezier(.34,1.56,.64,1); }
+.fill-green  { background:var(--green);  }
+.fill-gold   { background:var(--gold);   }
+.fill-purple { background:var(--purple); }
+.fill-blue   { background:var(--blue);   }
+.fill-orange { background:var(--orange); }
+.fill-red    { background:var(--red);    }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.bdg-green  { background:var(--green-lt);  color:var(--green);  border:1px solid color-mix(in srgb,var(--green) 20%,transparent); }
+.bdg-gold   { background:var(--gold-lt);   color:var(--gold);   border:1px solid color-mix(in srgb,var(--gold) 20%,transparent); }
+.bdg-blue   { background:var(--blue-lt);   color:var(--blue);   border:1px solid color-mix(in srgb,var(--blue) 20%,transparent); }
+.bdg-red    { background:var(--red-lt);    color:var(--red);    border:1px solid color-mix(in srgb,var(--red) 20%,transparent); }
+.bdg-orange { background:var(--orange-lt); color:var(--orange); border:1px solid color-mix(in srgb,var(--orange) 20%,transparent); }
+.bdg-sub    { background:var(--surface-2); color:var(--fg-sub); border:1px solid var(--border); }
+
+/* ── Step rows (hauler) ── */
+.step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  margin-bottom: 8px;
+  transition: all .2s;
+}
+.step.s-done   { border-color:var(--green);  background:var(--green-lt); }
+.step.s-active { border-color:var(--blue);   background:var(--blue-lt); }
+.step.s-locked { opacity:.4; }
+.step-ico { font-size:20px; flex-shrink:0; }
+.step-body { flex:1; min-width:0; }
+.step-title { font-size:13px; font-weight:600; }
+.step-sub   { font-size:11px; color:var(--fg-sub); margin-top:1px; }
+.step-chk   { font-size:18px; flex-shrink:0; }
+
+/* ── Data rows ── */
+.dr {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+}
+.dr:last-child { border-bottom:none; }
+.dr .k { color:var(--fg-sub); }
+.dr .v { font-weight:600; font-variant-numeric:tabular-nums; }
+
+/* ── USSD terminal ── */
+.ussd {
+  background: #060e08;
+  border-radius: 10px;
+  padding: 14px;
+  min-height: 130px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: #3ee86a;
+  line-height: 1.65;
+}
+.u-dim  { color:#4a6050; }
+.u-warn { color:#f0c060; }
+.u-in   { color:#f0f080; }
+.u-err  { color:#ff6b6b; }
+
+/* ── Patient cards (clinic) ── */
+.p-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 8px;
+  transition: border-color .3s, background .3s;
+}
+.p-card.done { border-color:var(--green); background:var(--green-lt); }
+.p-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:10px; }
+.p-name   { font-weight:600; font-size:13px; }
+.p-detail { font-size:11px; color:var(--fg-sub); margin-top:2px; }
+.p-coupon {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  background: var(--green-lt);
+  color: var(--green);
+  padding: 6px 8px;
+  border-radius: 6px;
+  margin-top: 8px;
+  word-break: break-all;
+  line-height: 1.5;
+}
+
+/* ── TRA placard ── */
+.tra {
+  background: linear-gradient(135deg, #0c2e17, #0d3d20);
+  border: 1px solid #265038;
+  border-radius: 12px;
+  padding: 16px;
+  color: #c4e0cb;
+  margin-top: 12px;
+}
+.tra .dr { border-color:rgba(255,255,255,.08); }
+.tra .k  { color:#6aaa88; }
+.tra .v  { color:#fff; }
+
+/* ── Dark impact card ── */
+.dark-card {
+  background: var(--hdr-bg);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 12px;
+  padding: 16px;
+  color: var(--hdr-fg);
+  margin-top: 12px;
+}
+.impact-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+.impact-tile { background:rgba(255,255,255,.05); border-radius:8px; padding:12px; text-align:center; }
+.i-big  { font-size:22px; font-weight:700; color:var(--hdr-gold); font-variant-numeric:tabular-nums; }
+.i-tiny { font-size:10px; color:var(--hdr-fg); opacity:.7; margin-top:2px; }
+
+/* ── Terminal feed ── */
+.term {
+  background: #050d06;
+  border: 1px solid #1a2e1a;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  min-height: 90px;
+  color: #3ee86a;
+  line-height: 1.7;
+  overflow: hidden;
+}
+.t-warn  { color:#f0c060; }
+.t-alert { color:#ff6b6b; }
+.t-dim   { color:#3a5040; }
+
+/* ── Zone rows ── */
+.zone-row { margin-bottom:12px; }
+.zone-hdr { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:5px; gap:8px; }
+.zone-name { font-size:12px; font-weight:600; }
+.zone-sub  { font-size:10px; color:var(--fg-sub); }
+.zone-rate { font-size:13px; font-weight:700; font-variant-numeric:tabular-nums; flex-shrink:0; }
+
+/* ── Toast ── */
+#toasts {
+  position: fixed;
+  bottom: max(16px,env(safe-area-inset-bottom,0px));
+  right: max(16px,env(safe-area-inset-right,0px));
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  max-width: min(340px,calc(100vw - 32px));
+}
+.toast {
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  box-shadow: 0 4px 16px rgba(0,0,0,.22);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  animation: t-in .28s cubic-bezier(.34,1.56,.64,1) forwards;
+  pointer-events: auto;
+  cursor: pointer;
+}
+.toast.out { animation: t-out .2s ease forwards; }
+.t-success { background:var(--green);  color:#fff; }
+.t-error   { background:var(--red);    color:#fff; }
+.t-warning { background:var(--orange); color:#fff; }
+.t-info    { background:var(--blue);   color:#fff; }
+@keyframes t-in  { from{transform:translateX(120%);opacity:0} to{transform:translateX(0);opacity:1} }
+@keyframes t-out { from{opacity:1;transform:translateX(0)}    to{opacity:0;transform:translateX(120%)} }
+
+/* layout helpers */
+.row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.col { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.mt { margin-top:12px; }
+.text-sub { color:var(--fg-sub); }
+.text-sm { font-size:12px; }
+.bold { font-weight:700; }
+.mono { font-family:'JetBrains Mono',monospace; }
+.num { font-variant-numeric:tabular-nums; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ─── PLATFORM HEADER ─────────────────────────────── -->
+<header id="hdr">
+  <div id="hdr-inner">
+    <div class="brand">
+      <span class="brand-word">Dandelion</span>
+      <span class="brand-sub">Foundation</span>
+    </div>
+    <div class="hdr-metrics">
+      <div class="hm">
+        <span class="hm-lbl">Escrow</span>
+        <span class="hm-val c-gold" id="hdr-escrow">TZS 38.4M</span>
+      </div>
+      <div class="hm">
+        <span class="hm-lbl">Network</span>
+        <span class="hm-val c-lime"><span class="live-dot"></span>100% Live</span>
+      </div>
+      <div class="hm" id="hm-corridor" style="display:flex">
+        <span class="hm-lbl">Corridor</span>
+        <span class="hm-val c-blue">Dar · Mrg · Tng</span>
+      </div>
+    </div>
+    <button id="reset-btn" onclick="resetSim()">↺ Reset</button>
+  </div>
+</header>
+
+<!-- ─── TAB NAV ───────────────────────────────────────── -->
+<nav id="nav">
+  <div id="nav-inner">
+    <button class="tb active" data-tab="overview" onclick="go('overview',this)">📊 Overview</button>
+    <button class="tb" data-tab="hauler"   onclick="go('hauler',this)">🚛 Hauler</button>
+    <button class="tb" data-tab="mama"     onclick="go('mama',this)">🛍️ Mama Jasiri</button>
+    <button class="tb" data-tab="school"   onclick="go('school',this)">🏫 School</button>
+    <button class="tb" data-tab="clinic"   onclick="go('clinic',this)">💉 Clinic</button>
+    <button class="tb" data-tab="duka"     onclick="go('duka',this)">🏪 Duka / ADDO</button>
+    <button class="tb" data-tab="tower"    onclick="go('tower',this)">🗼 Control Tower</button>
+  </div>
+</nav>
+
+<!-- ─── MAIN CONTENT ──────────────────────────────────── -->
+<main id="main">
+
+<!-- ══ OVERVIEW ══════════════════════════════════════════ -->
+<section id="panel-overview" class="panel on">
+  <div class="row" style="margin-bottom:14px">
+    <h2 style="margin-bottom:0">Operations Dashboard</h2>
+    <span class="badge bdg-green"><span class="live-dot" style="width:5px;height:5px"></span>Live</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi">
+      <div class="kpi-lbl">Revolving Escrow</div>
+      <div class="kpi-val fg-green" id="kpi-escrow">TZS 38.4M</div>
+      <div class="kpi-sub">Production buffer</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Backhaul in Transit</div>
+      <div class="kpi-val fg-blue">7,200 kg</div>
+      <div class="kpi-sub">16 active pallets</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Girls Protected</div>
+      <div class="kpi-val fg-purple">12,480</div>
+      <div class="kpi-sub">−90% truancy rate</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-lbl">Runner Cash Margin</div>
+      <div class="kpi-val fg-gold">+40%</div>
+      <div class="kpi-sub">TZS 200 per pack</div>
+    </div>
+  </div>
+
+  <!-- Pipeline SVG -->
+  <div class="card">
+    <div class="card-title">Fulfillment Pipeline — Tap Any Node</div>
+    <div style="overflow-x:auto">
+      <svg viewBox="0 0 540 120" style="width:100%;min-width:390px;display:block" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+            <path d="M0,1 L0,5 L5,3z" fill="currentColor" opacity=".3"/>
+          </marker>
+        </defs>
+        <line x1="88" y1="60" x2="132" y2="60" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="198" y1="60" x2="242" y2="60" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="308" y1="60" x2="352" y2="60" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+        <line x1="418" y1="60" x2="462" y2="60" stroke="var(--border)" stroke-width="2" marker-end="url(#arr)"/>
+        <!-- animated bead -->
+        <circle r="4" fill="var(--green)" opacity=".85">
+          <animateMotion dur="4s" repeatCount="indefinite" path="M56,60 L484,60"/>
+        </circle>
+        <!-- Factory -->
+        <g class="pipeline-node" onclick="jump('tower')" role="button" tabindex="0" aria-label="Factory — Control Tower" style="cursor:pointer">
+          <circle cx="56" cy="60" r="30" fill="#0b2914" stroke="#264836" stroke-width="1.5"/>
+          <text x="56" y="56" text-anchor="middle" font-size="17" dominant-baseline="middle">🏭</text>
+          <text x="56" y="78" text-anchor="middle" fill="#5a9070" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">FACTORY</text>
+        </g>
+        <!-- Hauler -->
+        <g class="pipeline-node" onclick="jump('hauler')" role="button" tabindex="0" aria-label="Hauler" style="cursor:pointer">
+          <circle cx="165" cy="60" r="30" fill="#0c1e38" stroke="#1e3e60" stroke-width="1.5"/>
+          <text x="165" y="56" text-anchor="middle" font-size="17" dominant-baseline="middle">🚛</text>
+          <text x="165" y="78" text-anchor="middle" fill="#5a88b8" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">HAULER</text>
+        </g>
+        <!-- Depot -->
+        <g class="pipeline-node" onclick="jump('tower')" role="button" tabindex="0" aria-label="Regional Depot" style="cursor:pointer">
+          <circle cx="275" cy="60" r="30" fill="#281c08" stroke="#604018" stroke-width="1.5"/>
+          <text x="275" y="56" text-anchor="middle" font-size="17" dominant-baseline="middle">🏗️</text>
+          <text x="275" y="78" text-anchor="middle" fill="#b89050" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">DEPOT</text>
+        </g>
+        <!-- Runner -->
+        <g class="pipeline-node" onclick="jump('mama')" role="button" tabindex="0" aria-label="Mama Jasiri Runner" style="cursor:pointer">
+          <circle cx="385" cy="60" r="30" fill="#1a0c2e" stroke="#4a2870" stroke-width="1.5"/>
+          <text x="385" y="56" text-anchor="middle" font-size="17" dominant-baseline="middle">🛍️</text>
+          <text x="385" y="78" text-anchor="middle" fill="#9870c8" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">RUNNER</text>
+        </g>
+        <!-- Campus -->
+        <g class="pipeline-node" onclick="jump('school')" role="button" tabindex="0" aria-label="Campus / Clinic" style="cursor:pointer">
+          <circle cx="484" cy="60" r="30" fill="#061c18" stroke="#165848" stroke-width="1.5"/>
+          <text x="484" y="56" text-anchor="middle" font-size="17" dominant-baseline="middle">🏫</text>
+          <text x="484" y="78" text-anchor="middle" fill="#60b090" font-size="8" font-family="DM Sans,sans-serif" font-weight="600">CAMPUS</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Trend Chart -->
+  <div class="card">
+    <div class="card-title">6-Month Health Impact Trajectory</div>
+    <canvas id="trend-chart" height="180"></canvas>
+  </div>
+</section>
+
+<!-- ══ HAULER ════════════════════════════════════════════ -->
+<section id="panel-hauler" class="panel">
+  <div class="row" style="margin-bottom:14px">
+    <h2 style="margin-bottom:0">Hauler Driver Mode</h2>
+    <span class="badge bdg-blue" id="h-badge">Available</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Active Load</div>
+    <div style="font-weight:700;font-size:15px;margin-bottom:2px">Load #BL-2026-0841</div>
+    <div class="text-sub text-sm" style="margin-bottom:14px">Mega Hygiene Factory (Dar Gate) → Posta Staging Depot (Morogoro)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px">
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center">
+        <div class="text-sub" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Cargo</div>
+        <div style="font-weight:700;font-size:14px;font-variant-numeric:tabular-nums">7,200 kg</div>
+        <div class="text-sub text-sm">16 pallets</div>
+      </div>
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center">
+        <div class="text-sub" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Route</div>
+        <div style="font-weight:700;font-size:14px">195 km</div>
+        <div class="text-sub text-sm">Dar → Mrg</div>
+      </div>
+      <div style="background:var(--green-lt);border:1px solid color-mix(in srgb,var(--green) 18%,transparent);border-radius:8px;padding:10px;text-align:center">
+        <div class="text-sub" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;color:var(--green)">Payout</div>
+        <div style="font-weight:700;font-size:14px;color:var(--green)">TZS 208K</div>
+        <div class="text-sub text-sm">Guaranteed</div>
+      </div>
+    </div>
+
+    <div id="h-step-1" class="step s-active">
+      <span class="step-ico">📦</span>
+      <div class="step-body">
+        <div class="step-title">Claim Freight Cargo</div>
+        <div class="step-sub">Assign yourself as carrier for this load</div>
+      </div>
+      <span class="step-chk" id="h-chk-1">⏳</span>
+    </div>
+    <div id="h-step-2" class="step s-locked">
+      <span class="step-ico">📱</span>
+      <div class="step-body">
+        <div class="step-title">Scan Factory Gate-Out</div>
+        <div class="step-sub">Activate TRA transit placard</div>
+      </div>
+      <span class="step-chk" id="h-chk-2">○</span>
+    </div>
+    <div id="h-step-3" class="step s-locked">
+      <span class="step-ico">🎯</span>
+      <div class="step-body">
+        <div class="step-title">Geofenced Depot Gate-In Scan</div>
+        <div class="step-sub">Complete delivery — instant payment release</div>
+      </div>
+      <span class="step-chk" id="h-chk-3">○</span>
+    </div>
+
+    <button class="btn bg-blue mt" id="h-action-btn" onclick="haulerAction()">Claim Freight Cargo →</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Driver Mobile Wallet</div>
+    <div class="row">
+      <div>
+        <div style="font-size:26px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums" id="h-wallet">TZS 0</div>
+        <div class="text-sub text-sm">Available balance</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:22px;font-weight:700;font-variant-numeric:tabular-nums" id="h-trips">0</div>
+        <div class="text-sub text-sm">Trips completed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tra" id="tra-placard" hidden>
+    <div class="row" style="margin-bottom:10px;align-items:flex-start">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#4a8060;margin-bottom:3px">TRA Section 59 — Digital Exemption</div>
+        <div style="font-size:16px;font-weight:700;color:#fff">Tax-Exempt Transit Placard</div>
+      </div>
+      <span style="font-size:26px">🛡️</span>
+    </div>
+    <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:12px">
+      <div class="dr"><span class="k">HS Code</span><span class="v mono">9619.00.10</span></div>
+      <div class="dr"><span class="k">Manifest No.</span><span class="v mono">BL-2026-0841</span></div>
+      <div class="dr"><span class="k">Route</span><span class="v mono">DAR ES SALAAM → MOROGORO</span></div>
+      <div class="dr"><span class="k">Gross Weight</span><span class="v mono">7,200 KG / 16 PALLETS</span></div>
+      <div style="margin-top:10px;background:rgba(20,100,50,.35);border-radius:6px;padding:8px;font-size:11px;text-align:center;color:#a0e0b0;font-weight:600">
+        ✅ WEIGHBRIDGE INSPECTION EXEMPT — MFD HEALTH SECTOR COMMODITY
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAMA JASIRI ════════════════════════════════════════ -->
+<section id="panel-mama" class="panel">
+  <h2>Mama Jasiri Runner</h2>
+
+  <div class="card">
+    <div class="card-title">Daily Zero-Debt Consignment</div>
+    <div class="row" style="margin-bottom:6px">
+      <span class="text-sub text-sm">Packs sold today</span>
+      <span style="font-weight:700;font-variant-numeric:tabular-nums" id="m-sold-label">0 / 10</span>
+    </div>
+    <div class="track" style="height:12px;margin-bottom:12px">
+      <div class="fill fill-purple" id="m-prog" style="width:0%"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div style="background:var(--surface-2);border-radius:8px;padding:10px;text-align:center">
+        <div class="text-sub" style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px">Remaining</div>
+        <div style="font-weight:700;font-size:18px;font-variant-numeric:tabular-nums" id="m-remaining">10</div>
+      </div>
+      <div style="background:var(--gold-lt);border:1px solid color-mix(in srgb,var(--gold) 18%,transparent);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;color:var(--gold)">Capital Due</div>
+        <div style="font-weight:700;font-size:13px;color:var(--gold);font-variant-numeric:tabular-nums" id="m-capital">TZS 0</div>
+      </div>
+      <div style="background:var(--green-lt);border:1px solid color-mix(in srgb,var(--green) 18%,transparent);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px;color:var(--green)">Net Profit</div>
+        <div style="font-weight:700;font-size:13px;color:var(--green);font-variant-numeric:tabular-nums" id="m-profit">TZS 0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <button class="btn bg-purple" onclick="mamaSell()">
+      <span>🛍️ Sell 1 Pack Door-to-Door</span>
+      <span class="pill">+TZS 200 margin</span>
+    </button>
+    <button class="btn bg-teal" onclick="mamaSchool()">
+      <span>🏫 Restock School Campus Dispensers</span>
+      <span class="pill">+TZS 2,000</span>
+    </button>
+    <button class="btn bg-orange" onclick="mamaReconcile()">
+      <span>🔐 Kikoba Steel Trunk Reconciliation</span>
+      <span class="pill">Clear quota</span>
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <h3 style="margin-bottom:0">2G USSD Terminal</h3>
+      <span class="badge bdg-sub mono">*150*88#</span>
+    </div>
+    <div class="ussd" id="ussd-screen">
+      <span class="u-dim">Press DIAL to connect to Dandelion network...</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px">
+      <button class="btn bg-green btn-sm" onclick="ussdDial()">📞 Dial *150*88#</button>
+      <button class="btn bg-ghost btn-sm" id="ussd-reply" onclick="ussdReply()" hidden>Reply: 1</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══ SCHOOL ════════════════════════════════════════════ -->
+<section id="panel-school" class="panel">
+  <h2>School Welfare Desk</h2>
+
+  <div class="card">
+    <div class="card-title">Campus Dispenser Status</div>
+    <div id="dispensers"></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+    <button class="btn bg-teal" onclick="schoolEmergency()">🚨 Student Emergency Use</button>
+    <button class="btn bg-ghost" onclick="schoolBurn()">🔥 Log Clean-Burn Cycle</button>
+  </div>
+
+  <div class="dark-card">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--hdr-gold)">PO-RALG Impact Scorecard</div>
+    <div class="impact-grid">
+      <div class="impact-tile"><div class="i-big">98.4%</div><div class="i-tiny">Female student retention</div></div>
+      <div class="impact-tile"><div class="i-big">TZS 0</div><div class="i-tiny">Campus budget outlay</div></div>
+      <div class="impact-tile"><div class="i-big" id="burn-count">0</div><div class="i-tiny">Clean-burn cycles logged</div></div>
+      <div class="impact-tile"><div class="i-big">0</div><div class="i-tiny">Latrine blockages</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLINIC ════════════════════════════════════════════ -->
+<section id="panel-clinic" class="panel">
+  <div class="row" style="margin-bottom:14px">
+    <h2 style="margin-bottom:0">MoH RCH Desk</h2>
+    <span class="badge bdg-blue" id="coupon-badge">0 coupons sent</span>
+  </div>
+  <div id="clinic-queue"></div>
+  <div class="card">
+    <div class="card-title">Last Dispatched Coupon</div>
+    <div id="last-coupon" class="mono" style="font-size:10px;color:var(--fg-sub);line-height:1.7">
+      Awaiting first vaccination stamp...
+    </div>
+  </div>
+</section>
+
+<!-- ══ DUKA / ADDO ════════════════════════════════════════ -->
+<section id="panel-duka" class="panel">
+  <h2>Duka &amp; ADDO POS</h2>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:12px;align-items:flex-start">
+      <div>
+        <div style="font-weight:700;font-size:14px">🩺 Taulo za Kike — Sanitary Pads</div>
+        <div class="text-sub text-sm">Price cap: TZS 500 &nbsp;|&nbsp; Margin: TZS 200</div>
+      </div>
+      <span class="badge bdg-green">Stock: <span id="duka-pads">24</span></span>
+    </div>
+    <button class="btn bg-green" onclick="dukaSellPads()">💳 Sell Pack at TZS 500</button>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:12px;align-items:flex-start">
+      <div>
+        <div style="font-weight:700;font-size:14px">👶 Nepi za Watoto — Diapers</div>
+        <div class="text-sub text-sm">Voucher redemption: TZS 3,500 &nbsp;|&nbsp; Margin: TZS 1,000</div>
+      </div>
+      <span class="badge bdg-blue">Stock: <span id="duka-diapers">12</span></span>
+    </div>
+    <button class="btn bg-blue" onclick="dukaVoucher()">🎫 Redeem MoH Diaper Voucher at TZS 3,500</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Merchant Ledger</div>
+    <div class="row">
+      <div>
+        <div style="font-size:24px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums" id="duka-profit">TZS 0</div>
+        <div class="text-sub text-sm">Session profit</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums" id="duka-vouchers">0</div>
+        <div class="text-sub text-sm">Vouchers redeemed</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dark-card">
+    <div class="row" style="margin-bottom:10px;align-items:flex-start">
+      <div>
+        <div style="font-size:15px;font-weight:700;color:#fff">M-Pesa Merchant Till</div>
+        <div class="text-sm" style="color:var(--hdr-fg);margin-top:2px">Lipa Namba Integration Active</div>
+      </div>
+      <span style="font-size:26px">📱</span>
+    </div>
+    <div style="background:rgba(0,0,0,.25);border-radius:8px;padding:10px;margin-bottom:10px">
+      <div class="dr tra"><span class="k">Till No.</span><span class="v mono">5461237</span></div>
+      <div class="dr tra"><span class="k">Business</span><span class="v mono">Duka ya Afya Ltd</span></div>
+      <div class="dr tra"><span class="k">Sweep Day</span><span class="v mono">Friday 09:00 EAT</span></div>
+    </div>
+    <button class="btn" style="background:var(--hdr-gold);color:#1a1000" onclick="dukaSweep()">
+      💸 Trigger Manual Capital Sweep → Escrow
+    </button>
+  </div>
+</section>
+
+<!-- ══ CONTROL TOWER ══════════════════════════════════════ -->
+<section id="panel-tower" class="panel">
+  <h2>Master Control Tower</h2>
+
+  <div class="card">
+    <div class="card-title">Revolving Escrow Monitor</div>
+    <div class="row" style="margin-bottom:6px;align-items:baseline">
+      <span style="font-size:22px;font-weight:700;color:var(--green);font-variant-numeric:tabular-nums" id="tower-escrow">TZS 38.4M</span>
+      <span class="text-sub text-sm">Target: TZS 100M</span>
+    </div>
+    <div class="track" style="height:14px;margin-bottom:6px">
+      <div class="fill" id="tower-bar" style="width:38.4%;background:linear-gradient(90deg,var(--green),color-mix(in srgb,var(--green) 60%,var(--gold)))"></div>
+    </div>
+    <div class="text-sub text-sm" style="margin-bottom:12px">
+      Call-off threshold: TZS 38.2M &mdash; <span style="color:var(--green);font-weight:600">✅ Threshold met</span>
+    </div>
+    <button class="btn bg-green" id="calloff-btn" onclick="towerCalloff()">
+      🏭 Trigger Factory Call-Off PO (30% Advance Wire)
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">AI Whistleblower Sentry Feed</div>
+    <div class="term" id="sentry-feed">
+      <div>[ SENTRY ACTIVE ] — Monitoring 847 registered nodes</div>
+      <div class="t-dim">No active alerts — all pricing compliant</div>
+    </div>
+    <button class="btn bg-red mt" onclick="towerWhistleblower()">
+      📲 Simulate Inbound Whistleblower SMS (0800-710-000)
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Executive Override Controls</div>
+    <div class="col" style="gap:8px">
+      <button class="btn bg-blue" id="carrier-btn" onclick="towerCarrier()">🔄 Backup Carrier Rollover (Posta Standby)</button>
+      <button class="btn bg-orange" onclick="towerFreeze()">🧊 Freeze Compromised Node</button>
+      <button class="btn bg-ghost" onclick="towerQuarantine()">⚠️ Serialized Lot Quarantine</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Geographic Corridor Telemetry</div>
+    <div class="zone-row">
+      <div class="zone-hdr">
+        <div><div class="zone-name">Zone 1 — Dar Urban Surplus</div><div class="zone-sub">High density, short haul</div></div>
+        <span class="zone-rate fg-green">TZS 3.50/kg</span>
+      </div>
+      <div class="track"><div class="fill fill-green" style="width:92%"></div></div>
+    </div>
+    <div class="zone-row">
+      <div class="zone-hdr">
+        <div><div class="zone-name">Zone 2 — Morogoro Backhaul</div><div class="zone-sub">Mid-range, return freight</div></div>
+        <span class="zone-rate fg-gold">TZS 5.20/kg</span>
+      </div>
+      <div class="track"><div class="fill fill-gold" style="width:68%"></div></div>
+    </div>
+    <div class="zone-row">
+      <div class="zone-hdr">
+        <div><div class="zone-name">Zone 3 — Tanga Rural Cross-Subsidized</div><div class="zone-sub">Long haul, subsidy applied</div></div>
+        <span class="zone-rate fg-orange">TZS 8.50/kg</span>
+      </div>
+      <div class="track"><div class="fill fill-orange" style="width:44%"></div></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<div id="toasts"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+function mkState() {
+  return {
+    escrow: 38420000,
+    hauler: { step: 0, wallet: 0, trips: 0 },
+    mama:   { sold: 0, profit: 0 },
+    school: {
+      block_a: { fill: 85, buf: 120 },
+      block_b: { fill: 72, buf: 98  },
+      scholar: { fill: 45, buf: 60  },
+      burns: 0
+    },
+    clinic: {
+      queue: [
+        { name:'Fatuma Hassan', infant:'Baby Hassan', vax:'Pentavalent (3rd Dose)', done:false },
+        { name:'Grace Mwangi',  infant:'Baby Mwangi',  vax:'Rotavirus (2nd Dose)',  done:false },
+        { name:'Aisha Salim',   infant:'Baby Salim',   vax:'Measles-Rubella',        done:false }
+      ],
+      coupons: 0
+    },
+    duka: { pads:24, diapers:12, profit:0, vouchers:0 },
+    master: { calloff:false, carrier:false, frozen:0, quarantined:0 },
+    ussdStep: 'idle'
+  };
+}
+let S = mkState();
+
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+function txt(id, v) { const e=$(id); if(e) e.textContent=v; }
+function fmtM(n) {
+  if (n >= 1e6) return `TZS ${(n/1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `TZS ${(n/1e3).toFixed(0)}K`;
+  return `TZS ${n.toLocaleString()}`;
+}
+function fmtF(n) { return `TZS ${n.toLocaleString()}`; }
+function rnd() { return Math.random().toString(36).slice(2,8).toUpperCase(); }
+
+// ══════════════════════════════════════════════════════════
+// TOASTS
+// ══════════════════════════════════════════════════════════
+function toast(msg, type='success') {
+  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`;
+  el.innerHTML = `<span style="flex-shrink:0">${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  const dismiss = () => { el.classList.add('out'); setTimeout(()=>el.remove(), 220); };
+  el.addEventListener('click', dismiss);
+  $('toasts').appendChild(el);
+  setTimeout(dismiss, 4200);
+}
+
+// ══════════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════════
+function go(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b => b.classList.remove('active'));
+  const panel = $('panel-' + name);
+  if (panel) panel.classList.add('on');
+  const b = btn || document.querySelector(`.tb[data-tab="${name}"]`);
+  if (b) { b.classList.add('active'); b.scrollIntoView({ behavior:'smooth', block:'nearest', inline:'center' }); }
+  if (name === 'overview') setTimeout(initChart, 60);
+  if (name === 'school')   renderDisp();
+  if (name === 'clinic')   renderClinic();
+}
+function jump(name) { go(name); }
+
+// ══════════════════════════════════════════════════════════
+// GLOBAL UPDATE
+// ══════════════════════════════════════════════════════════
+function sync() {
+  const v = fmtM(S.escrow);
+  txt('hdr-escrow', v);
+  txt('kpi-escrow', v);
+  txt('tower-escrow', v);
+  const pct = Math.min(S.escrow / 1e6, 100).toFixed(1);
+  const bar = $('tower-bar');
+  if (bar) bar.style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════════════════
+// RESET
+// ══════════════════════════════════════════════════════════
+function resetSim() {
+  S = mkState();
+  sync();
+  renderHauler();
+  renderMama();
+  renderDisp();
+  renderClinic();
+  renderDuka();
+  const cb = $('calloff-btn');
+  if (cb) { cb.textContent = '🏭 Trigger Factory Call-Off PO (30% Advance Wire)'; cb.disabled = false; cb.className = 'btn bg-green'; }
+  const sf = $('sentry-feed');
+  if (sf) { sf.innerHTML = '<div>[ SENTRY ACTIVE ] — Monitoring 847 registered nodes</div><div class="t-dim">No active alerts — all pricing compliant</div>'; }
+  const cr = $('carrier-btn');
+  if (cr) { cr.textContent = '🔄 Backup Carrier Rollover (Posta Standby)'; cr.className = 'btn bg-blue'; }
+  txt('burn-count', 0);
+  ussdReset();
+  toast('Simulation reset to initial state', 'info');
+}
+
+// ══════════════════════════════════════════════════════════
+// CHART
+// ══════════════════════════════════════════════════════════
+let chart = null;
+function initChart() {
+  if (typeof Chart === 'undefined') return;
+  const canvas = $('trend-chart');
+  if (!canvas) return;
+  if (chart) { chart.destroy(); chart = null; }
+  const dark = document.documentElement.dataset.theme === 'dark' ||
+    (!document.documentElement.dataset.theme && matchMedia('(prefers-color-scheme: dark)').matches);
+  const gc  = dark ? 'rgba(255,255,255,.05)' : 'rgba(0,0,0,.05)';
+  const lc  = dark ? '#5a7850' : '#7a9070';
+  chart = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: ['May','Jun','Jul','Aug','Sep','Oct'],
+      datasets: [
+        { label:'Absenteeism %', data:[22.4,18.1,12.3,7.8,4.2,2.1],
+          borderColor:'#b83232', backgroundColor:'rgba(184,50,50,.08)',
+          tension:.4, pointRadius:4, fill:true, borderWidth:2 },
+        { label:'Exam Sitting %', data:[84.0,88.5,92.1,95.6,98.2,99.8],
+          borderColor:'#1a6b3a', backgroundColor:'rgba(26,107,58,.09)',
+          tension:.4, pointRadius:4, fill:true, borderWidth:2 }
+      ]
+    },
+    options: {
+      responsive:true,
+      interaction: { mode:'index', intersect:false },
+      plugins: {
+        legend: { position:'bottom', labels:{ font:{size:11,family:'DM Sans'}, color:lc, padding:16 } },
+        tooltip: { bodyFont:{size:11}, callbacks:{ label: c => ` ${c.dataset.label}: ${c.parsed.y}%` } }
+      },
+      scales: {
+        y: { min:0, max:108,
+          ticks:{ callback: v=>v+'%', font:{size:10}, color:lc },
+          grid:{ color:gc }, border:{ display:false } },
+        x: { ticks:{ font:{size:10}, color:lc }, grid:{ display:false }, border:{ display:false } }
+      }
+    }
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// HAULER
+// ══════════════════════════════════════════════════════════
+const HSTEPS = [
+  { badge:'Available',  bClass:'bdg-blue',   btnCls:'bg-blue',   btnTxt:'Claim Freight Cargo →' },
+  { badge:'Assigned',   bClass:'bdg-gold',   btnCls:'bg-gold',   btnTxt:'Scan Factory Gate-Out →' },
+  { badge:'In Transit', bClass:'bdg-orange',  btnCls:'bg-purple', btnTxt:'Geofenced Depot Gate-In Scan →' },
+  { badge:'Delivered ✓',bClass:'bdg-green',  btnCls:'bg-ghost',  btnTxt:'✅ Delivered — Claim Next Load →' }
+];
+function haulerAction() {
+  const h = S.hauler;
+  if (h.step === 0) {
+    h.step = 1;
+    toast('Load #BL-2026-0841 claimed — you are now the assigned carrier', 'success');
+  } else if (h.step === 1) {
+    h.step = 2;
+    $('tra-placard').hidden = false;
+    toast('Factory gate-out scan confirmed. TRA transit placard activated — weighbridge exempt.', 'success');
+  } else if (h.step === 2) {
+    h.step = 3;
+    h.wallet += 208000;
+    h.trips++;
+    S.escrow = Math.max(0, S.escrow - 208000);
+    sync();
+    toast('Depot gate-in scan confirmed! TZS 208,000 deposited to mobile wallet instantly.', 'success');
+    setTimeout(() => toast(`Trip #${h.trips} logged to TRA digital manifest`, 'info'), 900);
+  } else {
+    h.step = 0;
+    $('tra-placard').hidden = true;
+    toast('Ready for next assignment — Load #BL-2026-0842 available', 'info');
+  }
+  renderHauler();
+}
+function renderHauler() {
+  const h = S.hauler;
+  const d = HSTEPS[h.step];
+  const badge = $('h-badge');
+  if (badge) { badge.textContent = d.badge; badge.className = 'badge ' + d.bClass; }
+  const btn = $('h-action-btn');
+  if (btn)  { btn.textContent = d.btnTxt; btn.className = 'btn mt ' + d.btnCls; }
+  txt('h-wallet', fmtF(h.wallet));
+  txt('h-trips',  h.trips);
+  for (let i = 1; i <= 3; i++) {
+    const row = $(`h-step-${i}`);
+    const chk = $(`h-chk-${i}`);
+    if (!row || !chk) continue;
+    row.className = 'step';
+    if (i - 1 < h.step)      { row.classList.add('s-done');   chk.textContent = '✅'; }
+    else if (i - 1 === h.step) { row.classList.add('s-active'); chk.textContent = '⏳'; }
+    else                       { row.classList.add('s-locked'); chk.textContent = '○'; }
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// MAMA JASIRI
+// ══════════════════════════════════════════════════════════
+function mamaSell() {
+  if (S.mama.sold >= 10) { toast('Daily quota of 10 packs reached — reconcile to reset', 'warning'); return; }
+  S.mama.sold++;
+  S.mama.profit += 200;
+  toast(`Pack sold at TZS 500. +TZS 200 cash margin in pocket. ${10 - S.mama.sold} packs remaining.`, 'success');
+  renderMama();
+}
+function mamaSchool() {
+  S.mama.profit += 2000;
+  S.school.block_a.fill = Math.min(100, S.school.block_a.fill + 12);
+  S.school.block_a.buf  = Math.min(200, S.school.block_a.buf  + 16);
+  S.school.block_b.fill = Math.min(100, S.school.block_b.fill + 10);
+  S.school.block_b.buf  = Math.min(200, S.school.block_b.buf  + 13);
+  toast('2 cartons delivered to Jangwani Secondary. Dispensers restocked. +TZS 2,000 service fee.', 'success');
+  renderMama();
+}
+function mamaReconcile() {
+  if (S.mama.sold < 3) { toast('Sell at least 3 packs before end-of-day reconciliation', 'warning'); return; }
+  const cap = S.mama.sold * 300;
+  S.escrow += cap;
+  sync();
+  toast(`Kikoba reconciliation complete. TZS ${cap.toLocaleString()} base capital returned to dual-key lockbox. Quota cleared.`, 'success');
+  setTimeout(() => { S.mama.sold = 0; S.mama.profit = 0; renderMama(); }, 1800);
+}
+function renderMama() {
+  const m = S.mama;
+  const pct = (m.sold / 10) * 100;
+  txt('m-sold-label', `${m.sold} / 10`);
+  const bar = $('m-prog');
+  if (bar) bar.style.width = pct + '%';
+  txt('m-remaining', 10 - m.sold);
+  txt('m-capital', fmtF(m.sold * 300));
+  txt('m-profit', fmtF(m.profit));
+}
+
+// USSD
+let ussdStep = 'idle';
+function ussdReset() {
+  ussdStep = 'idle';
+  const s = $('ussd-screen');
+  if (s) s.innerHTML = '<span class="u-dim">Press DIAL to connect to Dandelion network...</span>';
+  const b = $('ussd-reply');
+  if (b) b.hidden = true;
+}
+function ussdDial() {
+  ussdStep = 'menu';
+  $('ussd-screen').innerHTML = `<div class="u-in">DANDELION FOUNDATION — Karibu!</div>
+<div>Mama Jasiri Self-Service Portal</div>
+<div style="margin-top:6px">1. Angalia Bakaa (Check Balance)</div>
+<div>2. Tuma M-Pesa (Send Funds)</div>
+<div>3. Ripoti Tatizo (Report Issue)</div>
+<div style="margin-top:6px" class="u-dim">Chagua (Select): ___</div>`;
+  const b = $('ussd-reply');
+  if (b) { b.hidden = false; b.textContent = 'Reply: 1'; }
+  toast('USSD session active — *150*88# connected', 'info');
+}
+function ussdReply() {
+  const s = $('ussd-screen');
+  if (!s) return;
+  const b = $('ussd-reply');
+  if (ussdStep === 'menu') {
+    ussdStep = 'balance';
+    s.innerHTML = `<div class="u-in">1. BAKAA YAKO (Your Balance)</div>
+<div style="font-size:16px;font-weight:600;margin:4px 0">TZS ${S.mama.profit.toLocaleString()}</div>
+<div class="u-dim" style="font-size:11px">Imeboreshwa: ${new Date().toLocaleTimeString()}</div>
+<div style="margin-top:8px">1. Tuma kwa M-Pesa (Ada-free)</div>
+<div>0. Rudi Nyuma (Back)</div>`;
+    if (b) b.textContent = 'Reply: 1 (Send)';
+    toast(`Balance: TZS ${S.mama.profit.toLocaleString()} — zero-fee M-Pesa transfer available`, 'success');
+  } else if (ussdStep === 'balance') {
+    ussdStep = 'sent';
+    s.innerHTML = `<div class="u-in">TUMA M-PESA — Ada-Free Transfer</div>
+<div style="margin:4px 0">Kiasi: TZS ${S.mama.profit.toLocaleString()}</div>
+<div>Ada: <span style="color:#4fe870">TZS 0</span> (Imetolewa Ruzuku)</div>
+<div class="u-dim" style="margin-top:4px">Kupeleka kwa: 0754-XXX-XXX</div>
+<div style="margin-top:8px;color:#4fe870">✓ Imepelekwa — SMS utafika hivi karibuni</div>`;
+    if (b) b.hidden = true;
+    toast('Fee-free M-Pesa sweep initiated — SMS confirmation dispatched', 'success');
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// SCHOOL
+// ══════════════════════════════════════════════════════════
+const DISP_DEF = [
+  { key:'block_a', label:'🚽 Ablution Block A',     sub:'Coinless auto-dispenser' },
+  { key:'block_b', label:'🚽 Ablution Block B',     sub:'Coinless auto-dispenser' },
+  { key:'scholar', label:'🔒 Scholar Mothers Locker', sub:'Private access dispenser' }
+];
+function renderDisp() {
+  const c = $('dispensers');
+  if (!c) return;
+  c.innerHTML = DISP_DEF.map(def => {
+    const d = S.school[def.key];
+    const col  = d.fill > 60 ? 'var(--green)' : d.fill > 30 ? 'var(--gold)' : 'var(--red)';
+    const bcls = d.fill > 60 ? 'bdg-green'     : d.fill > 30 ? 'bdg-gold'    : 'bdg-red';
+    return `<div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div class="row" style="margin-bottom:6px">
+        <div>
+          <div style="font-weight:600;font-size:13px">${def.label}</div>
+          <div class="text-sub text-sm">${def.sub}</div>
+        </div>
+        <span class="badge ${bcls}">${d.fill}%</span>
+      </div>
+      <div class="track"><div class="fill" style="width:${d.fill}%;background:${col}"></div></div>
+      <div class="text-sub text-sm" style="margin-top:4px">Buffer: ${d.buf} packs</div>
+    </div>`;
+  }).join('');
+}
+function schoolEmergency() {
+  const keys = ['block_a','block_b','scholar'];
+  const tgt  = keys.reduce((a,b) => S.school[a].fill < S.school[b].fill ? a : b);
+  S.school[tgt].fill = Math.max(0, S.school[tgt].fill - 5);
+  S.school[tgt].buf  = Math.max(0, S.school[tgt].buf  - 6);
+  const def  = DISP_DEF.find(d => d.key === tgt);
+  toast(`Emergency pack dispensed from ${def.label.replace(/^[^\s]+\s/,'')}. Student served — zero campus budget impact.`, 'success');
+  renderDisp();
+}
+function schoolBurn() {
+  S.school.burns++;
+  txt('burn-count', S.school.burns);
+  toast(`Incinerator Cycle #${S.school.burns} logged: 800°C dual-chamber clean-burn confirmed. Zero latrine blockages.`, 'success');
+}
+
+// ══════════════════════════════════════════════════════════
+// CLINIC
+// ══════════════════════════════════════════════════════════
+function renderClinic() {
+  const c = $('clinic-queue');
+  if (!c) return;
+  c.innerHTML = S.clinic.queue.map((p, i) => `
+    <div class="p-card ${p.done ? 'done' : ''}">
+      <div class="p-top">
+        <div>
+          <div class="p-name">${p.name}</div>
+          <div class="p-detail">${p.infant} — ${p.vax}</div>
+        </div>
+        <span class="badge ${p.done ? 'bdg-green' : 'bdg-gold'}">${p.done ? 'Stamped ✅' : 'Waiting'}</span>
+      </div>
+      ${p.done
+        ? `<div class="p-coupon">COUPON-${rnd()} | ${p.name} | Nepi za Watoto @ TZS 3,500 | Valid 14 days | OTP:${rnd()}</div>`
+        : `<button class="btn bg-teal btn-sm" onclick="clinicStamp(${i})">💉 Examine &amp; Stamp Card</button>`}
+    </div>`).join('');
+  txt('coupon-badge', `${S.clinic.coupons} coupon${S.clinic.coupons !== 1 ? 's' : ''} sent`);
+}
+function clinicStamp(i) {
+  const p = S.clinic.queue[i];
+  if (p.done) return;
+  p.done = true;
+  S.clinic.coupons++;
+  const code = `COUPON-${rnd()} | ${p.name} | Nepi @ TZS 3,500 | Valid 14d | SHA:${rnd()}${rnd()}`;
+  toast(`Vaccination stamped: ${p.vax} for ${p.infant}. Encrypted diaper coupon dispatched to ${p.name.split(' ')[0]}'s phone.`, 'success');
+  txt('last-coupon', code);
+  renderClinic();
+}
+
+// ══════════════════════════════════════════════════════════
+// DUKA
+// ══════════════════════════════════════════════════════════
+function dukaSellPads() {
+  if (S.duka.pads <= 0) { toast('Pads out of stock — place restock order', 'warning'); return; }
+  S.duka.pads--;
+  S.duka.profit += 200;
+  toast('Pad sold at TZS 500 — +TZS 200 merchant margin. Stock updated.', 'success');
+  renderDuka();
+}
+function dukaVoucher() {
+  if (S.duka.diapers <= 0) { toast('Diapers out of stock — place restock order', 'warning'); return; }
+  S.duka.diapers--;
+  S.duka.profit += 1000;
+  S.duka.vouchers++;
+  toast('MoH voucher redeemed — diapers dispensed at TZS 3,500. +TZS 1,000 merchant margin.', 'success');
+  renderDuka();
+}
+function dukaSweep() {
+  if (S.duka.profit === 0) { toast('No profit balance to sweep — complete sales first', 'warning'); return; }
+  const cap = Math.floor(S.duka.profit * 0.6);
+  S.escrow += cap;
+  sync();
+  toast(`M-Pesa sweep triggered: TZS ${cap.toLocaleString()} wholesale capital → Revolving Escrow.`, 'success');
+}
+function renderDuka() {
+  txt('duka-pads',    S.duka.pads);
+  txt('duka-diapers', S.duka.diapers);
+  txt('duka-profit',  fmtF(S.duka.profit));
+  txt('duka-vouchers',S.duka.vouchers);
+}
+
+// ══════════════════════════════════════════════════════════
+// CONTROL TOWER
+// ══════════════════════════════════════════════════════════
+function towerCalloff() {
+  if (S.master.calloff) { toast('Factory call-off already issued this cycle', 'warning'); return; }
+  S.master.calloff = true;
+  const wire = Math.floor(S.escrow * 0.3);
+  S.escrow -= wire;
+  sync();
+  const btn = $('calloff-btn');
+  if (btn) { btn.textContent = '✅ Call-Off Issued — SWIFT Wire Pending'; btn.disabled = true; btn.className = 'btn bg-ghost'; }
+  toast(`Factory Call-Off PO issued. TZS ${wire.toLocaleString()} (30%) advance wire dispatched to Mega Hygiene Factory.`, 'success');
+  setTimeout(() => toast('SWIFT MT103 confirmation expected within 4–6 banking hours', 'info'), 1100);
+}
+function towerWhistleblower() {
+  const merchant = 'Duka Ndio Mali, Temeke Kwa Gerezani';
+  S.master.frozen++;
+  const caseNo = `WB-${rnd()}`;
+  const ts = new Date().toLocaleTimeString();
+  const sf = $('sentry-feed');
+  if (sf) sf.innerHTML = `<div>[ SENTRY ACTIVE ] — Monitoring 847 registered nodes</div>
+<div class="t-warn">⚠️  INBOUND SMS — 0800-710-000  [${ts}]</div>
+<div class="t-alert">📱 "Duka hii inamaliza TZS 800 badala ya 500 — wizi wa bei!"</div>
+<div class="t-warn">🔍 AI MATCH → ${merchant}</div>
+<div class="t-alert">🔒 AUTO: Till LOCKED — all transactions suspended</div>
+<div class="t-dim">Case ${caseNo} → compliance@dandelion.tz</div>`;
+  toast(`Whistleblower processed. ${merchant} till locked — price gouging detected (TZS 800 vs cap TZS 500).`, 'error');
+  setTimeout(() => toast(`Case ${caseNo} assigned to compliance officer`, 'info'), 1100);
+}
+function towerCarrier() {
+  S.master.carrier = !S.master.carrier;
+  const btn = $('carrier-btn');
+  if (S.master.carrier) {
+    if (btn) { btn.textContent = '✅ Posta Standby Active — Tap to Deactivate'; btn.className = 'btn bg-green'; }
+    toast('Posta Tanzania standby carrier activated — TAZARA rail corridor on hot-standby', 'success');
+  } else {
+    if (btn) { btn.textContent = '🔄 Backup Carrier Rollover (Posta Standby)'; btn.className = 'btn bg-blue'; }
+    toast('Primary carrier restored — Posta standby deactivated', 'info');
+  }
+}
+function towerFreeze() {
+  S.master.frozen++;
+  toast(`Node #${S.master.frozen} frozen — all transactions suspended pending security audit`, 'warning');
+}
+function towerQuarantine() {
+  S.master.quarantined++;
+  const lot = `LOT-${new Date().getFullYear()}-${rnd().slice(0,4)}`;
+  toast(`Lot ${lot} quarantined — serialized tracking initiated, downstream recall notices dispatched`, 'warning');
+}
+
+// ══════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  sync();
+  renderHauler();
+  renderMama();
+  renderDisp();
+  renderClinic();
+  renderDuka();
+  setTimeout(initChart, 80);
+});
+</script>
+</body>
+</html>
