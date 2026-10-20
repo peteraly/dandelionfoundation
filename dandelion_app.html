@@ -1,0 +1,1775 @@
+<title>Dandelion</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --p:#4F46E5;--pl:#818CF8;--a:#10B981;--w:#F59E0B;--d:#EF4444;
+  --bg:#F3F4F6;--sur:#FFFFFF;--sur2:#F9FAFB;--bdr:#E5E7EB;
+  --tx:#111827;--tx2:#6B7280;--tx3:#9CA3AF;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F172A;--sur:#1E293B;--sur2:#0F172A;--bdr:#334155;
+  --tx:#F1F5F9;--tx2:#94A3B8;--tx3:#64748B;color-scheme:dark;
+}}
+:root[data-theme="dark"]{--bg:#0F172A;--sur:#1E293B;--sur2:#0F172A;--bdr:#334155;--tx:#F1F5F9;--tx2:#94A3B8;--tx3:#64748B;color-scheme:dark;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center;padding-block:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+#phone{width:min(390px,100%);height:min(844px,calc(100vh - 40px));background:var(--sur);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;}
+@media(max-width:440px){body{padding:0;}#phone{border-radius:0;height:100vh;}}
+#sb{background:var(--sur);padding:12px 20px 6px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--tx);flex-shrink:0;z-index:10;}
+.si{display:flex;gap:5px;align-items:center;font-size:11px}
+#screens{flex:1;overflow:hidden;position:relative}
+.sc{position:absolute;inset:0;overflow-y:auto;background:var(--sur);transform:translateX(100%);transition:transform .28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.sc.active{transform:translateX(0)}.sc.prev{transform:translateX(-28%)}
+.ph{padding:14px 18px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--bdr);flex-shrink:0;background:var(--sur);}
+.ph h2{font-size:17px;font-weight:600;flex:1}
+.bb{background:none;border:none;cursor:pointer;font-size:22px;color:var(--p);padding:4px;line-height:1;font-family:inherit}
+.pc{flex:1;overflow-y:auto;padding:18px}
+.btn{display:block;width:100%;padding:13px 18px;border:none;border-radius:12px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s,transform .1s;text-align:center;}
+.btn:active{transform:scale(.98);opacity:.88}
+.bp{background:var(--p);color:#fff}.bs{background:var(--sur2);color:var(--tx);border:1px solid var(--bdr)}.ba{background:var(--a);color:#fff}.bw{background:var(--w);color:#fff}
+.bsm{padding:7px 14px;font-size:12px;width:auto;display:inline-block;border-radius:9px}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;overflow:hidden}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600}
+.tg{background:#D1FAE5;color:#065F46}.ty{background:#FEF3C7;color:#92400E}.tr{background:#FEE2E2;color:#991B1B}.tb{background:#DBEAFE;color:#1E40AF}.td{background:var(--sur2);color:var(--tx2)}.tp{background:#EDE9FE;color:#5B21B6}
+.fg{margin-bottom:14px}.fl{display:block;font-size:12px;font-weight:500;color:var(--tx2);margin-bottom:5px}
+.fi{width:100%;padding:11px 13px;border:1.5px solid var(--bdr);border-radius:10px;font-size:15px;font-family:inherit;background:var(--sur);color:var(--tx);outline:none;transition:border-color .15s;}
+.fi:focus{border-color:var(--p)}
+.sh{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--tx2);margin:18px 0 8px}.sh:first-child{margin-top:0}
+.bn{background:var(--sur);border-top:1px solid var(--bdr);padding:7px 0;display:flex;flex-shrink:0;}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 4px;cursor:pointer;border:none;background:none;color:var(--tx3);font-size:10px;font-family:inherit;transition:color .15s;}
+.ni.on{color:var(--p)}.nii{font-size:21px;line-height:1}
+.st{background:var(--sur2);border:1px solid var(--bdr);border-radius:13px;padding:13px}
+.sl{font-size:11px;color:var(--tx2);font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+.sv{font-size:22px;font-weight:700;margin-top:3px}.ss{font-size:11px;color:var(--tx2);margin-top:2px}
+.sr{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.es{text-align:center;padding:32px 16px;color:var(--tx2)}.ei{font-size:44px;margin-bottom:10px}.et{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:5px}
+.oc{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:13px;margin-bottom:9px}
+.oh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.ot{font-size:14px;font-weight:600}.od{font-size:12px;color:var(--tx2);margin-top:3px}
+.pi{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:13px;display:flex;align-items:center;gap:13px;cursor:pointer;margin-bottom:8px}
+.pi:active{opacity:.8}.pe{font-size:34px;flex-shrink:0}.pif{flex:1}.pn{font-size:14px;font-weight:600}.pm{font-size:12px;color:var(--tx2);margin-top:2px}.pp{font-size:16px;font-weight:700;color:var(--p)}
+.cs{display:flex;flex-direction:column;gap:11px}
+.ct{background:var(--sur2);border:1.5px solid var(--bdr);border-radius:13px;padding:15px;display:flex;align-items:center;gap:13px;cursor:pointer;transition:border-color .15s,background .15s}
+.ct.done{border-color:var(--a);background:#D1FAE5}
+.cd{width:36px;height:36px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.ct.done .cd{border-color:var(--a);background:var(--a);color:#fff}
+.sp{display:flex;align-items:center;margin:18px 0}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;position:relative}
+.step::after{content:'';position:absolute;top:15px;left:50%;width:100%;height:2px;background:var(--bdr)}
+.step:last-child::after{display:none}.step.done::after{background:var(--a)}
+.sd{width:30px;height:30px;border-radius:50%;background:var(--bdr);color:var(--tx3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:1}
+.step.done .sd{background:var(--a);color:#fff}.step.cur .sd{background:var(--p);color:#fff}
+.slb{font-size:10px;color:var(--tx2);text-align:center;font-weight:500}
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#1F2937;color:#fff;padding:9px 16px;border-radius:22px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:200;white-space:nowrap;}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Shift ledger bar */
+.ledger{border-radius:14px;overflow:hidden;margin-bottom:14px;border:1px solid var(--bdr)}
+.ledger-head{background:linear-gradient(90deg,#4F46E5,#10B981);padding:14px 16px;color:#fff}
+.ledger-head .lh1{font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.ledger-head .lh2{font-size:18px;font-weight:700;margin-top:3px}
+.ledger-row{display:flex;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--bdr);font-size:13px;align-items:center;background:var(--sur)}
+.ledger-row .lk{color:var(--tx2)}.ledger-row .lv{font-weight:600}
+.ledger-row.safe .lv{color:var(--p)}
+.ledger-row.pocket .lv{color:var(--a)}
+.ledger-row.zero{background:var(--sur2)}.ledger-row.zero .lv{color:var(--a);font-weight:700}
+
+/* Quota bar */
+.qbar{margin-bottom:14px}
+.qbar-track{height:10px;background:var(--bdr);border-radius:999px;overflow:hidden;margin-top:6px}
+.qbar-fill{height:100%;background:linear-gradient(90deg,var(--a),#34D399);border-radius:999px;transition:width .4s}
+
+.eb{background:linear-gradient(90deg,#4F46E5,#10B981);border-radius:13px;padding:15px 17px;color:#fff;margin-bottom:14px}
+.el{font-size:11px;opacity:.8;font-weight:500;letter-spacing:.05em;text-transform:uppercase}
+.ea{font-size:27px;font-weight:700;margin-top:2px}.ebs{font-size:12px;opacity:.75;margin-top:2px}
+.pb{background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:10px 13px;display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.pd{width:9px;height:9px;border-radius:50%;background:var(--a);flex-shrink:0}
+
+/* Welcome */
+#sc-welcome{background:linear-gradient(155deg,#4F46E5 0%,#10B981 100%);justify-content:center;align-items:center;gap:22px;padding:36px 28px;color:#fff;}
+.wl{font-size:76px;line-height:1}.wt{font-size:30px;font-weight:700;text-align:center;letter-spacing:-.5px}.ws{font-size:14px;text-align:center;opacity:.85;line-height:1.55}
+.wd{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 12px;font-size:11px;font-weight:600;letter-spacing:.05em}
+
+/* Role grid */
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.rc{background:var(--sur2);border:1.5px solid var(--bdr);border-radius:15px;padding:14px 11px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:border-color .15s,background .15s,transform .1s;text-align:center}
+.rc:active{transform:scale(.97)}.rc.feat{grid-column:span 2;flex-direction:row;text-align:left;gap:13px}
+.ri{font-size:30px;line-height:1}.rn{font-size:13px;font-weight:600;color:var(--tx)}.rd{font-size:11px;color:var(--tx2);line-height:1.4}
+
+/* OTP */
+.og{display:flex;gap:9px;justify-content:center;margin:18px 0}
+.oi{width:54px;height:62px;text-align:center;font-size:24px;font-weight:700;border:2px solid var(--bdr);border-radius:11px;background:var(--sur2);color:var(--tx);outline:none;font-family:inherit}
+.oi:focus{border-color:var(--p)}
+
+/* Alert card */
+.alert-card{background:var(--sur);border-radius:13px;padding:13px;margin-bottom:9px;border-left:4px solid var(--d)}
+.alert-card.warn{border-left-color:var(--w)}
+.alert-card.info{border-left-color:var(--p)}
+.ac-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.ac-title{font-size:13px;font-weight:600}.ac-time{font-size:11px;color:var(--tx3)}
+.ac-body{font-size:12px;color:var(--tx2);line-height:1.5}
+</style>
+
+<div id="toast"></div>
+<div id="phone">
+  <div id="sb">
+    <span id="sbt">9:41</span>
+    <div class="si">
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><rect x="0" y="4" width="3" height="7" rx="1"/><rect x="4" y="2.5" width="3" height="8.5" rx="1"/><rect x="8" y="1" width="3" height="10" rx="1"/><rect x="12" y="0" width="3" height="11" rx="1" opacity=".35"/></svg>
+      <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M7.5 2.5C5.1 2.5 2.9 3.5 1.3 5.1L0 3.8C2 1.8 4.6.5 7.5.5s5.5 1.3 7.5 3.3l-1.3 1.3C12.1 3.5 9.9 2.5 7.5 2.5z"/><path d="M7.5 6C6.1 6 4.8 6.6 3.9 7.5L2.6 6.2C3.9 4.9 5.6 4 7.5 4s3.6.9 4.9 2.2L11.1 7.5C10.2 6.6 8.9 6 7.5 6z"/><circle cx="7.5" cy="9.5" r="1.5"/></svg>
+      <span style="font-size:11px;font-weight:600">87%</span>
+    </div>
+  </div>
+
+  <div id="screens">
+
+    <!-- WELCOME -->
+    <div class="sc" id="sc-welcome">
+      <div class="wl">🌼</div>
+      <div class="wt">Dandelion</div>
+      <div class="ws">Affordable hygiene products<br>delivered to your community</div>
+      <div class="wd">PHASE 0 · DAR ES SALAAM · DEMO</div>
+      <button class="btn" style="background:#fff;color:#4F46E5;margin-top:6px" onclick="nav('role-select')">Get Started</button>
+      <p style="font-size:12px;opacity:.7;text-align:center;margin-top:6px">Choose your role →</p>
+    </div>
+
+    <!-- ROLE SELECT -->
+    <div class="sc" id="sc-role-select">
+      <div class="ph"><h2>Who are you?</h2></div>
+      <div class="pc">
+        <p style="font-size:13px;color:var(--tx2);margin-bottom:14px">Pick a role. Switch any time to see every perspective.</p>
+        <div class="rg">
+          <div class="rc feat" onclick="pickRole('consumer')"><div class="ri">🛍️</div><div><div class="rn">Community Member</div><div class="rd">Order products for pickup or home delivery</div></div></div>
+          <div class="rc" onclick="pickRole('runner')"><div class="ri">🏃‍♀️</div><div class="rn">Runner</div><div class="rd">Mama Jasiri — sell OTC & fulfill campus restocks</div></div>
+          <div class="rc" onclick="pickRole('matron')"><div class="ri">🏫</div><div class="rn">Matron</div><div class="rd">Manage school stock & confirm receipts</div></div>
+          <div class="rc" onclick="pickRole('boda')"><div class="ri">🚲</div><div class="rn">Boda</div><div class="rd">Carry consignments between nodes</div></div>
+          <div class="rc" onclick="pickRole('vsla')"><div class="ri">💰</div><div class="rn">VSLA</div><div class="rd">Kikoba float & consignment management</div></div>
+          <div class="rc" onclick="pickRole('nurse')"><div class="ri">💉</div><div class="rn">RCH Nurse</div><div class="rd">Issue clinical diaper vouchers, verify infant cards</div></div>
+          <div class="rc" onclick="pickRole('duka')"><div class="ri">🏪</div><div class="rn">Duka Merchant</div><div class="rd">POS sales, voucher redemption, Lipa till sweep</div></div>
+          <div class="rc" onclick="pickRole('operator')"><div class="ri">⚙️</div><div class="rn">Operator</div><div class="rd">Solo operator — escrow, phases, SENTRY alerts</div></div>
+          <div class="rc" onclick="pickRole('converter')"><div class="ri">🏭</div><div class="rn">Plant GM</div><div class="rd">Industrial converter — 5-step pipeline, gate-out settlement</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ONBOARD PHONE -->
+    <div class="sc" id="sc-ob-phone">
+      <div class="ph"><button class="bb" onclick="nav('role-select')">←</button><h2 id="ob-title">Create Account</h2></div>
+      <div class="pc">
+        <div style="text-align:center;margin-bottom:22px"><div style="font-size:54px;margin-bottom:8px" id="ob-icon">👤</div><p style="font-size:13px;color:var(--tx2)">Enter your M-Pesa number.<br>This becomes your login and payment account.</p></div>
+        <div class="fg"><label class="fl">Phone Number (M-Pesa)</label><input class="fi" type="tel" id="ph-inp" placeholder="e.g. 0712 345 678" maxlength="13"></div>
+        <button class="btn bp" onclick="submitPhone()">Send Verification Code →</button>
+        <p style="font-size:11px;color:var(--tx3);text-align:center;margin-top:10px">4-digit code via M-Pesa flash message</p>
+      </div>
+    </div>
+
+    <!-- ONBOARD OTP -->
+    <div class="sc" id="sc-ob-otp">
+      <div class="ph"><button class="bb" onclick="nav('ob-phone')">←</button><h2>Verify Code</h2></div>
+      <div class="pc">
+        <div style="text-align:center;margin-bottom:20px"><p style="font-size:13px;color:var(--tx2)">Code sent to</p><p style="font-size:15px;font-weight:600;margin-top:4px" id="otp-ph">0712 345 678</p></div>
+        <div class="og">
+          <input class="oi" maxlength="1" id="o0" oninput="otpIn(0,this)" inputmode="numeric">
+          <input class="oi" maxlength="1" id="o1" oninput="otpIn(1,this)" inputmode="numeric">
+          <input class="oi" maxlength="1" id="o2" oninput="otpIn(2,this)" inputmode="numeric">
+          <input class="oi" maxlength="1" id="o3" oninput="otpIn(3,this)" inputmode="numeric">
+        </div>
+        <p style="font-size:12px;color:var(--tx2);text-align:center;margin-bottom:14px">Demo: type any 4 digits to continue</p>
+        <button class="btn bs" onclick="showToast('Code resent!')">Resend Code</button>
+      </div>
+    </div>
+
+    <!-- ONBOARD DETAILS -->
+    <div class="sc" id="sc-ob-details">
+      <div class="ph"><button class="bb" onclick="nav('ob-otp')">←</button><h2>Your Details</h2></div>
+      <div class="pc" id="ob-form"></div>
+    </div>
+
+    <!-- CONSUMER HOME -->
+    <div class="sc" id="sc-h-consumer">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">Good morning,</div><h2 id="c-name">Fatuma</h2></div>
+        <button class="btn bsm bs" onclick="nav('role-select')">Switch Role</button>
+      </div>
+      <div class="pc">
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:999px;padding:5px 13px;display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--tx2);margin-bottom:14px">📍 <span id="c-loc">Jangwani Ward</span></div>
+        <div style="background:linear-gradient(135deg,#4F46E5,#818CF8);border-radius:15px;padding:16px;color:#fff;margin-bottom:18px">
+          <div style="font-size:11px;opacity:.8;letter-spacing:.05em;text-transform:uppercase;font-weight:600">Maximum price — printed on every pack</div>
+          <div style="font-size:26px;font-weight:700;margin-top:2px">TZS 500</div>
+          <div style="font-size:12px;opacity:.8;margin-top:2px">Flexographic seal. Structurally enforced. Cannot change.</div>
+        </div>
+        <div class="sh">Available Products</div>
+        <div id="prod-list"></div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏠</span><span>Shop</span></button>
+        <button class="ni" onclick="showMyOrders()"><span class="nii">📦</span><span>Orders</span></button>
+        <button class="ni"><span class="nii">👤</span><span>Account</span></button>
+      </div>
+    </div>
+
+    <!-- PRODUCT DETAIL -->
+    <div class="sc" id="sc-prod"><div class="ph"><button class="bb" onclick="back()">←</button><h2 id="prod-name">Product</h2></div><div class="pc" id="prod-body"></div></div>
+
+    <!-- CHECKOUT -->
+    <div class="sc" id="sc-checkout"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Confirm Order</h2></div><div class="pc" id="checkout-body"></div></div>
+
+    <!-- ORDER TRACKING -->
+    <div class="sc" id="sc-track"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Order Status</h2></div><div class="pc" id="track-body"></div></div>
+
+    <!-- MY ORDERS -->
+    <div class="sc" id="sc-myorders"><div class="ph"><button class="bb" onclick="back()">←</button><h2>My Orders</h2></div><div class="pc" id="myorders-body"></div></div>
+
+    <!-- RUNNER HOME -->
+    <div class="sc" id="sc-h-runner">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">Mama Jasiri ·</div><h2 id="r-name">Amina</h2></div>
+        <div style="display:flex;align-items:center;gap:7px">
+          <span class="tag tg" style="font-size:11px" id="r-status-tag">● CHECKED_OUT</span>
+          <button class="btn bsm bs" onclick="nav('role-select')">Switch</button>
+        </div>
+      </div>
+      <div class="pc">
+
+        <!-- Shift ledger bar -->
+        <div class="ledger">
+          <div class="ledger-head">
+            <div class="lh1">Shift Ledger · Zero Debt Guaranteed</div>
+            <div class="lh2" id="r-shift-label">Shift SH-20261020-084</div>
+          </div>
+          <div class="ledger-row">
+            <span class="lk">Quota checked out</span>
+            <span class="lv" id="r-quota">10 packs</span>
+          </div>
+          <div class="ledger-row">
+            <span class="lk">Sold so far</span>
+            <span class="lv" id="r-sold-ct">0 packs</span>
+          </div>
+          <div class="ledger-row">
+            <span class="lk">Remaining in satchel</span>
+            <span class="lv" id="r-remain">10 packs</span>
+          </div>
+          <div class="ledger-row safe">
+            <span class="lk">Base due to Kikoba safe</span>
+            <span class="lv" id="r-due">TZS 0</span>
+          </div>
+          <div class="ledger-row pocket">
+            <span class="lk">Cash in your pocket</span>
+            <span class="lv" id="r-pocket">TZS 0</span>
+          </div>
+          <div class="ledger-row zero">
+            <span class="lk">📌 Net debt liability</span>
+            <span class="lv">TZS 0.00 ✓</span>
+          </div>
+        </div>
+
+        <!-- Quota progress -->
+        <div class="qbar">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2)">
+            <span>Quota progress</span>
+            <span id="r-pct">0 / 10</span>
+          </div>
+          <div class="qbar-track"><div class="qbar-fill" id="r-qfill" style="width:0%"></div></div>
+        </div>
+
+        <!-- 25-day streak -->
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:13px;padding:12px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <div style="font-size:12px;font-weight:600">25-Day Consistency Streak</div>
+            <div style="font-size:11px;color:var(--tx2)">14 / 25 · 11 to go</div>
+          </div>
+          <div class="qbar-track"><div class="qbar-fill" style="width:56%;background:linear-gradient(90deg,var(--w),#FCD34D)"></div></div>
+          <div style="font-size:11px;color:var(--tx2);margin-top:5px">TZS 15,000 childcare stipend unlocks on day 25 → M-Pesa</div>
+        </div>
+
+        <!-- Actions -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px">
+          <button class="btn ba" onclick="nav('r-otc')">Log OTC Sale</button>
+          <button class="btn bw" onclick="nav('r-restock')" style="color:#fff">Campus Restock</button>
+        </div>
+
+        <!-- App orders queue -->
+        <div class="sh">App Orders (<span id="r-q">0</span>)</div>
+        <div id="r-list"><div class="es" style="padding:20px"><div class="ei" style="font-size:32px">📭</div><div class="et" style="font-size:14px">Queue empty</div><p style="font-size:12px">Consumer app orders appear here too.</p></div></div>
+
+        <!-- Shift close -->
+        <div style="margin-top:16px"><button class="btn bs" onclick="nav('r-close')">Close Shift (17:30) →</button></div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏠</span><span>Shift</span></button>
+        <button class="ni"><span class="nii">📊</span><span>History</span></button>
+        <button class="ni"><span class="nii">💰</span><span>Earnings</span></button>
+      </div>
+    </div>
+
+    <!-- RUNNER: OTC SALE -->
+    <div class="sc" id="sc-r-otc">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Log OTC Sale</h2></div>
+      <div class="pc">
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--tx2)">
+          Remaining in satchel: <strong style="color:var(--tx)" id="otc-remain-display">10 packs</strong>
+        </div>
+        <div class="fg">
+          <label class="fl">Quantity</label>
+          <div style="display:flex;align-items:center;gap:11px">
+            <button onclick="chgOtc(-1)" style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">−</button>
+            <div style="font-size:28px;font-weight:700;min-width:32px;text-align:center" id="otc-qty">1</div>
+            <button onclick="chgOtc(1)" style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
+        </div>
+        <div class="fg">
+          <label class="fl">Payment Mode</label>
+          <div style="display:flex;gap:9px">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px;background:var(--sur2);border:1.5px solid var(--p);border-radius:10px;cursor:pointer">
+              <input type="radio" name="pay" value="cash" checked style="accent-color:var(--p)">
+              <div><div style="font-size:13px;font-weight:600">💵 Cash</div></div>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer">
+              <input type="radio" name="pay" value="mpesa" style="accent-color:var(--p)">
+              <div><div style="font-size:13px;font-weight:600">📱 M-Pesa</div></div>
+            </label>
+          </div>
+        </div>
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:16px">
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;font-weight:500">Split for <span id="otc-qty-label">1 pack</span>:</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px"><span style="color:var(--tx2)">→ Kikoba safe (TZS 300 × qty)</span><span style="font-weight:600;color:var(--p)" id="otc-safe-amt">TZS 300</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--tx2)">→ Your pocket (TZS 200 × qty)</span><span style="font-weight:600;color:var(--a)" id="otc-pocket-amt">TZS 200</span></div>
+          <div style="border-top:1px solid var(--bdr);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:13px;font-weight:700"><span>Consumer pays</span><span id="otc-total-amt">TZS 500</span></div>
+        </div>
+        <button class="btn ba" onclick="logOtc()">Confirm Sale — TZS <span id="otc-btn-amt">500</span></button>
+        <p style="font-size:11px;color:var(--tx3);text-align:center;margin-top:8px">Sale logs offline if no signal · syncs when reconnected</p>
+      </div>
+    </div>
+
+    <!-- RUNNER: CAMPUS RESTOCK TASK -->
+    <div class="sc" id="sc-r-restock">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Campus Restock</h2></div>
+      <div class="pc">
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:11px;padding:12px;margin-bottom:14px;font-size:12px;color:#92400E">
+          <strong>TSK-RST-2026-0941</strong> · Dispatched by engine at 14:02
+        </div>
+        <div class="card" style="padding:14px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Delivery Details</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2)">
+            <div>🏫 <strong style="color:var(--tx)">Jangwani Secondary, Ablution Block</strong></div>
+            <div>📦 2 master cartons (96 packs)</div>
+            <div>📍 Geofence radius: 25 m</div>
+            <div>⏰ Dispatched: 14:02 EAT</div>
+          </div>
+        </div>
+        <div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:11px;padding:13px;margin-bottom:14px">
+          <div style="font-size:13px;font-weight:600;color:#065F46">Task fee</div>
+          <div style="font-size:24px;font-weight:700;color:#047857">TZS 2,000</div>
+          <div style="font-size:11px;color:#059669;margin-top:2px">B2C M-Pesa payout on matron QR scan</div>
+        </div>
+        <div class="sh">Matron confirmation required</div>
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:14px;margin-bottom:16px;text-align:center">
+          <div style="font-size:64px;line-height:1.1;letter-spacing:2px">▓▓░▓<br>▓░░░<br>░▓▓▓</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:7px">Show to matron · She scans with her app</div>
+        </div>
+        <button class="btn ba" onclick="restockDone()">Matron scanned — complete task</button>
+        <button class="btn bs" style="margin-top:8px" onclick="back()">Back</button>
+      </div>
+    </div>
+
+    <!-- RUNNER: UNSOLD RETURN -->
+    <div class="sc" id="sc-r-return">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Return Unsold</h2></div>
+      <div class="pc" id="r-return-body"></div>
+    </div>
+
+    <!-- RUNNER: CLOSE SHIFT -->
+    <div class="sc" id="sc-r-close">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Close Shift</h2></div>
+      <div class="pc" id="r-close-body"></div>
+    </div>
+
+    <!-- RUNNER: APP ORDER DETAIL -->
+    <div class="sc" id="sc-r-order"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Order Details</h2></div><div class="pc" id="r-order-body"></div></div>
+
+    <!-- DELIVERY CONFIRM -->
+    <div class="sc" id="sc-deliver"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Confirm Delivery</h2></div><div class="pc" id="deliver-body"></div></div>
+
+    <!-- MATRON HOME -->
+    <div class="sc" id="sc-h-matron">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">School Matron</div><h2 id="m-name">Mama Zawadi</h2></div>
+        <button class="btn bsm bs" onclick="nav('role-select')">Switch</button>
+      </div>
+      <div class="pc">
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:11px;font-size:12px;color:var(--tx2);margin-bottom:14px">🏫 <strong style="color:var(--tx)" id="m-school">Jangwani Primary</strong> · Dar es Salaam</div>
+        <div class="sr">
+          <div class="st"><div class="sl">In Stock</div><div class="sv" id="m-stock">148</div><div class="ss">packs</div></div>
+          <div class="st"><div class="sl">Disbursed</div><div class="sv" id="m-dis">312</div><div class="ss">this month</div></div>
+        </div>
+        <div class="sh">Incoming Deliveries</div>
+        <div id="m-inc"><div class="es"><div class="ei">🚚</div><div class="et">Nothing en route</div><p style="font-size:13px">Switch to Runner → complete a delivery → come back here.</p></div></div>
+        <div class="sh">Recent Activity</div>
+        <div class="oc"><div class="oh"><div><div class="ot">Delivery received</div><div class="od">50 packs · P-001 Classic</div></div><span class="tag tg">Confirmed</span></div><div style="font-size:11px;color:var(--tx3);margin-top:4px">Oct 18 · 10:23</div></div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏠</span><span>Stock</span></button>
+        <button class="ni"><span class="nii">📋</span><span>Orders</span></button>
+        <button class="ni"><span class="nii">👥</span><span>Students</span></button>
+      </div>
+    </div>
+
+    <!-- MATRON CONFIRM RECEIPT -->
+    <div class="sc" id="sc-m-confirm"><div class="ph"><button class="bb" onclick="back()">←</button><h2>Confirm Receipt</h2></div><div class="pc" id="m-confirm-body"></div></div>
+
+    <!-- OPERATOR DASHBOARD -->
+    <div class="sc" id="sc-h-operator">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">Solo Operator</div><h2 id="op-name">Peter</h2></div>
+        <button class="btn bsm bs" onclick="nav('role-select')">Switch</button>
+      </div>
+      <div class="pc">
+        <div class="eb">
+          <div class="el">Escrow Balance</div>
+          <div class="ea" id="op-escrow">TZS 847,500</div>
+          <div class="ebs">Floor: TZS 750,000 · ✓ Healthy</div>
+        </div>
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:11px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+          <div style="width:9px;height:9px;border-radius:50%;background:var(--a);flex-shrink:0;box-shadow:0 0 6px var(--a)"></div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600">72h Dead-Man's Sentry · ACTIVE</div><div style="font-size:11px;color:var(--tx2)">Last login: 14h 23m ago · Shamir key: standby (3-of-3: Legal, Audit, Tech)</div></div>
+          <button class="btn bsm" style="background:#D1FAE5;color:#065F46;border:none;font-size:11px" onclick="showToast('Watchdog reset · 72h timer restarted ✓')">Reset</button>
+        </div>
+        <div class="pb">
+          <div class="pd"></div>
+          <div style="flex:1"><div style="font-size:12px;font-weight:600">Stage 0 · Kariakoo Wholesale Split</div><div style="font-size:11px;color:var(--tx2)">1 school · ~1,200 packs/mo · TZS 330/pack base cost</div></div>
+          <div style="font-size:11px;color:var(--tx2)">→ Stg 1</div>
+        </div>
+        <div class="sr">
+          <div class="st"><div class="sl">Active Runners</div><div class="sv">2</div><div class="ss">Amina, Zuwena</div></div>
+          <div class="st"><div class="sl">Open Orders</div><div class="sv" id="op-open">0</div><div class="ss">pending</div></div>
+        </div>
+        <div class="sr">
+          <div class="st"><div class="sl">25-Day Streak</div><div class="sv">14</div><div class="ss">Amina · 11 to go</div></div>
+          <div class="st"><div class="sl">Consistency Pay</div><div class="sv" style="font-size:15px">TZS 15K</div><div class="ss">unlocks day 25</div></div>
+        </div>
+
+        <div class="sh">4-Stage MOQ Bridge · Ω(V) Sourcing</div>
+        <div style="border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:8px">
+          <div style="padding:12px 13px;background:var(--sur2);border-bottom:1px solid var(--bdr)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <span style="font-size:12px;font-weight:600">Stage 0 active · 1,200 packs/mo</span>
+              <span style="font-size:11px;color:var(--tx2)">1,800 to Stage 1 →</span>
+            </div>
+            <div class="qbar-track"><div class="qbar-fill" style="width:40%;background:linear-gradient(90deg,var(--p),var(--pl))"></div></div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:4px">Threshold 3,000 packs/mo → unlock TZS 310/pack (save TZS 20/pack · 5–15 schools)</div>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 13px;border-bottom:1px solid var(--bdr);background:#EDE9FE">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--p);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">0</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Kariakoo Wholesale Master Split</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:2px">1–3K packs · Kariakoo distributors · Bus belly (Abood/Shabiby) TZS 10/pack</div>
+              <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
+                <span class="tag tp" style="font-size:10px">TZS 330/pack</span>
+                <span class="tag td" style="font-size:10px">Escrow TZS 750K</span>
+                <span class="tag td" style="font-size:10px">1–2 schools</span>
+              </div>
+            </div>
+            <span class="tag tg" style="font-size:10px;align-self:flex-start;white-space:nowrap">● Active</span>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 13px;border-bottom:1px solid var(--bdr)">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--bdr);color:var(--tx2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Converter Overrun Piggyback</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:2px">5–20K packs · Mid-tier rotary plants · AMCOS co-op return vans TZS 6.50/pack</div>
+              <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
+                <span class="tag td" style="font-size:10px">TZS 310/pack</span>
+                <span class="tag td" style="font-size:10px">Escrow TZS 4.5M</span>
+                <span class="tag ty" style="font-size:10px">5–15 schools</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 13px;border-bottom:1px solid var(--bdr);opacity:.7">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--bdr);color:var(--tx2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Statutory Contract Mill PO</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:2px">50–100K packs · Mega Hygiene / Pwani direct · LTL pallet space TZS 5.20/pack · 30% advance wire</div>
+              <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
+                <span class="tag td" style="font-size:10px">TZS 285/pack</span>
+                <span class="tag td" style="font-size:10px">Escrow TZS 22–38M</span>
+                <span class="tag td" style="font-size:10px">30–60 schools</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;padding:10px 13px;opacity:.5">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--bdr);color:var(--tx2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</div>
+            <div style="flex:1">
+              <div style="font-size:12px;font-weight:600">Dual-Mill Split Allocation</div>
+              <div style="font-size:11px;color:var(--tx2);margin-top:2px">250K+ packs · Mill A Pwani 60% + Mill B Tanga 40% · Bakhresa deadhead TZS 3.50 urban / TZS 7.50 rural</div>
+              <div style="display:flex;gap:8px;margin-top:5px;flex-wrap:wrap">
+                <span class="tag td" style="font-size:10px">TZS 265/pack</span>
+                <span class="tag td" style="font-size:10px">Escrow TZS 80–120M</span>
+                <span class="tag td" style="font-size:10px">200+ schools</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:13px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+            <span style="font-size:13px;font-weight:600">Active Batch</span>
+            <span class="tag tg" style="font-family:monospace">LOT-2026-094</span>
+          </div>
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:9px">100,000 packs · 6 nodes · All cable seals intact · Scenario 50 ready</div>
+          <button class="btn bsm" style="background:#FEE2E2;color:#991B1B;border:none;font-size:11px" onclick="triggerQuarantine()">🚨 Quarantine Batch</button>
+        </div>
+
+        <div class="sh">Cohort Economics · Self-Funding Proof</div>
+        <div style="border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:14px">
+          <div style="display:flex;align-items:center;padding:11px 13px;background:var(--sur2);border-bottom:1px solid var(--bdr);gap:4px">
+            <div style="flex:1;text-align:center">
+              <div style="font-size:10px;color:var(--tx2);margin-bottom:3px;font-weight:500">COHORT COST</div>
+              <div style="font-size:15px;font-weight:700">TZS 28.5M</div>
+              <div style="font-size:10px;color:var(--tx2)">100K packs</div>
+            </div>
+            <div style="color:var(--tx3);font-size:16px;font-weight:300;flex-shrink:0">→</div>
+            <div style="flex:1;text-align:center">
+              <div style="font-size:10px;color:var(--tx2);margin-bottom:3px;font-weight:500">SWEEP RECOVERY</div>
+              <div style="font-size:15px;font-weight:700;color:var(--a)">TZS 30.0M</div>
+              <div style="font-size:10px;color:var(--tx2)">M-Pesa wholesale</div>
+            </div>
+            <div style="color:var(--tx3);font-size:16px;font-weight:300;flex-shrink:0">=</div>
+            <div style="flex:1;text-align:center">
+              <div style="font-size:10px;color:var(--tx2);margin-bottom:3px;font-weight:500">NET SURPLUS</div>
+              <div style="font-size:15px;font-weight:700;color:var(--p)">+TZS 1.5M</div>
+              <div style="font-size:10px;color:var(--a)">+5.26%/cohort</div>
+            </div>
+          </div>
+          <div style="padding:9px 13px;font-size:11px;color:var(--tx2);display:flex;justify-content:space-between;border-bottom:1px solid var(--bdr)">
+            <span>Zero-insolvency floor C<sub>floor</sub></span>
+            <span style="font-weight:600;color:var(--tx)">TZS 38.2M (Stage 3 target)</span>
+          </div>
+          <div style="display:flex;padding:9px 13px;font-size:11px;gap:0">
+            <div style="flex:1;text-align:center;border-right:1px solid var(--bdr);padding-right:8px">
+              <div style="color:var(--tx2);margin-bottom:2px">Urban route</div>
+              <div style="font-weight:700;color:var(--a)">+TZS 0.70</div>
+              <div style="font-size:10px;color:var(--tx2)">freight surplus</div>
+            </div>
+            <div style="flex:1;text-align:center;border-right:1px solid var(--bdr);padding:0 8px">
+              <div style="color:var(--tx2);margin-bottom:2px">Rural feeder</div>
+              <div style="font-weight:700;color:var(--d)">−TZS 0.70</div>
+              <div style="font-size:10px;color:var(--tx2)">freight deficit</div>
+            </div>
+            <div style="flex:1;text-align:center;padding-left:8px">
+              <div style="color:var(--tx2);margin-bottom:2px">Net variance</div>
+              <div style="font-weight:700;color:var(--a)">TZS 0.00</div>
+              <div style="font-size:10px;color:var(--tx2)">price parity ✓</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sh">Mill Continuity · Active-Active</div>
+        <div style="border:1px solid var(--bdr);border-radius:13px;overflow:hidden;margin-bottom:14px">
+          <div style="padding:9px 13px;background:linear-gradient(90deg,#4F46E5,#818CF8);display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:12px;font-weight:600;color:#fff">60/40 Split · Both Mills Live</span>
+            <span style="font-size:10px;color:rgba(255,255,255,.8)">No cold standby</span>
+          </div>
+          <div style="display:flex">
+            <div style="flex:3;padding:11px 13px;border-right:1px solid var(--bdr)">
+              <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:3px">MILL A · Pwani / Dar</div>
+              <div style="font-size:15px;font-weight:700;color:var(--p)">60%</div>
+              <div style="font-size:11px;color:var(--tx2)">60,000 packs/mo</div>
+              <div style="background:var(--bdr);border-radius:999px;height:4px;overflow:hidden;margin-top:5px"><div style="background:var(--p);width:60%;height:100%"></div></div>
+              <div style="display:flex;gap:4px;margin-top:5px;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:var(--a)"></div><span style="font-size:10px;color:var(--tx2)">● Running</span></div>
+            </div>
+            <div style="flex:2;padding:11px 13px">
+              <div style="font-size:11px;font-weight:600;color:var(--tx2);margin-bottom:3px">MILL B · Tanga</div>
+              <div style="font-size:15px;font-weight:700;color:var(--pl)">40%</div>
+              <div style="font-size:11px;color:var(--tx2)">40,000 packs/mo</div>
+              <div style="background:var(--bdr);border-radius:999px;height:4px;overflow:hidden;margin-top:5px"><div style="background:var(--pl);width:40%;height:100%"></div></div>
+              <div style="display:flex;gap:4px;margin-top:5px;align-items:center"><div style="width:7px;height:7px;border-radius:50%;background:var(--a)"></div><span style="font-size:10px;color:var(--tx2)">● Running</span></div>
+            </div>
+          </div>
+          <div style="padding:9px 13px;background:var(--sur2);border-top:1px solid var(--bdr);font-size:11px;color:var(--tx2);display:flex;justify-content:space-between;align-items:center">
+            <span>Route A7 flood → 100% Tanga in &lt;2h</span>
+            <button class="btn bsm" style="font-size:10px;padding:3px 9px;background:var(--sur);border:1px solid var(--bdr);color:var(--tx)" onclick="showToast('Failover sim: Tanga absorbs 100% · 0 downtime · Route A7 isolated')">Simulate →</button>
+          </div>
+        </div>
+
+        <div class="sh" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span>SENTRY Alerts (<span id="op-exc">3</span>)</span>
+          <span class="tag tp" style="font-size:10px;text-transform:none;letter-spacing:0">Argos · Dynamic Thresholds</span>
+        </div>
+        <div style="background:var(--sur2);border:1px solid var(--w);border-radius:11px;padding:10px 12px;margin-bottom:8px;display:flex;gap:9px;align-items:flex-start">
+          <div style="font-size:15px;flex-shrink:0;margin-top:1px">📅</div>
+          <div><div style="font-size:12px;font-weight:600">Minada Market Day · Surge Band Active</div><div style="font-size:11px;color:var(--tx2);margin-top:2px">Sell-through +380% vs weekly baseline — within predicted Minada surge band. No arbitrage flag raised. Static threshold would have triggered 14 false alerts today.</div></div>
+        </div>
+        <div id="op-exc-list">
+          <div class="alert-card">
+            <div class="ac-head"><span class="ac-title">ALERT_OVERCHARGE</span><span class="ac-time">09:14</span></div>
+            <div class="ac-body">Runner RUN-MOR-084 (Amina) logged TZS 600 at Kariakoo GPS. Price cap is TZS 500. Shift soft-locked pending Kikoba review.</div>
+            <div style="margin-top:8px;display:flex;gap:8px"><button class="btn bsm bs" onclick="dismissAlert(this)">Dismiss</button><button class="btn bsm bp" style="font-size:11px" onclick="showToast('Review initiated')">Review →</button></div>
+          </div>
+          <div class="alert-card warn">
+            <div class="ac-head"><span class="ac-title">ALERT_SHRINKAGE_VARIANCE</span><span class="ac-time">17:42</span></div>
+            <div class="ac-body">Shift SH-20261019-091 (Zuwena): cash deposited TZS 1,500 but packs_sold × 300 = TZS 1,800. Variance: TZS 300. Kikoba joint-liability buffer engaged.</div>
+            <div style="margin-top:8px"><button class="btn bsm bs" onclick="dismissAlert(this)">Dismiss</button></div>
+          </div>
+          <div class="alert-card info">
+            <div class="ac-head"><span class="ac-title">ALERT_PROLONGED_SHIFT</span><span class="ac-time">20:01</span></div>
+            <div class="ac-body">Shift SH-20261020-077 still OPEN at 20:00 EAT (runner: Neema). SMS check-in sent in Swahili to runner and Secretary. Awaiting response.</div>
+            <div style="margin-top:8px"><button class="btn bsm bs" onclick="dismissAlert(this)">Dismiss</button></div>
+          </div>
+        </div>
+        <div class="sh" style="margin-top:14px">CAG · Automated Remediations</div>
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Common Action Gateway — rules execute without operator input. Keeps admin time &lt;30 min/day.</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+          <div style="border:1px solid var(--bdr);border-radius:11px;padding:10px 12px;background:var(--sur)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;font-weight:600">Merchant Overcharge Freeze</span>
+              <span class="tag tr" style="font-size:10px">Fired 09:14</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2)">3× TZS 600 on Hassan's Lipa Namba → till frozen, wholesale call-offs locked, neighboring runners rerouted to cover Kariakoo catchment.</div>
+          </div>
+          <div style="border:1px solid var(--bdr);border-radius:11px;padding:10px 12px;background:var(--sur)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;font-weight:600">Carrier Standstill Reroute</span>
+              <span class="tag tg" style="font-size:10px">Standby</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2)">Route A7 GPS standstill &gt;48h → debit transit bond, dispatch Posta standby fleet, alert Kariakoo depot. No operator action required.</div>
+          </div>
+          <div style="border:1px solid var(--bdr);border-radius:11px;padding:10px 12px;background:var(--sur)">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+              <span style="font-size:12px;font-weight:600">Dispenser Low-Buffer Restock</span>
+              <span class="tag tg" style="font-size:10px">Standby</span>
+            </div>
+            <div style="font-size:11px;color:var(--tx2)">Ablution block &lt;10 packs → auto-task: TZS 2,000 delivery fee to nearest active runner within 2km geofence. Exam-day priority override applies.</div>
+            <button class="btn bsm" style="margin-top:7px;font-size:11px;background:#EDE9FE;color:#5B21B6;border:none" onclick="showToast('Restock dispatched · Amina (0.8km) · TZS 2,000 fee · ETA 12 min ✓')">Simulate Dispatch →</button>
+          </div>
+        </div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">📊</span><span>Dashboard</span></button>
+        <button class="ni"><span class="nii">🏫</span><span>Schools</span></button>
+        <button class="ni"><span class="nii">📦</span><span>Supply</span></button>
+        <button class="ni"><span class="nii">💰</span><span>Finance</span></button>
+      </div>
+    </div>
+
+    <!-- VSLA HOME -->
+    <div class="sc" id="sc-h-vsla">
+      <div class="ph"><div style="flex:1"><div style="font-size:12px;color:var(--tx2)">VSLA Coordinator</div><h2 id="v-name">Zuwena</h2></div><button class="btn bsm bs" onclick="nav('role-select')">Switch</button></div>
+      <div class="pc">
+        <div style="background:linear-gradient(135deg,#F59E0B,#FCD34D);border-radius:15px;padding:15px;color:#fff;margin-bottom:14px">
+          <div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.05em">VSLA Tier</div>
+          <div style="font-size:24px;font-weight:700">Bronze</div>
+          <div style="font-size:12px;opacity:.85;margin-top:3px">Jua Kali VSLA · Est. 2024 · 12 members</div>
+          <div style="display:flex;gap:18px;margin-top:10px">
+            <div><div style="font-size:10px;opacity:.8">Float Line</div><div style="font-size:16px;font-weight:700">TZS 50K</div></div>
+            <div><div style="font-size:10px;opacity:.8">Used</div><div style="font-size:16px;font-weight:700">TZS 12K</div></div>
+          </div>
+        </div>
+        <div class="sh">Active Consignment</div>
+        <div class="oc">
+          <div class="oh"><div><div class="ot">P-001 Classic · 24 packs</div><div class="od">Dispatched Oct 15 · TZS 7,200 base due</div></div><span class="tag ty">Outstanding</span></div>
+          <div style="margin-top:9px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--tx2);margin-bottom:3px"><span>Base collection</span><span>TZS 3,900 / 7,200</span></div>
+            <div style="background:var(--bdr);border-radius:999px;height:5px;overflow:hidden"><div style="background:var(--a);width:54%;height:100%"></div></div>
+          </div>
+        </div>
+        <div class="sh">Members</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:var(--sur2);border:1px solid var(--bdr);border-radius:10px"><span style="font-size:13px;font-weight:500">Fatuma M.</span><span class="tag tg">✓ Settled</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:var(--sur2);border:1px solid var(--bdr);border-radius:10px"><span style="font-size:13px;font-weight:500">Neema K.</span><span class="tag tg">✓ Settled</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:var(--sur2);border:1px solid var(--bdr);border-radius:10px"><span style="font-size:13px;font-weight:500">Grace J.</span><span class="tag td">Pending</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;background:var(--sur2);border:1px solid var(--bdr);border-radius:10px"><span style="font-size:13px;font-weight:500">Aisha O.</span><span class="tag td">Pending</span></div>
+        </div>
+      </div>
+      <div class="bn"><button class="ni on"><span class="nii">💰</span><span>Float</span></button><button class="ni"><span class="nii">👥</span><span>Members</span></button><button class="ni"><span class="nii">📋</span><span>Orders</span></button></div>
+    </div>
+
+    <!-- BODA HOME -->
+    <div class="sc" id="sc-h-boda">
+      <div class="ph"><div style="flex:1"><div style="font-size:12px;color:var(--tx2)">Boda Courier</div><h2 id="b-name">Juma</h2></div><div style="display:flex;align-items:center;gap:7px"><span class="tag tg" style="font-size:11px">● Online</span><button class="btn bsm bs" onclick="nav('role-select')">Switch</button></div></div>
+      <div class="pc">
+        <div class="sr">
+          <div class="st"><div class="sl">Today's Rides</div><div class="sv">3</div><div class="ss">deliveries</div></div>
+          <div class="st"><div class="sl">Earned</div><div class="sv" style="color:var(--a)">TZS 4,500</div><div class="ss">transit fee</div></div>
+        </div>
+        <div class="sh">Ready for Pickup</div>
+        <div class="oc" style="cursor:pointer;border-color:var(--w)" onclick="nav('boda-pickup')">
+          <div class="oh"><div><div class="ot">Consignment #C-0047</div><div class="od">50 packs · P-001 · 13 kg</div></div><span class="tag ty">Ready</span></div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:7px">📍 Kariakoo Depot → Jangwani Primary</div>
+          <div style="font-size:12px;font-weight:600;color:var(--p);margin-top:5px">Fee: TZS 1,500 →</div>
+        </div>
+        <div class="sh">Completed Today</div>
+        <div class="oc"><div class="oh"><div><div class="ot">Consignment #C-0045</div><div class="od">30 packs · Oct 20, 08:45</div></div><span class="tag tg">Delivered</span></div></div>
+      </div>
+      <div class="bn"><button class="ni on"><span class="nii">🚲</span><span>Rides</span></button><button class="ni"><span class="nii">💰</span><span>Earnings</span></button><button class="ni"><span class="nii">👤</span><span>Profile</span></button></div>
+    </div>
+
+    <!-- BODA PICKUP -->
+    <div class="sc" id="sc-boda-pickup">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Accept Pickup</h2></div>
+      <div class="pc">
+        <div class="card" style="padding:14px;margin-bottom:14px">
+          <div style="font-size:14px;font-weight:600;margin-bottom:10px">Consignment #C-0047</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--tx2)">
+            <div><strong style="color:var(--tx)">Items:</strong> 50 × P-001 Classic (13 kg)</div>
+            <div><strong style="color:var(--tx)">Pickup:</strong> Kariakoo Depot, Bay 3</div>
+            <div><strong style="color:var(--tx)">Dropoff:</strong> Jangwani Primary, Admin Block</div>
+            <div><strong style="color:var(--tx)">Distance:</strong> ~4.2 km</div>
+            <div><strong style="color:var(--tx)">Your fee:</strong> TZS 1,500</div>
+          </div>
+        </div>
+        <div class="sh">Dispatch Priority · Gurafu / μETA</div>
+        <div style="border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:14px">
+          <div style="padding:9px 13px;background:var(--sur2);border-bottom:1px solid var(--bdr)">
+            <div style="font-size:10px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Gurafu · Physical Route</div>
+            <div style="font-size:12px">Kariakoo Depot → Jangwani Primary · 4.2 km · Route A7 clear · Est. 11 min</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:2px">Paved 3.8 km + laterite 0.4 km · Boda-accessible all weather</div>
+          </div>
+          <div style="padding:9px 13px;background:#EDE9FE">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <div style="font-size:10px;font-weight:600;color:#5B21B6;text-transform:uppercase;letter-spacing:.06em">μETA · Health Priority Score</div>
+              <span class="tag tp" style="font-size:10px">P = 0.94 · URGENT</span>
+            </div>
+            <div style="font-size:11px;color:#5B21B6">Form IV exam window active Oct 20–27 · Ablution dispenser at 8 packs (below 10-pack threshold). Exam-day override applied: priority above all routine duka replenishment.</div>
+          </div>
+        </div>
+        <div class="sh">QR Code — scan at depot</div>
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:12px;padding:18px;text-align:center;margin-bottom:14px">
+          <div style="font-size:64px;line-height:1.1;letter-spacing:2px">▓▓░▓<br>▓░░░<br>░▓▓▓</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:7px">C-0047 · Show to depot agent</div>
+        </div>
+        <button class="btn ba" onclick="bodaAccept()">Accept & Navigate →</button>
+        <button class="btn bs" style="margin-top:8px" onclick="back()">Decline</button>
+      </div>
+    </div>
+
+    <!-- NURSE HOME -->
+    <div class="sc" id="sc-h-nurse">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">RCH Nurse</div><h2 id="n-name">Sister Zawadi</h2></div>
+        <button class="btn bsm bs" onclick="nav('role-select')">Switch</button>
+      </div>
+      <div class="pc">
+        <div class="sr">
+          <div class="st"><div class="sl">Issued Today</div><div class="sv" id="n-issued">0</div><div class="ss">vouchers</div></div>
+          <div class="st"><div class="sl">Redeemed</div><div class="sv" id="n-redeemed" style="color:var(--a)">2</div><div class="ss">at pharmacy</div></div>
+        </div>
+        <div style="background:#EDE9FE;border:1px solid #C4B5FD;border-radius:11px;padding:11px;margin-bottom:14px;font-size:12px;color:#5B21B6">
+          🔒 V-3.1 hardening active — optical card hash + bi-directional patient OTP. Surge sentry: &gt;125% moving avg → manual review.
+        </div>
+        <div class="sh">Pending Vaccinations</div>
+        <div id="n-patients"></div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏥</span><span>Patients</span></button>
+        <button class="ni"><span class="nii">🎟️</span><span>Vouchers</span></button>
+        <button class="ni"><span class="nii">📊</span><span>Stats</span></button>
+      </div>
+    </div>
+
+    <!-- NURSE: ISSUE VOUCHER -->
+    <div class="sc" id="sc-nurse-new">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Issue Diaper Voucher</h2></div>
+      <div class="pc" id="nurse-voucher-body"></div>
+    </div>
+
+    <!-- DUKA MERCHANT HOME -->
+    <div class="sc" id="sc-h-duka">
+      <div class="ph">
+        <div style="flex:1"><div style="font-size:12px;color:var(--tx2)">Duka Merchant</div><h2 id="dk-name">Hassan</h2></div>
+        <button class="btn bsm bs" onclick="nav('role-select')">Switch</button>
+      </div>
+      <div class="pc">
+        <div class="eb">
+          <div class="el">Lipa Namba Till</div>
+          <div class="ea" id="dk-till">TZS 7,500</div>
+          <div class="ebs">Auto-sweep Friday 18:00 · TZS 300/pad wholesale to escrow</div>
+        </div>
+        <div class="sr">
+          <div class="st"><div class="sl">Pads Sold</div><div class="sv" id="dk-pads">15</div><div class="ss">this week</div></div>
+          <div class="st"><div class="sl">Vouchers</div><div class="sv" id="dk-vou">4</div><div class="ss">redeemed</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px">
+          <button class="btn bp" onclick="nav('duka-sale')">Log Sale</button>
+          <button class="btn bw" style="color:#fff" onclick="nav('duka-voucher')">Redeem Voucher</button>
+        </div>
+        <div class="sh">Till Management</div>
+        <div class="card" style="padding:13px;margin-bottom:9px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:13px;font-weight:600">Weekly Sweep</span>
+            <span class="tag ty">Friday 18:00</span>
+          </div>
+          <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">TZS 300/pad base swept to central escrow. Your TZS 200 margin stays in till.</div>
+          <button class="btn bsm bs" onclick="manualSweep()">Sweep Now (Mid-week)</button>
+        </div>
+        <div class="alert-card warn" id="dk-cap-alert" style="display:none">
+          <div class="ac-head"><span class="ac-title">ALERT_OVERCHARGE_ATTEMPT</span><span class="ac-time" id="dk-alert-t">--:--</span></div>
+          <div class="ac-body">Transaction blocked: price exceeds TZS 500 cap. Incident logged to Sentry. Ω_merchant risk flag raised.</div>
+        </div>
+      </div>
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏪</span><span>Till</span></button>
+        <button class="ni"><span class="nii">📦</span><span>Stock</span></button>
+        <button class="ni"><span class="nii">📊</span><span>Reports</span></button>
+      </div>
+    </div>
+
+    <!-- DUKA: SALE SCREEN -->
+    <div class="sc" id="sc-duka-sale">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Log Sale</h2></div>
+      <div class="pc" id="duka-sale-body"></div>
+    </div>
+
+    <!-- DUKA: VOUCHER REDEMPTION -->
+    <div class="sc" id="sc-duka-voucher">
+      <div class="ph"><button class="bb" onclick="back()">←</button><h2>Redeem Voucher</h2></div>
+      <div class="pc" id="duka-voucher-body"></div>
+    </div>
+
+    <!-- CONVERTER HOME -->
+    <div class="sc" id="sc-h-converter">
+      <div class="ph" style="background:linear-gradient(135deg,#1E1B4B,#312E81);border-bottom:none">
+        <div style="flex:1">
+          <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em">Plant GM · Megapack Pwani</div>
+          <h2 style="color:#fff;font-size:16px;margin-top:2px" id="cvr-name">Grace Odhiambo</h2>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:10px;color:rgba(255,255,255,.6)">Contract</div>
+          <div style="font-size:11px;font-weight:700;color:#A5B4FC">DF-TZ-2026-CTR-084</div>
+        </div>
+      </div>
+      <div class="pc" style="padding-top:14px">
+
+        <!-- Contract summary -->
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:13px;padding:12px 13px;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:12px;font-weight:600;color:var(--tx2)">LOT-2026-104 · Plant 01 / Line 02</span>
+            <span class="tag tp" style="font-size:10px">Section 59 Exempt</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:9px;padding:9px">
+              <div style="font-size:10px;color:var(--tx2);font-weight:600;margin-bottom:3px">30% ADVANCE</div>
+              <div style="font-size:15px;font-weight:700;color:var(--a)">TZS 8.55M</div>
+              <div style="font-size:10px;color:var(--a);margin-top:2px">✓ CLEARED · Ref NMB91</div>
+            </div>
+            <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:9px;padding:9px">
+              <div style="font-size:10px;color:var(--tx2);font-weight:600;margin-bottom:3px">70% BALANCE</div>
+              <div style="font-size:15px;font-weight:700;color:var(--w)">TZS 19.95M</div>
+              <div style="font-size:10px;color:var(--w);margin-top:2px" id="cvr-bal-status">⏳ PENDING GATE-OUT</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Red team notice V-ADVANCE-1 -->
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:11px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#92400E">
+          <div style="font-weight:700;margin-bottom:3px">⚠️ V-ADVANCE-1 · Audit Flag</div>
+          30% advance (TZS 8.55M) released unconditionally. Red team recommends escrow lock until Step 2 QA PASS. Current: honour-system only.
+        </div>
+
+        <!-- 5-step pipeline -->
+        <div class="sh">Production Pipeline · DF-TZ-2026-CTR-084</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px" id="cvr-pipeline">
+
+          <!-- Step 1: PO Call-Off -->
+          <div style="border:1px solid var(--a);border-radius:12px;overflow:hidden">
+            <div style="background:#D1FAE5;padding:9px 12px;display:flex;align-items:center;gap:9px">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0">1</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#065F46">PO Call-Off</div>
+                <div style="font-size:11px;color:#065F46;opacity:.8">Contract signed · 30% advance released</div>
+              </div>
+              <span class="tag tg" style="font-size:10px">COMPLETE</span>
+            </div>
+            <div style="padding:9px 12px;font-size:11px;color:var(--tx2);border-top:1px solid #A7F3D0">
+              Dandelion PO ref DF/2026/104 · TZS 28,500,000 total · Advance NMB91 cleared 08:31
+            </div>
+          </div>
+
+          <!-- Step 2: Chemical QA -->
+          <div style="border:1px solid var(--a);border-radius:12px;overflow:hidden">
+            <div style="background:#D1FAE5;padding:9px 12px;display:flex;align-items:center;gap:9px">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0">2</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#065F46">Chemical QA Assay</div>
+                <div style="font-size:11px;color:#065F46;opacity:.8">SAP · Absorption · Fluff — all PASS</div>
+              </div>
+              <span class="tag tg" style="font-size:10px">PASS</span>
+            </div>
+            <div style="padding:9px 12px;border-top:1px solid #A7F3D0">
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:7px">
+                <div style="background:var(--sur2);border-radius:8px;padding:7px;text-align:center">
+                  <div style="font-size:10px;color:var(--tx2)">SAP Ratio</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--a)">0.1202</div>
+                </div>
+                <div style="background:var(--sur2);border-radius:8px;padding:7px;text-align:center">
+                  <div style="font-size:10px;color:var(--tx2)">Absorption</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--a)">162.5ml</div>
+                </div>
+                <div style="background:var(--sur2);border-radius:8px;padding:7px;text-align:center">
+                  <div style="font-size:10px;color:var(--tx2)">Fluff</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--a)">88.10g</div>
+                </div>
+              </div>
+              <div style="font-size:10px;color:#991B1B;background:#FEE2E2;border-radius:7px;padding:6px 8px">
+                ⚠️ V-ASSAY-1: QA data pushed via factory RS-232. Hash forgeability not mitigated — recommend Dandelion witness signature on assay bundle.
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Rotary Production -->
+          <div style="border:1px solid var(--a);border-radius:12px;overflow:hidden">
+            <div style="background:#D1FAE5;padding:9px 12px;display:flex;align-items:center;gap:9px">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0">3</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#065F46">Rotary Production</div>
+                <div style="font-size:11px;color:#065F46;opacity:.8">Cognex vision · Serial stamp</div>
+              </div>
+              <span class="tag tg" style="font-size:10px">COMPLETE</span>
+            </div>
+            <div style="padding:9px 12px;border-top:1px solid #A7F3D0">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                <div style="background:var(--sur2);border-radius:8px;padding:7px">
+                  <div style="font-size:10px;color:var(--tx2)">Packs passed</div>
+                  <div style="font-size:13px;font-weight:700;color:var(--a)">99,982 / 100,000</div>
+                  <div style="font-size:10px;color:var(--tx2)">18 diverted · OCR 99.98%</div>
+                </div>
+                <div style="background:var(--sur2);border-radius:8px;padding:7px">
+                  <div style="font-size:10px;color:var(--tx2)">Serial range</div>
+                  <div style="font-size:12px;font-weight:600;color:var(--tx);font-family:monospace">104-000001</div>
+                  <div style="font-size:12px;font-weight:600;color:var(--tx);font-family:monospace">→ 104-100000</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Weighbridge -->
+          <div style="border:1px solid var(--a);border-radius:12px;overflow:hidden">
+            <div style="background:#D1FAE5;padding:9px 12px;display:flex;align-items:center;gap:9px">
+              <div style="width:26px;height:26px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0">4</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#065F46">Weighbridge Certification</div>
+                <div style="font-size:11px;color:#065F46;opacity:.8">80 HDPE totes · Cable seals applied</div>
+              </div>
+              <span class="tag tg" style="font-size:10px">CERTIFIED</span>
+            </div>
+            <div style="padding:9px 12px;border-top:1px solid #A7F3D0;font-size:11px;color:var(--tx2)">
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <span>Net weight</span><span style="font-weight:600;color:var(--tx)">7,204.2 kg (0.058% variance ✓)</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+                <span>Totes / seals</span><span style="font-weight:600;color:var(--tx)">80 HDPE · SL-88401→SL-88480</span>
+              </div>
+              <div style="display:flex;justify-content:space-between">
+                <span>HS Code</span><span style="font-weight:600;color:var(--tx);font-family:monospace">9619.00.10 · TRA-EX-2026-0841</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 5: Gate-Out -->
+          <div style="border:2px solid var(--p);border-radius:12px;overflow:hidden" id="cvr-step5">
+            <div style="background:linear-gradient(90deg,var(--p),var(--pl));padding:9px 12px;display:flex;align-items:center;gap:9px">
+              <div style="width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;font-weight:700;flex-shrink:0">5</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;color:#fff">Gate-Out &amp; Settlement</div>
+                <div style="font-size:11px;color:rgba(255,255,255,.8)">Truck departs · 70% wire released</div>
+              </div>
+              <span id="cvr-step5-tag" class="tag td" style="font-size:10px;background:rgba(255,255,255,.2);color:#fff">READY</span>
+            </div>
+            <div style="padding:10px 12px">
+              <div style="font-size:11px;color:var(--tx2);margin-bottom:8px">
+                Vehicle: Bakhresa T 412 DKN · Driver DRV-BAKH-0842 · Placard TRA-EX-2026-0841
+              </div>
+              <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:#92400E">
+                ⚠️ V-GATE-1: TZS 19.95M wire fires on gate-out before Kariakoo depot confirms receipt. Risk window: truck in transit with payment already released.
+              </div>
+              <div id="cvr-settlement-body">
+                <button class="btn bp" id="cvr-gate-btn" onclick="gateOut()">Authorise Gate-Out &amp; Release TZS 19.95M →</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /pipeline -->
+      </div><!-- /pc -->
+      <div class="bn">
+        <button class="ni on"><span class="nii">🏭</span><span>Pipeline</span></button>
+        <button class="ni"><span class="nii">📋</span><span>QA Docs</span></button>
+        <button class="ni"><span class="nii">💰</span><span>Finance</span></button>
+      </div>
+    </div><!-- /sc-h-converter -->
+
+  </div><!-- /screens -->
+</div><!-- /phone -->
+
+<script>
+const S={
+  role:null,user:{},hist:[],cur:'welcome',
+  orders:[],prod:null,order:null,qty:1,
+  dtaps:0,mtaps:0,dlvStep:0,dlvScanned:0,dlvOtp:'',escrow:847500,oid:1001,
+  // Runner shift state
+  shift:{sold:0,quota:10,otcQty:1,status:'CHECKED_OUT'},
+  // Duka merchant state
+  dkTill:7500,dkQty:1,dukaVoucher:null,
+  // Nurse state
+  nurseStep:0,curPatId:null,
+  // Converter state
+  cvrStep:0,cvrGateout:false,
+};
+
+const PRODS=[
+  {id:'P-001',name:'Pad Pak Classic',desc:'Always Classic · 10-pack',detail:'Standard absorbency pads, 10 per pack.',emoji:'🩹',price:500,stock:148},
+  {id:'P-002',name:'Cloth Pad Set',desc:'Reusable · 3-pack',detail:'Washable cloth pads, 3 per set. Machine washable, lasts 2+ years.',emoji:'♻️',price:450,stock:42},
+  {id:'P-003',name:'Teen Kit',desc:'Pad + liner combo · 8-pack',detail:'Sized for younger users. 5 pads + 3 liners. Discreet packaging.',emoji:'🌸',price:500,stock:76},
+];
+
+const ROLES={
+  consumer:{label:'Community Member',icon:'🛍️',home:'h-consumer',name:'Fatuma',
+    fields:[{id:'name',label:'Full Name',ph:'e.g. Fatuma Mwangi',r:1},{id:'ward',label:'Ward',ph:'e.g. Jangwani',r:1}]},
+  runner:{label:'Mama Jasiri Runner',icon:'🏃‍♀️',home:'h-runner',name:'Amina',
+    fields:[{id:'name',label:'Full Name',ph:'e.g. Amina Saleh',r:1},{id:'ward',label:'Operating Ward',ph:'e.g. Jangwani',r:1},{id:'id',label:'National ID',ph:'e.g. 19XXXXXXXX',r:1}]},
+  matron:{label:'School Matron',icon:'🏫',home:'h-matron',name:'Mama Zawadi',
+    fields:[{id:'name',label:'Your Name',ph:'e.g. Zawadi Moshi',r:1},{id:'school',label:'School Name',ph:'e.g. Jangwani Primary',r:1},{id:'enroll',label:'Female Enrollment',ph:'e.g. 480',r:1,type:'number'}]},
+  vsla:{label:'VSLA Coordinator',icon:'💰',home:'h-vsla',name:'Zuwena',
+    fields:[{id:'name',label:'Your Name',ph:'e.g. Zuwena Ali',r:1},{id:'vsla',label:'VSLA Group Name',ph:'e.g. Jua Kali VSLA',r:1}]},
+  boda:{label:'Boda Courier',icon:'🚲',home:'h-boda',name:'Juma',
+    fields:[{id:'name',label:'Full Name',ph:'e.g. Juma Hassan',r:1},{id:'id',label:'National ID',ph:'e.g. 19XXXXXXXX',r:1}]},
+  nurse:{label:'RCH Nurse',icon:'💉',home:'h-nurse',name:'Sister Zawadi',
+    fields:[{id:'name',label:'Full Name',ph:'e.g. Zawadi Rashid',r:1},{id:'clinic',label:'Clinic / Health Centre',ph:'e.g. Jangwani RCH Clinic',r:1}]},
+  duka:{label:'Duka Merchant',icon:'🏪',home:'h-duka',name:'Hassan',
+    fields:[{id:'name',label:'Your Name',ph:'e.g. Hassan Ally',r:1},{id:'shop',label:'Shop / Duka Name',ph:'e.g. Mama Salim Duka',r:1}]},
+  operator:{label:'Solo Operator',icon:'⚙️',home:'h-operator',name:'Peter',
+    fields:[{id:'name',label:'Operator Name',ph:'e.g. Peter Kwa',r:1},{id:'org',label:'Organisation',ph:'e.g. Dandelion Foundation',r:1}]},
+  converter:{label:'Plant GM',icon:'🏭',home:'h-converter',name:'Grace Odhiambo',
+    fields:[{id:'name',label:'Plant Manager',ph:'e.g. Grace Odhiambo',r:1},{id:'plant',label:'Plant / Line',ph:'e.g. Megapack Pwani Plant 01 Line 02',r:1}]},
+};
+
+function nav(id){
+  const prev=document.querySelector('.sc.active');
+  if(prev){prev.classList.remove('active');prev.classList.add('prev');setTimeout(()=>prev.classList.remove('prev'),300);}
+  if(S.cur&&S.cur!==id) S.hist.push(S.cur);
+  S.cur=id;
+  const el=document.getElementById('sc-'+id);
+  if(!el){console.warn('no sc-'+id);return;}
+  el.classList.remove('prev');el.classList.add('active');el.scrollTop=0;
+}
+function back(){const p=S.hist.pop();if(p) nav(p);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2600);}
+
+function pickRole(r){
+  S.role=r;
+  const cfg=ROLES[r];
+  document.getElementById('ob-title').textContent='Join as '+cfg.label;
+  document.getElementById('ob-icon').textContent=cfg.icon;
+  document.getElementById('ph-inp').value='';
+  nav('ob-phone');
+}
+
+function submitPhone(){
+  const v=document.getElementById('ph-inp').value.trim();
+  if(!v||v.length<9){showToast('Enter a valid M-Pesa number');return;}
+  S.user.phone=v;
+  document.getElementById('otp-ph').textContent=v;
+  for(let i=0;i<4;i++) document.getElementById('o'+i).value='';
+  nav('ob-otp');
+  setTimeout(()=>document.getElementById('o0').focus(),350);
+}
+
+function otpIn(i,el){
+  el.value=el.value.replace(/\D/g,'').slice(-1);
+  if(el.value&&i<3) document.getElementById('o'+(i+1)).focus();
+  let c='';for(let j=0;j<4;j++) c+=document.getElementById('o'+j).value;
+  if(c.length===4) setTimeout(otpDone,200);
+}
+
+function otpDone(){buildForm();nav('ob-details');}
+
+function buildForm(){
+  const cfg=ROLES[S.role];
+  let h=`<div style="text-align:center;margin-bottom:18px"><div style="font-size:44px">${cfg.icon}</div><p style="font-size:13px;color:var(--tx2);margin-top:7px">${S.role==='consumer'?'A few details to personalise your experience.':S.role==='runner'?'Verified once against the runner registry. National ID required.':'Complete your profile to activate your account.'}</p></div>`;
+  for(const f of cfg.fields)
+    h+=`<div class="fg"><label class="fl">${f.label}${f.r?' <span style="color:var(--d)">*</span>':''}</label><input class="fi" type="${f.type||'text'}" id="ff-${f.id}" placeholder="${f.ph||''}"${f.id==='name'?` value="${cfg.name}"`:''}/></div>`;
+  h+=`<button class="btn bp" style="margin-top:6px" onclick="finishOnboard()">${S.role==='consumer'?'Start Shopping →':S.role==='runner'?'Activate Runner Account →':'Complete Setup →'}</button>`;
+  if(['runner','matron','boda'].includes(S.role)) h+=`<p style="font-size:11px;color:var(--tx3);text-align:center;margin-top:10px">🔒 No medical data stored. Products referenced by numeric code only. PDPA compliant.</p>`;
+  document.getElementById('ob-form').innerHTML=h;
+}
+
+function finishOnboard(){
+  const cfg=ROLES[S.role];
+  const nf=document.getElementById('ff-name');
+  const name=nf?(nf.value.trim()||cfg.name):cfg.name;
+  S.user={...S.user,name,role:S.role};
+  const sf=document.getElementById('ff-school');if(sf) S.user.school=sf.value||'Jangwani Primary';
+  const wf=document.getElementById('ff-ward');if(wf) S.user.ward=wf.value||'Jangwani';
+  const first=name.split(' ')[0];
+  if(S.role==='consumer'){document.getElementById('c-name').textContent=first;document.getElementById('c-loc').textContent=(S.user.ward||'Jangwani')+' Ward';renderProds();}
+  else if(S.role==='runner'){document.getElementById('r-name').textContent=first;renderRunnerQ();}
+  else if(S.role==='matron'){document.getElementById('m-name').textContent=name;document.getElementById('m-school').textContent=S.user.school||'Jangwani Primary';renderMatronInc();}
+  else if(S.role==='vsla') document.getElementById('v-name').textContent=first;
+  else if(S.role==='boda') document.getElementById('b-name').textContent=first;
+  else if(S.role==='operator') document.getElementById('op-name').textContent=first;
+  else if(S.role==='nurse'){document.getElementById('n-name').textContent=name;renderNursePatients();}
+  else if(S.role==='duka'){document.getElementById('dk-name').textContent=first;}
+  else if(S.role==='converter'){document.getElementById('cvr-name').textContent=name;}
+  showToast('Welcome, '+first+'! 🌼');
+  S.hist=[];nav(cfg.home);
+}
+
+// ── CONSUMER ──────────────────────────────────
+function renderProds(){
+  document.getElementById('prod-list').innerHTML=PRODS.map(p=>`
+    <div class="pi" onclick="showProd('${p.id}')">
+      <div class="pe">${p.emoji}</div>
+      <div class="pif"><div class="pn">${p.name}</div><div class="pm">${p.desc} · ${p.stock} in stock</div></div>
+      <div class="pp">TZS ${p.price.toLocaleString()}</div>
+    </div>`).join('');
+}
+
+function showProd(id){
+  const p=PRODS.find(x=>x.id===id);if(!p) return;
+  S.prod=p;S.qty=1;
+  document.getElementById('prod-name').textContent=p.name;
+  document.getElementById('prod-body').innerHTML=`
+    <div style="text-align:center;padding:20px 0">
+      <div style="font-size:68px;margin-bottom:10px">${p.emoji}</div>
+      <div style="font-size:11px;color:var(--tx2);font-family:monospace;margin-bottom:3px">${p.id}</div>
+      <div style="font-size:22px;font-weight:700;color:var(--p)">TZS ${p.price.toLocaleString()}</div>
+      <div style="margin-top:5px"><span class="tag tg">✓ In stock</span> <span class="tag td">${p.stock} available</span></div>
+    </div>
+    <div style="background:var(--sur2);border-radius:11px;padding:13px;margin-bottom:14px;font-size:13px;line-height:1.6">${p.detail}</div>
+    <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:11px;padding:11px;margin-bottom:18px;font-size:12px;color:#92400E">
+      ⚠️ <strong>Price cap TZS 500</strong> — flexographic seal printed on every pack. Structurally enforced.
+    </div>
+    <div class="fg">
+      <label class="fl">Quantity</label>
+      <div style="display:flex;align-items:center;gap:11px">
+        <button onclick="chgQty(-1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">−</button>
+        <div style="font-size:24px;font-weight:700;min-width:28px;text-align:center" id="qty-d">1</div>
+        <button onclick="chgQty(1)" style="width:38px;height:38px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">+</button>
+        <div style="font-size:14px;color:var(--tx2)">= <strong id="tot-d" style="color:var(--tx)">TZS ${p.price.toLocaleString()}</strong></div>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Pickup / Delivery</label>
+      <div style="display:flex;flex-direction:column;gap:7px">
+        <label style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--sur2);border:1.5px solid var(--p);border-radius:10px;cursor:pointer"><input type="radio" name="dm" value="school" checked style="accent-color:var(--p)"><div><div style="font-size:13px;font-weight:600">📦 Pickup at school</div><div style="font-size:11px;color:var(--tx2)">Collect from matron · Same day</div></div></label>
+        <label style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer"><input type="radio" name="dm" value="runner" style="accent-color:var(--p)"><div><div style="font-size:13px;font-weight:600">🏃‍♀️ Runner delivery</div><div style="font-size:11px;color:var(--tx2)">Delivered to your door · 2–4 hrs</div></div></label>
+        <label style="display:flex;align-items:center;gap:9px;padding:11px;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer"><input type="radio" name="dm" value="kiosk" style="accent-color:var(--p)"><div><div style="font-size:13px;font-weight:600">🏪 Kiosk pickup</div><div style="font-size:11px;color:var(--tx2)">Nearest kiosk · Ready now</div></div></label>
+      </div>
+    </div>
+    <button class="btn bp" onclick="goCheckout()">Order Now — M-Pesa →</button>
+    <button class="btn bs" style="margin-top:8px" onclick="back()">Back</button>
+  `;
+  nav('prod');
+}
+
+function chgQty(d){S.qty=Math.max(1,Math.min(S.prod.stock,(S.qty||1)+d));document.getElementById('qty-d').textContent=S.qty;document.getElementById('tot-d').textContent='TZS '+(S.prod.price*S.qty).toLocaleString();}
+
+function goCheckout(){
+  const p=S.prod,q=S.qty;
+  const m=document.querySelector('input[name="dm"]:checked')?.value||'school';
+  const ml={school:'Pickup at school',runner:'Runner delivery',kiosk:'Kiosk pickup'};
+  const dest={school:'Jangwani Primary, Matron office',runner:(S.user.ward||'Jangwani')+' Ward — your address',kiosk:'Kariakoo Kiosk #K-023'};
+  document.getElementById('checkout-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:18px"><div style="font-size:46px">${p.emoji}</div><div style="font-size:16px;font-weight:600;margin-top:7px">${p.name}</div><div style="font-size:13px;color:var(--tx2)">${q} pack${q>1?'s':''} · ${ml[m]}</div></div>
+    <div class="card" style="padding:13px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)"><span style="font-size:13px;color:var(--tx2)">Unit price</span><span style="font-size:13px;font-weight:600">TZS ${p.price.toLocaleString()}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr)"><span style="font-size:13px;color:var(--tx2)">Quantity</span><span style="font-size:13px;font-weight:600">${q}</span></div>
+      <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="font-size:15px;font-weight:700">Total</span><span style="font-size:15px;font-weight:700;color:var(--p)">TZS ${(p.price*q).toLocaleString()}</span></div>
+    </div>
+    <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:13px">
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:3px">Payment via</div>
+      <div style="display:flex;align-items:center;gap:9px"><div style="font-size:22px">📱</div><div><div style="font-size:14px;font-weight:600">M-Pesa</div><div style="font-size:12px;color:var(--tx2)">${S.user.phone||'0712 345 678'}</div></div><span class="tag tg" style="margin-left:auto">Linked</span></div>
+    </div>
+    <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:18px">
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:3px">Deliver to</div>
+      <div style="font-size:13px;font-weight:500">${ml[m]}</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:2px">${dest[m]}</div>
+    </div>
+    <button class="btn ba" onclick="placeOrder('${p.id}',${q},'${m}')">Pay TZS ${(p.price*q).toLocaleString()} via M-Pesa</button>
+    <p style="font-size:11px;color:var(--tx3);text-align:center;margin-top:8px">Push confirmation sent · No cash handled</p>
+  `;
+  nav('checkout');
+}
+
+function placeOrder(pid,q,m){
+  const p=PRODS.find(x=>x.id===pid);
+  const id='ORD-'+S.oid++;
+  const o={id,pid,pname:p.name,pemo:p.emoji,qty:q,price:p.price,total:p.price*q,method:m,status:'placed',consumer:S.user.name||'Fatuma',phone:S.user.phone||'0712 345 678',ward:S.user.ward||'Jangwani',placedAt:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),runner:null};
+  S.orders.push(o);S.order=o;
+  document.getElementById('op-open').textContent=S.orders.filter(x=>x.status!=='completed').length;
+  renderRunnerQ();renderMatronInc();
+  showToast('M-Pesa push sent · Check your phone');
+  setTimeout(()=>showTrack(o.id),700);
+}
+
+function showTrack(id){S.order=S.orders.find(x=>x.id===id);renderTrack();nav('track');}
+
+function renderTrack(){
+  const o=S.order;if(!o) return;
+  const steps=[{k:'placed',l:'Placed'},{k:'accepted',l:'Accepted'},{k:'enroute',l:'En route'},{k:'delivered',l:'Delivered'}];
+  const si=steps.findIndex(s=>s.k===o.status);
+  document.getElementById('track-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:18px"><div style="font-size:46px">${o.pemo}</div><div style="font-size:16px;font-weight:600;margin-top:7px">${o.pname} × ${o.qty}</div><div style="font-size:12px;color:var(--tx2);font-family:monospace;margin-top:3px">${o.id}</div></div>
+    <div class="sp">${steps.map((s,i)=>`<div class="step ${i<si?'done':i===si?'cur':''}"><div class="sd">${i<si?'✓':i+1}</div><div class="slb">${s.l}</div></div>`).join('')}</div>
+    <div class="card" style="padding:13px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:7px">Status: <span style="color:${['delivered','completed'].includes(o.status)?'var(--a)':'var(--p)'}">${o.status==='placed'?'Waiting for runner':o.status==='accepted'?'Runner accepted':o.status==='delivered'||o.status==='completed'?'✓ Delivered':o.status}</span></div>
+      ${o.runner?`<div style="font-size:12px;color:var(--tx2)">Runner: <strong style="color:var(--tx)">${o.runner}</strong></div>`:''}
+      <div style="font-size:12px;color:var(--tx2);margin-top:3px">Placed today at ${o.placedAt}</div>
+    </div>
+    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px;font-size:12px;color:var(--tx2)">💡 <strong>Try it:</strong> Switch to Runner → accept this order → deliver it → switch to Matron → confirm receipt.</div>`}
+    <button class="btn bs" onclick="nav('h-consumer')">Back to Shop</button>
+  `;
+}
+
+function showMyOrders(){
+  const mine=S.orders.filter(x=>x.consumer===(S.user.name||'Fatuma'));
+  document.getElementById('myorders-body').innerHTML=mine.length===0
+    ?'<div class="es"><div class="ei">📭</div><div class="et">No orders yet</div><p style="font-size:13px">Place an order to see it here.</p></div>'
+    :mine.slice().reverse().map(o=>`<div class="oc" onclick="showTrack('${o.id}')" style="cursor:pointer"><div class="oh"><div><div class="ot">${o.pemo} ${o.pname} × ${o.qty}</div><div class="od">Today ${o.placedAt} · TZS ${o.total.toLocaleString()}</div></div><span class="tag ${o.status==='placed'?'ty':o.status==='accepted'?'tb':'tg'}">${o.status==='placed'?'Placed':o.status==='accepted'?'On the way':'Delivered'}</span></div></div>`).join('');
+  nav('myorders');
+}
+
+// ── RUNNER SHIFT ──────────────────────────────
+function refreshShiftLedger(){
+  const sh=S.shift;
+  const remain=sh.quota-sh.sold;
+  const due=sh.sold*300;
+  const pocket=sh.sold*200;
+  const pct=Math.round((sh.sold/sh.quota)*100);
+  document.getElementById('r-sold-ct').textContent=sh.sold+' packs';
+  document.getElementById('r-remain').textContent=remain+' packs';
+  document.getElementById('r-due').textContent='TZS '+due.toLocaleString();
+  document.getElementById('r-pocket').textContent='TZS '+pocket.toLocaleString();
+  document.getElementById('r-pct').textContent=sh.sold+' / '+sh.quota;
+  document.getElementById('r-qfill').style.width=pct+'%';
+  document.getElementById('otc-remain-display').textContent=remain+' packs';
+  sh.otcQty=Math.min(sh.otcQty,remain||1);
+  refreshOtcCalc();
+}
+
+function renderRunnerQ(){
+  const el=document.getElementById('r-list');if(!el) return;
+  const q=S.orders.filter(x=>x.status==='placed');
+  document.getElementById('r-q').textContent=q.length;
+  if(q.length===0){el.innerHTML='<div class="es" style="padding:20px"><div class="ei" style="font-size:32px">📭</div><div class="et" style="font-size:14px">No app orders</div><p style="font-size:12px">Use Log OTC Sale for cash transactions.</p></div>';return;}
+  el.innerHTML=q.map(o=>`
+    <div class="oc" style="cursor:pointer" onclick="showRunnerOrd('${o.id}')">
+      <div class="oh"><div><div class="ot">${o.pemo} ${o.pname} × ${o.qty}</div><div class="od">${o.consumer} · ${o.ward} Ward</div></div><span class="tag ty">App order</span></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px">
+        <span style="font-size:12px;color:var(--tx2)">📍 ${o.method==='school'?'School pickup':'Home delivery'}</span>
+        <span style="font-size:13px;font-weight:600;color:var(--a)">+TZS ${(o.qty*200).toLocaleString()}</span>
+      </div>
+      <button class="btn bp bsm" style="margin-top:9px" onclick="event.stopPropagation();showRunnerOrd('${o.id}')">View & Accept →</button>
+    </div>`).join('');
+}
+
+// OTC SALE
+function refreshOtcCalc(){
+  const q=S.shift.otcQty||1;
+  document.getElementById('otc-qty').textContent=q;
+  document.getElementById('otc-qty-label').textContent=q+' pack'+(q>1?'s':'');
+  document.getElementById('otc-safe-amt').textContent='TZS '+(300*q).toLocaleString();
+  document.getElementById('otc-pocket-amt').textContent='TZS '+(200*q).toLocaleString();
+  document.getElementById('otc-total-amt').textContent='TZS '+(500*q).toLocaleString();
+  document.getElementById('otc-btn-amt').textContent=(500*q).toLocaleString();
+}
+
+function chgOtc(d){
+  const remain=S.shift.quota-S.shift.sold;
+  S.shift.otcQty=Math.max(1,Math.min(remain,(S.shift.otcQty||1)+d));
+  refreshOtcCalc();
+}
+
+function logOtc(){
+  const q=S.shift.otcQty||1;
+  const remain=S.shift.quota-S.shift.sold;
+  if(q>remain){showToast('Not enough stock in satchel');return;}
+  S.shift.sold+=q;
+  refreshShiftLedger();
+  showToast('Sale logged: '+q+' pack'+(q>1?'s':'')+' · TZS '+(200*q).toLocaleString()+' yours');
+  back();
+}
+
+function showRunnerOrd(id){
+  const o=S.orders.find(x=>x.id===id);if(!o) return;
+  S.order=o;
+  // Runner margin = TZS 200/pack for app orders too
+  const margin=o.qty*200;
+  document.getElementById('r-order-body').innerHTML=`
+    <div style="background:var(--sur2);border-radius:11px;padding:13px;margin-bottom:14px">
+      <div style="font-size:11px;color:var(--tx2);font-family:monospace">${o.id}</div>
+      <div style="font-size:16px;font-weight:700;margin-top:3px">${o.pemo} ${o.pname}</div>
+      <div style="font-size:14px;color:var(--tx2);margin-top:2px">${o.qty} pack${o.qty>1?'s':''} · TZS ${o.total.toLocaleString()}</div>
+    </div>
+    <div class="card" style="padding:13px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;margin-bottom:7px">Delivery Details</div>
+      <div style="display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--tx2)">
+        <div>👤 <strong style="color:var(--tx)">${o.consumer}</strong></div>
+        <div>📍 ${o.ward} Ward</div>
+        <div>📦 ${o.method==='school'?'School pickup':'Home delivery'}</div>
+        <div>⏰ Placed ${o.placedAt}</div>
+      </div>
+    </div>
+    <div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:11px;padding:13px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:600;color:#065F46">Your margin (TZS 200 × ${o.qty} packs)</div>
+      <div style="font-size:24px;font-weight:700;color:#047857">TZS ${margin.toLocaleString()}</div>
+      <div style="font-size:11px;color:#059669;margin-top:2px">Paid to M-Pesa on confirmed delivery · TZS ${o.qty*300} to Kikoba safe</div>
+    </div>
+    <button class="btn ba" onclick="acceptOrd('${o.id}')">Accept Order →</button>
+    <button class="btn bs" style="margin-top:8px" onclick="back()">Back to Queue</button>
+  `;
+  nav('r-order');
+}
+
+function acceptOrd(id){
+  const o=S.orders.find(x=>x.id===id);if(!o) return;
+  o.status='accepted';o.runner=S.user.name||'Amina';
+  showToast('Order accepted! Deliver and tap to confirm.');
+  renderRunnerQ();
+  S.order=o;S.dtaps=0;S.dlvStep=0;S.dlvScanned=0;S.dlvOtp='';
+  renderDeliver();nav('deliver');
+}
+
+function renderDeliver(){
+  const o=S.order;if(!o)return;
+  const qty=o.qty;const OTP='8419';
+  let h='';
+  // Header
+  h+='<div style="background:var(--sur2);border:1px solid var(--p);border-radius:11px;padding:11px;margin-bottom:14px">';
+  h+='<div style="font-size:11px;color:var(--p);font-weight:600;margin-bottom:3px">🔒 Zero-Trust Delivery · 3-Factor Proof Required</div>';
+  h+='<div style="font-size:13px;font-weight:600">'+o.pemo+' '+o.pname+' × '+qty+' → '+o.consumer+'</div>';
+  h+='</div>';
+  // Progress bar
+  var labs=['1. Scan Serials','2. Recipient OTP','3. Atomic Handoff'];
+  h+='<div style="display:flex;gap:4px;margin-bottom:18px">';
+  labs.forEach(function(s,i){
+    var done=S.dlvStep>i,active=S.dlvStep===i;
+    h+='<div style="flex:1;text-align:center"><div style="height:3px;border-radius:999px;background:'+(done?'var(--a)':active?'var(--p)':'var(--bdr)')+';margin-bottom:4px"></div><div style="font-size:10px;font-weight:'+(active?'600':'400')+';color:'+(done?'var(--a)':active?'var(--p)':'var(--tx3)')+'">'+s+'</div></div>';
+  });
+  h+='</div>';
+  if(S.dlvStep===0){
+    h+='<div style="font-size:14px;font-weight:600;margin-bottom:10px">Step 1 — Scan Pack Serials</div>';
+    h+='<div style="background:var(--sur2);border:1.5px solid '+(S.dlvScanned>0?'var(--a)':'var(--bdr)')+';border-radius:13px;padding:18px;text-align:center;margin-bottom:14px">';
+    h+='<div style="font-size:40px;margin-bottom:6px">📷</div>';
+    h+='<div style="font-size:30px;line-height:1.4;letter-spacing:3px;color:var(--p)">██░█<br>░██░</div>';
+    h+='<div style="font-size:11px;color:var(--tx2);margin-top:8px">DataMatrix seal on pull-tab · validates morning checkout serial</div>';
+    h+='<div style="font-size:14px;font-weight:700;color:var(--a);margin-top:6px">'+S.dlvScanned+' of '+qty+' packs verified</div>';
+    h+='</div>';
+    if(S.dlvScanned>0){
+      h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">';
+      for(var i=0;i<S.dlvScanned;i++) h+='<span class="tag tg" style="font-family:monospace;font-size:10px">#104-'+(1841+i)+' ✓</span>';
+      h+='</div>';
+    }
+    if(S.dlvScanned<qty){
+      h+='<button class="btn bp" onclick="dlvScan()">Scan Pack '+(S.dlvScanned+1)+' of '+qty+' →</button>';
+    }
+  } else if(S.dlvStep===1){
+    h+='<div style="font-size:14px;font-weight:600;margin-bottom:4px">Step 2 — Recipient Verification</div>';
+    h+='<div style="font-size:12px;color:var(--tx2);margin-bottom:14px">Ask '+o.consumer+' for her 4-digit delivery code (sent via SMS when you tapped Arrived).</div>';
+    // PIN display
+    h+='<div style="display:flex;gap:10px;justify-content:center;margin-bottom:16px">';
+    S.dlvOtp.padEnd(4,'_').split('').forEach(function(d){
+      h+='<div style="width:54px;height:62px;border:2px solid '+(S.dlvOtp.length===4?'var(--p)':'var(--bdr)')+';border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;background:var(--sur)">'+(d==='_'?'':d)+'</div>';
+    });
+    h+='</div>';
+    // Keypad
+    var keys=['1','2','3','4','5','6','7','8','9','←','0','✓'];
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px">';
+    keys.forEach(function(k){
+      if(k==='✓') h+='<button class="btn" style="background:'+(S.dlvOtp.length===4?'var(--a)':'var(--bdr)')+';color:'+(S.dlvOtp.length===4?'#fff':'var(--tx3)')+';font-size:20px;padding:12px" onclick="dlvOtpSubmit()"'+(S.dlvOtp.length<4?' disabled':'')+'>'+k+'</button>';
+      else if(k==='←') h+='<button class="btn bs" style="font-size:20px;padding:12px" onclick="dlvOtpBack()">'+k+'</button>';
+      else h+='<button class="btn bs" style="font-size:20px;padding:12px;font-weight:600" onclick="dlvOtpKey(\''+k+'\')"'+(S.dlvOtp.length>=4?' disabled':'')+'>'+k+'</button>';
+    });
+    h+='</div>';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:9px;padding:9px 12px;font-size:11px;color:var(--tx2);text-align:center">Demo — '+o.consumer+'\'s code is <strong style="color:var(--p);font-family:monospace">'+OTP+'</strong></div>';
+  } else {
+    h+='<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:13px;padding:20px;text-align:center;margin-bottom:14px">';
+    h+='<div style="font-size:36px">🔐</div>';
+    h+='<div style="font-size:16px;font-weight:700;color:#065F46;margin-top:8px">Cryptographic Match · PASS</div>';
+    h+='<div style="font-size:12px;color:#047857;margin-top:5px">Hash('+OTP+') == Expected_Hash ✓<br>Atomic escrow split executed</div>';
+    h+='</div>';
+    h+='<div style="border:1px solid var(--bdr);border-radius:11px;overflow:hidden;margin-bottom:14px">';
+    h+='<div style="padding:9px 13px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--tx2)">Runner pocket (TZS 200/pack)</span><span style="font-weight:600;color:var(--a)">TZS '+(qty*200).toLocaleString()+'</span></div>';
+    h+='<div style="padding:9px 13px;border-bottom:1px solid var(--bdr);display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--tx2)">Kikoba escrow sweep (TZS 300/pack)</span><span style="font-weight:600;color:var(--p)">TZS '+(qty*300).toLocaleString()+'</span></div>';
+    h+='<div style="padding:9px 13px;background:var(--sur2);display:flex;justify-content:space-between;font-size:11px;color:var(--tx2)"><span>Zero-trust proof bundle</span><span style="color:var(--a)">Serials ✓ · OTP ✓ · GPS ✓</span></div>';
+    h+='</div>';
+    h+='<button class="btn ba" onclick="doneDeliver(\''+o.id+'\')">Back to Shift →</button>';
+  }
+  document.getElementById('deliver-body').innerHTML=h;
+}
+
+function dtap(){}// deprecated — zero-trust flow uses dlvScan/dlvOtpSubmit
+
+function dlvScan(){
+  const qty=S.order?S.order.qty:1;
+  S.dlvScanned++;
+  if(S.dlvScanned>=qty){S.dlvStep=1;showToast('All '+qty+' serials verified ✓');}
+  else showToast('Pack #'+S.dlvScanned+' serial verified ✓');
+  renderDeliver();
+}
+function dlvOtpKey(d){if(S.dlvOtp.length<4){S.dlvOtp+=d;renderDeliver();}}
+function dlvOtpBack(){if(S.dlvOtp.length>0){S.dlvOtp=S.dlvOtp.slice(0,-1);renderDeliver();}}
+function dlvOtpSubmit(){
+  const CORRECT='8419';
+  if(S.dlvOtp===CORRECT){
+    S.dlvStep=2;
+    const o=S.order;
+    if(o){o.status='delivered';S.shift.sold+=o.qty;refreshShiftLedger();renderMatronInc();}
+    showToast('OTP verified · TZS '+(S.order?S.order.qty*200:0).toLocaleString()+' → M-Pesa');
+  } else {
+    showToast('⚠️ Code mismatch — ask customer to re-check SMS');
+    S.dlvOtp='';
+  }
+  renderDeliver();
+}
+
+function doneDeliver(id){
+  const o=S.orders.find(x=>x.id===id);if(o) o.status='delivered';
+  renderRunnerQ();S.hist=[];nav('h-runner');
+}
+
+// CAMPUS RESTOCK DONE
+function restockDone(){
+  showToast('Task complete! TZS 2,000 sent to M-Pesa');
+  S.hist=[];nav('h-runner');
+}
+
+// SHIFT CLOSE
+function openShiftClose(){
+  const sh=S.shift;
+  const returned=sh.quota-sh.sold;
+  const dueToSafe=sh.sold*300;
+  const pocket=sh.sold*200;
+  const check=dueToSafe===(sh.sold*300);
+  document.getElementById('r-close-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:18px"><div style="font-size:44px">🔐</div><div style="font-size:16px;font-weight:600;margin-top:8px">Shift Reconciliation</div><div style="font-size:13px;color:var(--tx2);margin-top:4px">17:30 EAT — End of Day</div></div>
+    <div class="ledger">
+      <div class="ledger-head"><div class="lh1">Final Shift Count</div><div class="lh2">SH-20261020-084</div></div>
+      <div class="ledger-row"><span class="lk">Quota checked out</span><span class="lv">${sh.quota} packs</span></div>
+      <div class="ledger-row"><span class="lk">Sold today</span><span class="lv">${sh.sold} packs</span></div>
+      <div class="ledger-row"><span class="lk">Returning unsold</span><span class="lv">${returned} packs</span></div>
+      <div class="ledger-row safe"><span class="lk">Cash to Kikoba safe</span><span class="lv">TZS ${dueToSafe.toLocaleString()}</span></div>
+      <div class="ledger-row pocket"><span class="lk">You keep (pocket)</span><span class="lv">TZS ${pocket.toLocaleString()}</span></div>
+      <div class="ledger-row zero"><span class="lk">📌 Invariant check</span><span class="lv">${check?'✓ PASS':'✗ FAIL'}</span></div>
+    </div>
+    <div style="background:${check?'#D1FAE5':'#FEE2E2'};border:1px solid ${check?'var(--a)':'var(--d)'};border-radius:11px;padding:13px;margin-bottom:16px;font-size:13px;color:${check?'#065F46':'#991B1B'}">
+      ${check?'✓ (sold × 300) + (returned × 0) = quota × 300 — TZS 0 unsettled debt.':'✗ Variance detected. Contact Kikoba Treasurer before closing.'}
+    </div>
+    ${returned>0?`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:16px;font-size:13px;color:var(--tx2)">↩️ Return ${returned} unsold pack${returned>1?'s':''} to Kikoba trunk. Zero penalty applied.</div>`:''}
+    <button class="btn ba" onclick="closeShift()">Confirm & Close Shift →</button>
+    <button class="btn bs" style="margin-top:8px" onclick="back()">Back</button>
+  `;
+}
+
+function closeShift(){
+  S.shift.status='RECONCILED';
+  document.getElementById('r-status-tag').textContent='● RECONCILED';
+  document.getElementById('r-status-tag').className='tag td';
+  showToast('Shift closed. Tomorrow quota unlocked. 🌼');
+  S.hist=[];nav('h-runner');
+}
+
+// Override nav for r-close to init content
+const _origNav=nav;
+// Intercept r-close to populate it
+const origNav=nav;
+window.nav=function(id){
+  origNav(id);
+  if(id==='r-close') openShiftClose();
+  if(id==='r-otc') refreshOtcCalc();
+  if(id==='nurse-new') renderNurseVoucherStep();
+  if(id==='duka-sale') initDukaSale();
+  if(id==='duka-voucher') initDukaVoucher();
+};
+
+// ── MATRON ────────────────────────────────────
+function renderMatronInc(){
+  const el=document.getElementById('m-inc');if(!el) return;
+  const inc=S.orders.filter(x=>x.status==='delivered'&&x.method==='school');
+  if(inc.length===0){el.innerHTML='<div class="es"><div class="ei">🚚</div><div class="et">Nothing en route</div><p style="font-size:13px">Switch to Runner → deliver an order (school pickup) → come back.</p></div>';return;}
+  el.innerHTML=inc.map(o=>`<div class="oc" style="cursor:pointer;border-color:var(--w)" onclick="showMatronConf('${o.id}')"><div class="oh"><div><div class="ot">${o.pemo} ${o.pname} × ${o.qty}</div><div class="od">Runner: ${o.runner||'Amina'}</div></div><span class="tag ty">Confirm</span></div><button class="btn ba bsm" style="margin-top:9px" onclick="event.stopPropagation();showMatronConf('${o.id}')">Confirm Receipt →</button></div>`).join('');
+}
+
+function showMatronConf(id){
+  const o=S.orders.find(x=>x.id===id);if(!o) return;
+  S.order=o;S.mtaps=0;renderMatronConf();nav('m-confirm');
+}
+
+function renderMatronConf(){
+  const o=S.order;const t=S.mtaps;
+  const steps=[{l:'Count packages received',ic:'🔢',d:'Confirm: '+o.qty+' packs'},{l:'Check package integrity',ic:'🔍',d:'No damage, seals intact'},{l:'Sign off receipt',ic:'✍️',d:'Stock added to register'}];
+  document.getElementById('m-confirm-body').innerHTML=`
+    <div style="background:var(--sur2);border-radius:11px;padding:11px;margin-bottom:14px;font-size:13px"><strong>${o.pemo} ${o.pname}</strong> × <strong>${o.qty} packs</strong> · ${o.id}</div>
+    <div style="font-size:13px;color:var(--tx2);margin-bottom:14px;text-align:center">Complete all 3 checks.<br>Stock register updates automatically.</div>
+    <div class="cs">${steps.map((s,i)=>`<div class="ct${t>i?' done':''}" onclick="mtap(${i})" style="${i>t?'opacity:.45;cursor:not-allowed':'cursor:pointer'}"><div class="cd">${t>i?'✓':s.ic}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${s.l}</div><div style="font-size:12px;color:var(--tx2);margin-top:2px">${t>i?'✓ Confirmed':i<=t?s.d:'Waiting...'}</div></div></div>`).join('')}</div>
+    ${t>=3?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-top:14px;text-align:center"><div style="font-size:28px">✅</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Receipt confirmed!</div><div style="font-size:12px;color:#047857;margin-top:3px">${o.qty} packs added to school stock</div></div><button class="btn ba" style="margin-top:14px" onclick="matronDone()">Back to Stock</button>`:`<div style="text-align:center;font-size:13px;color:var(--tx3);margin-top:14px">Step ${Math.min(t+1,3)} of 3</div>`}
+  `;
+}
+
+function mtap(i){
+  if(i!==S.mtaps) return;S.mtaps++;
+  if(S.mtaps===3){const o=S.order;o.status='completed';const el=document.getElementById('m-stock');if(el) el.textContent=parseInt(el.textContent)+o.qty;showToast('Stock updated. '+o.qty+' packs added.');}
+  renderMatronConf();
+}
+
+function matronDone(){renderMatronInc();S.hist=[];nav('h-matron');}
+
+// ── NURSE ─────────────────────────────────────
+const NURSE_PATIENTS=[
+  {id:'PAT-001',name:'Hadija Omar',infant:'Omar J., 2 months',milestone:'Pentavalent-1',card:'RCH-9041',voucher:null},
+  {id:'PAT-002',name:'Rahma Abdallah',infant:'Aisha A., 2 months',milestone:'Pentavalent-1',card:'RCH-9042',voucher:null},
+  {id:'PAT-003',name:'Zaituni Mwangi',infant:'Amani M., 6 months',milestone:'Measles-1',card:'RCH-9043',voucher:null},
+];
+
+function renderNursePatients(){
+  const el=document.getElementById('n-patients');if(!el) return;
+  el.innerHTML=NURSE_PATIENTS.map(p=>`
+    <div class="oc" style="cursor:pointer" onclick="openNurseVoucher('${p.id}')">
+      <div class="oh">
+        <div><div class="ot">${p.name}</div><div class="od">${p.infant} · ${p.milestone}</div></div>
+        <span class="tag ${p.voucher?'tg':'ty'}">${p.voucher?'✓ Issued':'Pending'}</span>
+      </div>
+      ${p.voucher
+        ?`<div style="font-size:12px;color:var(--a);margin-top:6px;font-family:monospace;letter-spacing:2px">Code: ${p.voucher}</div>`
+        :`<button class="btn bp bsm" style="margin-top:8px" onclick="event.stopPropagation();openNurseVoucher('${p.id}')">Issue Voucher →</button>`}
+    </div>`).join('');
+}
+
+function openNurseVoucher(id){
+  S.curPatId=id;S.nurseStep=0;
+  renderNurseVoucherStep();
+  nav('nurse-new');
+}
+
+function renderNurseVoucherStep(){
+  const p=NURSE_PATIENTS.find(x=>x.id===S.curPatId);if(!p) return;
+  const steps=[
+    {l:'Photograph RCH infant card',ic:'📷',d:'Card '+p.card+' · optical hash → DHIS2 check'},
+    {l:'Send OTP to mother\'s SIM',ic:'📱',d:'One-time PIN direct to '+p.name+'\'s registered number'},
+    {l:'Issue 6-digit voucher code',ic:'🎟️',d:'Valid 14 days · 80% subsidy · TZS 3,500 at any ADDO pharmacy'},
+  ];
+  const t=S.nurseStep;
+  document.getElementById('nurse-voucher-body').innerHTML=`
+    <div style="background:var(--sur2);border-radius:11px;padding:12px;margin-bottom:14px;font-size:13px">
+      <div style="font-weight:600">${p.name}</div>
+      <div style="color:var(--tx2);margin-top:3px">${p.infant} · ${p.milestone}</div>
+    </div>
+    <div style="background:#EDE9FE;border:1px solid #C4B5FD;border-radius:11px;padding:11px;margin-bottom:14px;font-size:12px;color:#5B21B6">
+      🔒 V-3.1: optical card hash verification + bi-directional patient OTP handshake. Nurse device ≠ pharmacy location.
+    </div>
+    <div class="cs">${steps.map((s,i)=>`
+      <div class="ct${t>i?' done':''}" onclick="nurseTap(${i})" style="${i>t?'opacity:.45;cursor:not-allowed':'cursor:pointer'}">
+        <div class="cd">${t>i?'✓':s.ic}</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600">${s.l}</div>
+          <div style="font-size:12px;color:var(--tx2);margin-top:2px">${t>i?'✓ Complete':i<=t?s.d:'Waiting...'}</div>
+        </div>
+      </div>`).join('')}</div>
+    ${t>=3?`
+      <div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-top:14px;text-align:center">
+        <div style="font-size:36px">🎟️</div>
+        <div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Voucher Issued!</div>
+        <div style="font-size:26px;font-weight:700;letter-spacing:4px;color:var(--p);margin-top:10px;font-family:monospace">${p.voucher||''}</div>
+        <div style="font-size:12px;color:#047857;margin-top:6px">Sent to ${p.name}'s SIM · Valid 14 days<br>TZS 3,500 at any registered ADDO pharmacy<br><em>Saves TZS 14,500 vs commercial retail</em></div>
+      </div>
+      <button class="btn ba" style="margin-top:14px" onclick="nurseDone()">Back to Patients</button>
+    `:`<div style="text-align:center;font-size:13px;color:var(--tx3);margin-top:14px">Step ${Math.min(t+1,3)} of 3</div>`}
+  `;
+}
+
+function nurseTap(i){
+  if(i!==S.nurseStep) return;
+  S.nurseStep++;
+  const msgs=['Card scanned · Hash verified against MoH DHIS2 ✓','OTP sent to mother\'s SIM ✓',''];
+  if(msgs[i]) showToast(msgs[i]);
+  if(S.nurseStep===3){
+    const code=Math.random().toString(36).substring(2,8).toUpperCase();
+    const p=NURSE_PATIENTS.find(x=>x.id===S.curPatId);
+    if(p){p.voucher=code;S.dukaVoucher=code;}
+    const el=document.getElementById('n-issued');if(el) el.textContent=parseInt(el.textContent||0)+1;
+    showToast('Voucher '+code+' issued! Sent to patient SIM.');
+  }
+  renderNurseVoucherStep();
+}
+
+function nurseDone(){renderNursePatients();S.hist=[];nav('h-nurse');}
+
+// ── DUKA MERCHANT ─────────────────────────────
+function initDukaSale(){
+  S.dkQty=1;
+  document.getElementById('duka-sale-body').innerHTML=`
+    <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:11px;padding:11px;margin-bottom:14px;font-size:12px;color:#92400E">
+      <strong>Statutory price cap: TZS 500</strong> — flexographic in-polymer seal. Overcharge triggers ALERT_OVERCHARGE and freezes POS.
+    </div>
+    <div class="fg">
+      <label class="fl">Product</label>
+      <select class="fi" id="dk-prod-sel">
+        <option value="pad">Sanitary Pad P-001 — TZS 500 cap</option>
+        <option value="diaper_cash">Baby Diaper (cash, no voucher) — TZS 18,000</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label class="fl">Quantity</label>
+      <div style="display:flex;align-items:center;gap:11px">
+        <button onclick="chgDkQty(-1)" style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">−</button>
+        <div style="font-size:28px;font-weight:700;min-width:32px;text-align:center" id="dk-qty-d">1</div>
+        <button onclick="chgDkQty(1)" style="width:40px;height:40px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--sur2);font-size:20px;cursor:pointer;color:var(--tx);font-family:inherit;display:flex;align-items:center;justify-content:center">+</button>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">Payment</label>
+      <div style="display:flex;gap:9px">
+        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px;background:var(--sur2);border:1.5px solid var(--p);border-radius:10px;cursor:pointer">
+          <input type="radio" name="dkpay" value="lipa" checked style="accent-color:var(--p)">
+          <div><div style="font-size:13px;font-weight:600">📱 Lipa Namba</div><div style="font-size:11px;color:var(--tx2)">Instant API sweep</div></div>
+        </label>
+        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px;background:var(--sur2);border:1.5px solid var(--bdr);border-radius:10px;cursor:pointer">
+          <input type="radio" name="dkpay" value="cash" style="accent-color:var(--p)">
+          <div><div style="font-size:13px;font-weight:600">💵 Cash</div><div style="font-size:11px;color:var(--tx2)">Friday sweep</div></div>
+        </label>
+      </div>
+    </div>
+    <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:16px">
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;font-weight:500">Split (1 pad):</div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px"><span style="color:var(--tx2)">→ Escrow (TZS 300 × qty)</span><span style="font-weight:600;color:var(--p)" id="dk-sale-esc">TZS 300</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--tx2)">→ Your margin (TZS 200 × qty)</span><span style="font-weight:600;color:var(--a)" id="dk-sale-mgn">TZS 200</span></div>
+      <div style="border-top:1px solid var(--bdr);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:14px;font-weight:700"><span>Consumer pays</span><span id="dk-sale-tot">TZS 500</span></div>
+    </div>
+    <button class="btn bp" onclick="confirmDukaSale()">Confirm Sale</button>
+  `;
+}
+
+function chgDkQty(d){
+  S.dkQty=Math.max(1,Math.min(10,(S.dkQty||1)+d));
+  const q=S.dkQty;
+  const isDiaper=document.getElementById('dk-prod-sel')?.value==='diaper_cash';
+  document.getElementById('dk-qty-d').textContent=q;
+  if(!isDiaper){
+    document.getElementById('dk-sale-esc').textContent='TZS '+(300*q).toLocaleString();
+    document.getElementById('dk-sale-mgn').textContent='TZS '+(200*q).toLocaleString();
+    document.getElementById('dk-sale-tot').textContent='TZS '+(500*q).toLocaleString();
+  }
+}
+
+function confirmDukaSale(){
+  const q=S.dkQty||1;
+  const isPad=document.getElementById('dk-prod-sel')?.value==='pad';
+  const isLipa=document.querySelector('input[name="dkpay"]:checked')?.value==='lipa';
+  if(isPad){
+    const margin=q*200;
+    S.dkTill=(S.dkTill||7500)+(isLipa?margin:q*500);
+    document.getElementById('dk-till').textContent='TZS '+(S.dkTill).toLocaleString();
+    const padEl=document.getElementById('dk-pads');if(padEl) padEl.textContent=parseInt(padEl.textContent||15)+q;
+    if(isLipa){
+      showToast('Lipa confirmed · TZS '+(q*300).toLocaleString()+' swept to escrow in &lt;1.2s');
+    } else {
+      showToast('Cash sale logged · TZS '+(q*200).toLocaleString()+' margin in till');
+    }
+  } else {
+    showToast('Commercial diaper sale logged at full retail');
+  }
+  back();
+}
+
+function initDukaVoucher(){
+  document.getElementById('duka-voucher-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:18px">
+      <div style="font-size:54px">🎟️</div>
+      <div style="font-size:14px;font-weight:600;margin-top:8px">Diaper Voucher Redemption</div>
+      <div style="font-size:12px;color:var(--tx2);margin-top:4px">Mother shows SMS code received from RCH nurse</div>
+    </div>
+    <div class="fg">
+      <label class="fl">Enter 6-digit voucher code</label>
+      <input class="fi" type="text" id="vou-inp" placeholder="e.g. AB7X3K" maxlength="6"
+        style="font-size:22px;font-weight:700;letter-spacing:5px;text-align:center;text-transform:uppercase">
+    </div>
+    <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px"><span style="color:var(--tx2)">Consumer pays</span><span style="font-weight:700;color:var(--p)">TZS 3,500</span></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:13px"><span style="color:var(--tx2)">→ Your till margin</span><span style="font-weight:600;color:var(--a)">TZS 1,000</span></div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--tx2)">→ Escrow (instant API sweep)</span><span style="font-weight:600;color:var(--p)">TZS 2,500</span></div>
+      <div style="font-size:11px;color:var(--tx3);margin-top:7px">Commercial retail: TZS 18,000 · Patient saves TZS 14,500 (80% subsidy)</div>
+    </div>
+    <div style="background:#EDE9FE;border:1px solid #C4B5FD;border-radius:11px;padding:11px;margin-bottom:14px;font-size:12px;color:#5B21B6">
+      💡 Try it: switch to RCH Nurse → issue a voucher → come back and enter the code here.
+    </div>
+    <button class="btn ba" onclick="redeemVoucher()">Validate & Redeem</button>
+  `;
+}
+
+function redeemVoucher(){
+  const inp=document.getElementById('vou-inp');if(!inp) return;
+  const code=inp.value.trim().toUpperCase();
+  if(code.length<4){showToast('Enter the voucher code');return;}
+  const valid=(S.dukaVoucher&&code===S.dukaVoucher)||code.length===6;
+  if(valid){
+    const el=document.getElementById('dk-vou');if(el) el.textContent=parseInt(el.textContent||4)+1;
+    S.dkTill=(S.dkTill||7500)+1000;
+    document.getElementById('dk-till').textContent='TZS '+(S.dkTill).toLocaleString();
+    if(S.dukaVoucher===code) S.dukaVoucher=null;
+    showToast('✓ Voucher valid · TZS 2,500 swept · TZS 1,000 to your till');
+    back();
+  } else {
+    showToast('Code not found — check for typos');
+  }
+}
+
+function manualSweep(){
+  const till=S.dkTill||7500;
+  const pads=parseInt(document.getElementById('dk-pads')?.textContent||15);
+  const sweep=pads*300;
+  S.dkTill=Math.max(0,till-sweep);
+  document.getElementById('dk-till').textContent='TZS '+(S.dkTill).toLocaleString();
+  showToast('Sweep sent · TZS '+sweep.toLocaleString()+' cleared to central escrow');
+}
+
+// Operator
+function dismissAlert(btn){btn.closest('.alert-card').remove();const c=document.querySelectorAll('#op-exc-list .alert-card').length;document.getElementById('op-exc').textContent=c;if(c===0){document.getElementById('op-exc-list').innerHTML='<div class="es" style="padding:18px"><div style="font-size:28px;margin-bottom:6px">✅</div><div class="et">All clear</div></div>';}}
+
+// Boda
+function bodaAccept(){showToast('Accepted! Navigate to Kariakoo Depot →');back();}
+
+// Batch quarantine (Scenario 50)
+function triggerQuarantine(){
+  showToast('🚨 LOT-2026-094 quarantined in &lt;1s · All 6 trunk locks activated');
+  setTimeout(()=>{
+    const card=document.querySelector('.card span[style*="LOT-2026"]');
+    if(card) card.className='tag tr';
+    const btn=document.querySelector('button[onclick="triggerQuarantine()"]');
+    if(btn){btn.textContent='✓ Quarantine Active';btn.style.background='#FEE2E2';btn.disabled=true;}
+  },400);
+}
+
+// Converter
+function gateOut(){
+  const btn=document.getElementById('cvr-gate-btn');
+  if(btn){btn.disabled=true;btn.textContent='Processing wire …';}
+  setTimeout(function(){
+    S.cvrGateout=true;
+    const tag=document.getElementById('cvr-step5-tag');
+    if(tag){tag.textContent='SETTLED';tag.className='tag tg';tag.style.background='';tag.style.color='';}
+    const sb=document.getElementById('cvr-settlement-body');
+    if(sb){
+      sb.innerHTML='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px 12px;font-size:11px;color:#065F46">'
+        +'<div style="font-weight:700;font-size:13px;margin-bottom:6px">✅ Wire settled in 940ms</div>'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Amount</span><span style="font-weight:600">TZS 19,950,000</span></div>'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Ref</span><span style="font-weight:600;font-family:monospace">NMB-GATE-2026-0842</span></div>'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span>Truck</span><span style="font-weight:600">T 412 DKN → Kariakoo</span></div>'
+        +'<div style="display:flex;justify-content:space-between"><span>Total contract</span><span style="font-weight:700;color:#10B981">TZS 28,500,000 ✔</span></div>'
+        +'</div>'
+        +'<div style="margin-top:9px;background:#FEF3C7;border:1px solid #FDE68A;border-radius:9px;padding:9px 11px;font-size:11px;color:#92400E">'
+        +'<strong>V-GATE-1 reminder:</strong> TZS 19.95M released before Kariakoo depot scan. '
+        +'Mitigation: add depot receipt webhook to unlock wire from escrow (not yet implemented).'
+        +'</div>';
+    }
+    document.getElementById('cvr-bal-status').textContent='✅ SETTLED · 940ms';
+    document.getElementById('cvr-bal-status').style.color='var(--a)';
+    showToast('✅ TZS 19,950,000 wired · 940ms · Gate-out complete');
+  },1400);
+}
+
+// Clock
+function tick(){const now=new Date();document.getElementById('sbt').textContent=now.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});}
+setInterval(tick,10000);tick();
+
+// Init
+nav('welcome');
+</script>
