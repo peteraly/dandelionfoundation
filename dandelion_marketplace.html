@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="claude:viewport-fit-sides" content="cover"/>
+<title>Dandelion Marketplace</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;600&display=swap"/>
+<style>
+:root {
+  --bg:        #f4f6f2;
+  --bg-card:   #ffffff;
+  --fg:        #1a2318;
+  --fg-sub:    #596855;
+  --border:    #dde6d8;
+  --surf2:     #edf1ea;
+  --green:     #1a6b3a;
+  --green-lt:  #e8f4ec;
+  --gold:      #b87a10;
+  --gold-lt:   #fdf5e0;
+  --red:       #b03030;
+  --red-lt:    #fdeaea;
+  --orange:    #b85a18;
+  --orange-lt: #fdf0e4;
+  --blue:      #1a5280;
+  --blue-lt:   #e6eef8;
+  --teal:      #0d7a6b;
+  --teal-lt:   #e5f4f2;
+  --purple:    #5b3486;
+  --purple-lt: #f0eaf8;
+  --hdr:       #0c2e17;
+  --hdr-fg:    #c4e0cb;
+  --hdr-gold:  #eeb84a;
+  --hdr-gold-on: #1a0e00;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101a12; --bg-card: #182018; --fg: #daeadb; --fg-sub: #6a8860;
+    --border: #1e3020; --surf2: #141e14; --green: #3aaa58; --green-lt: #162818;
+    --gold: #d4a040; --gold-lt: #1c180a; --red: #d85050; --red-lt: #1c0c0c;
+    --orange: #d07840; --orange-lt: #1c100a; --blue: #4a88c0; --blue-lt: #0c1620;
+    --teal: #28a892; --teal-lt: #081a18; --purple: #8860c4; --purple-lt: #14081e;
+    --hdr: #060f08; --hdr-fg: #8caa94; --hdr-gold: #c8940a; --hdr-gold-on: #0e0800;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101a12; --bg-card: #182018; --fg: #daeadb; --fg-sub: #6a8860;
+  --border: #1e3020; --surf2: #141e14; --green: #3aaa58; --green-lt: #162818;
+  --gold: #d4a040; --gold-lt: #1c180a; --red: #d85050; --red-lt: #1c0c0c;
+  --orange: #d07840; --orange-lt: #1c100a; --blue: #4a88c0; --blue-lt: #0c1620;
+  --teal: #28a892; --teal-lt: #081a18; --purple: #8860c4; --purple-lt: #14081e;
+  --hdr: #060f08; --hdr-fg: #8caa94; --hdr-gold: #c8940a; --hdr-gold-on: #0e0800;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg); color: var(--fg);
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+img { max-width: 100%; }
+
+/* ── HEADER ─────────────────────────────────────────────── */
+header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 50;
+  background: var(--hdr); color: var(--hdr-fg);
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); background: var(--hdr); z-index: 51;
+}
+.hdr-inner {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  height: 52px;
+}
+.hdr-logo {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 17px; color: #fff; white-space: nowrap; flex-shrink: 0;
+}
+.hdr-logo span { color: var(--hdr-gold); }
+.hdr-badge { font-size: 10px; background: var(--hdr-gold); color: var(--hdr-gold-on); padding: 2px 7px; border-radius: 20px; font-weight: 700; flex-shrink: 0; }
+
+/* ── WHO AM I BAR ────────────────────────────────────────── */
+.who-bar {
+  background: var(--surf2); border-bottom: 1px solid var(--border);
+  padding: 10px max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.who-label { font-size: 12px; font-weight: 600; color: var(--fg-sub); white-space: nowrap; }
+.who-select {
+  flex: 1; min-width: 180px; max-width: 320px;
+  background: var(--bg-card); border: 1px solid var(--border); color: var(--fg);
+  border-radius: 8px; padding: 7px 10px; font-family: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer;
+}
+.who-tag { font-size: 11px; background: var(--green-lt); color: var(--green); padding: 3px 10px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+
+/* ── NAV TABS ─────────────────────────────────────────────── */
+.nav-tabs {
+  display: flex; overflow-x: auto; gap: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  padding: 0 max(16px, env(safe-area-inset-left, 0px));
+  scrollbar-width: none;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.ntab {
+  padding: 11px 16px; font-size: 13px; font-weight: 600; color: var(--fg-sub);
+  border: none; background: none; cursor: pointer; white-space: nowrap;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: color .15s, border-color .15s;
+}
+.ntab.on { color: var(--green); border-bottom-color: var(--green); }
+.ntab .count { display: inline-block; background: var(--red-lt); color: var(--red); border-radius: 20px; font-size: 10px; padding: 0 5px; margin-left: 4px; font-weight: 700; }
+.ntab .count.green { background: var(--green-lt); color: var(--green); }
+
+/* ── PANELS ─────────────────────────────────────────────── */
+.panel { display: none; padding: 16px max(16px, env(safe-area-inset-left, 0px)); }
+.panel.on { display: block; }
+
+/* ── CARDS ─────────────────────────────────────────────── */
+.card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px; margin-bottom: 12px;
+}
+.card-title { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-sub); margin-bottom: 10px; }
+
+/* ── CATALOG GRID ────────────────────────────────────────── */
+.catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.cat-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.cat-top { display: flex; align-items: flex-start; gap: 10px; }
+.cat-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.cat-info { flex: 1; min-width: 0; }
+.cat-name { font-weight: 700; font-size: 14px; line-height: 1.2; }
+.cat-swahili { font-size: 11px; color: var(--fg-sub); margin-top: 1px; font-style: italic; }
+.cat-desc { font-size: 12px; color: var(--fg-sub); margin-top: 4px; }
+.cat-price { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.cat-unit { font-size: 11px; color: var(--fg-sub); }
+.cat-footer { display: flex; align-items: center; gap: 8px; }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn { width: 28px; height: 28px; border-radius: 8px; border: 1px solid var(--border); background: var(--surf2); color: var(--fg); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+.qty-btn:hover { background: var(--green-lt); border-color: var(--green); color: var(--green); }
+.qty-val { font-size: 14px; font-weight: 700; min-width: 20px; text-align: center; font-variant-numeric: tabular-nums; }
+.add-btn {
+  flex: 1; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  transition: opacity .15s;
+}
+.add-btn:hover { opacity: .85; }
+
+/* ── CART ────────────────────────────────────────────────── */
+.cart-empty { text-align: center; color: var(--fg-sub); font-size: 13px; padding: 16px; }
+.cart-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.cart-item:last-of-type { border-bottom: none; }
+.ci-name { flex: 1; min-width: 0; font-size: 13px; font-weight: 600; }
+.ci-qty { font-size: 12px; color: var(--fg-sub); }
+.ci-price { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ci-rm { background: none; border: none; color: var(--red); cursor: pointer; font-size: 16px; flex-shrink: 0; }
+.cart-total { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 0 0; font-weight: 700; }
+.cart-total .t-val { font-size: 20px; color: var(--green); font-variant-numeric: tabular-nums; }
+.notes-input {
+  width: 100%; border: 1px solid var(--border); border-radius: 8px; background: var(--surf2);
+  color: var(--fg); padding: 8px 10px; font-family: inherit; font-size: 13px;
+  resize: none; margin: 10px 0;
+}
+.submit-btn {
+  width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer;
+  font-family: inherit; font-size: 14px; font-weight: 700;
+  background: var(--green); color: #fff; transition: opacity .15s;
+}
+.submit-btn:hover { opacity: .88; }
+.submit-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── ORDER CARDS ─────────────────────────────────────────── */
+.order-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 14px; margin-bottom: 10px;
+}
+.order-card.status-claimed { border-left: 3px solid var(--gold); }
+.order-card.status-in_transit { border-left: 3px solid var(--blue); }
+.order-card.status-delivered { border-left: 3px solid var(--green); opacity: .7; }
+.order-card.status-cancelled { border-left: 3px solid var(--red); opacity: .55; }
+.oc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.oc-id { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--fg-sub); }
+.oc-from { font-weight: 700; font-size: 14px; }
+.oc-loc { font-size: 12px; color: var(--fg-sub); margin-top: 1px; }
+.oc-items { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+.oc-item { background: var(--surf2); border-radius: 6px; padding: 3px 8px; font-size: 12px; font-weight: 600; }
+.oc-total { font-size: 13px; font-weight: 700; color: var(--green); font-variant-numeric: tabular-nums; }
+.oc-meta { font-size: 11px; color: var(--fg-sub); margin-top: 4px; }
+.oc-notes { font-size: 12px; color: var(--fg-sub); font-style: italic; margin-top: 6px; padding: 6px 8px; background: var(--surf2); border-radius: 6px; }
+.oc-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.oc-btn {
+  padding: 7px 14px; border-radius: 8px; border: none; cursor: pointer;
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  transition: opacity .15s;
+}
+.oc-btn:hover { opacity: .85; }
+.oc-fulfiller { font-size: 12px; color: var(--blue); font-weight: 600; margin-top: 4px; }
+
+/* ── STATUS BADGES ───────────────────────────────────────── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.b-open    { background: var(--gold-lt);   color: var(--gold); }
+.b-claimed { background: var(--blue-lt);   color: var(--blue); }
+.b-transit { background: var(--orange-lt); color: var(--orange); }
+.b-done    { background: var(--green-lt);  color: var(--green); }
+.b-cancel  { background: var(--red-lt);    color: var(--red); }
+
+/* ── KPI TILES ───────────────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 10px; margin-bottom: 16px; }
+.kpi { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+.kpi-val { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; margin-bottom: 4px; }
+.kpi-label { font-size: 11px; color: var(--fg-sub); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+
+/* ── ACTIVITY FEED ───────────────────────────────────────── */
+.activity-item { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.activity-item:last-child { border-bottom: none; }
+.act-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 4px; flex-shrink: 0; }
+.act-text { flex: 1; min-width: 0; line-height: 1.5; }
+.act-time { font-size: 11px; color: var(--fg-sub); white-space: nowrap; flex-shrink: 0; }
+
+/* ── ROLE CHIP ───────────────────────────────────────────── */
+.role-chip { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+
+/* ── SECTION HEADER ─────────────────────────────────────── */
+.sec-hdr { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.sec-hdr h2 { font-family: 'DM Serif Display', Georgia, serif; font-size: 18px; }
+.sec-hdr h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--fg-sub); }
+
+/* ── EMPTY STATE ─────────────────────────────────────────── */
+.empty { text-align: center; padding: 32px 16px; color: var(--fg-sub); }
+.empty-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-msg { font-size: 14px; font-weight: 600; }
+.empty-sub { font-size: 12px; margin-top: 4px; }
+
+/* ── TOAST ───────────────────────────────────────────────── */
+#toasts { position: fixed; bottom: max(16px, env(safe-area-inset-bottom, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); z-index: 999; display: flex; flex-direction: column; gap: 6px; pointer-events: none; }
+.toast { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; display: flex; gap: 8px; align-items: flex-start; box-shadow: 0 4px 16px rgba(0,0,0,.12); pointer-events: auto; cursor: pointer; font-size: 13px; line-height: 1.5; animation: slide-in .2s ease; }
+.toast.out { animation: slide-out .2s ease forwards; }
+.t-success { border-left: 3px solid var(--green); }
+.t-error   { border-left: 3px solid var(--red); }
+.t-warning { border-left: 3px solid var(--gold); }
+.t-info    { border-left: 3px solid var(--blue); }
+@keyframes slide-in  { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes slide-out { to   { opacity:0; transform:translateY(8px); } }
+
+/* ── COLOR HELPERS ───────────────────────────────────────── */
+.bg-green   { background: var(--green);  color: #fff; }
+.bg-gold    { background: var(--gold);   color: #fff; }
+.bg-blue    { background: var(--blue);   color: #fff; }
+.bg-teal    { background: var(--teal);   color: #fff; }
+.bg-purple  { background: var(--purple); color: #fff; }
+.bg-orange  { background: var(--orange); color: #fff; }
+.bg-red     { background: var(--red);    color: #fff; }
+.bg-ghost   { background: var(--surf2);  color: var(--fg); border: 1px solid var(--border); }
+.fg-green { color: var(--green); }
+.fg-gold  { color: var(--gold); }
+.fg-blue  { color: var(--blue); }
+.fg-red   { color: var(--red); }
+
+.row { display: flex; align-items: center; gap: 8px; }
+.col { display: flex; flex-direction: column; gap: 8px; }
+.mt { margin-top: 10px; }
+.text-sub { color: var(--fg-sub); }
+.text-sm  { font-size: 12px; }
+.bold { font-weight: 700; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.text-center { text-align: center; }
+.w-full { width: 100%; }
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ═══════════════════════════════════════════════ -->
+<header>
+  <div class="hdr-inner">
+    <div class="hdr-logo">Dandelion <span>Marketplace</span></div>
+    <div class="hdr-badge" id="open-count-badge">0 open</div>
+  </div>
+</header>
+
+<!-- ══ WHO AM I ══════════════════════════════════════════════ -->
+<div class="who-bar">
+  <span class="who-label">I am a</span>
+  <select class="who-select" id="profile-select" onchange="setProfile(this.value)">
+    <optgroup label="Community — Buyers">
+      <option value="jangwani">Jangwani Secondary School</option>
+      <option value="mnazi_clinic">Mnazi Mmoja Clinic (MoH)</option>
+      <option value="temeke_ward">Temeke Ward Office</option>
+      <option value="tabata_group">Tabata Women's Group</option>
+      <option value="morogoro_school">Morogoro Girls Secondary</option>
+      <option value="tanga_ward">Tanga Rural Ward 4</option>
+    </optgroup>
+    <optgroup label="Supply — Fulfillers">
+      <option value="mega_factory">Mega Hygiene Factory</option>
+      <option value="dar_depot">Dandelion Dar Depot</option>
+      <option value="runner_amina">Amina Kimaro — Mama Jasiri</option>
+      <option value="runner_fatuma">Fatuma Salim — Mama Jasiri</option>
+      <option value="duka_temeke">Duka ya Afya, Temeke</option>
+    </optgroup>
+    <optgroup label="Coordination">
+      <option value="admin">Dandelion Foundation (Admin)</option>
+    </optgroup>
+  </select>
+  <span class="who-tag" id="who-tag">School</span>
+</div>
+
+<!-- ══ NAV TABS ══════════════════════════════════════════════ -->
+<nav class="nav-tabs" id="main-tabs">
+  <button class="ntab on" data-tab="browse" onclick="goTab('browse',this)">Browse &amp; Order</button>
+  <button class="ntab" data-tab="orders" onclick="goTab('orders',this)">Order Board <span class="count" id="tab-open-count">0</span></button>
+  <button class="ntab" data-tab="mine" onclick="goTab('mine',this)">My Activity <span class="count green" id="tab-mine-count">0</span></button>
+  <button class="ntab" data-tab="overview" onclick="goTab('overview',this)">Overview</button>
+</nav>
+
+<!-- ══ PANEL: BROWSE & ORDER ═════════════════════════════════ -->
+<div id="panel-browse" class="panel on">
+  <div id="catalog-section">
+    <div class="sec-hdr" style="margin-bottom:6px">
+      <h2>Available Now</h2>
+      <span class="text-sub text-sm" id="catalog-role-hint">Select items to add to your order</span>
+    </div>
+    <div class="catalog-grid" id="catalog-grid"></div>
+  </div>
+
+  <!-- Cart (shown for buyer roles) -->
+  <div id="cart-section">
+    <div class="card">
+      <div class="card-title">Your Order Request</div>
+      <div id="cart-items"></div>
+      <textarea class="notes-input" id="order-notes" rows="2" placeholder="Delivery notes, contact number, special instructions…"></textarea>
+      <div class="cart-total">
+        <span class="text-sub text-sm">Estimated total</span>
+        <span class="t-val" id="cart-total-val">TZS 0</span>
+      </div>
+      <button class="submit-btn mt" id="submit-btn" onclick="submitOrder()">Submit Order Request</button>
+    </div>
+  </div>
+
+  <!-- Supplier fulfillment offer (shown for supplier roles) -->
+  <div id="offer-section" hidden>
+    <div class="card">
+      <div class="card-title">Post What You Can Supply</div>
+      <p class="text-sub text-sm" style="margin-bottom:12px">List products or services you can fulfill now. They appear in the catalog for community buyers.</p>
+      <div class="col" id="offer-form"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ PANEL: ORDER BOARD ═════════════════════════════════════ -->
+<div id="panel-orders" class="panel">
+  <div class="sec-hdr">
+    <h2>Order Board</h2>
+    <span class="badge b-open" id="board-open-badge">0 open</span>
+  </div>
+  <div id="filter-row" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+    <button class="oc-btn bg-ghost" style="font-size:11px" onclick="setFilter('all',this)">All</button>
+    <button class="oc-btn bg-ghost" style="font-size:11px" onclick="setFilter('open',this)">Open</button>
+    <button class="oc-btn bg-ghost" style="font-size:11px" onclick="setFilter('claimed',this)">Claimed</button>
+    <button class="oc-btn bg-ghost" style="font-size:11px" onclick="setFilter('in_transit',this)">In Transit</button>
+    <button class="oc-btn bg-ghost" style="font-size:11px" onclick="setFilter('delivered',this)">Delivered</button>
+  </div>
+  <div id="order-board"></div>
+</div>
+
+<!-- ══ PANEL: MY ACTIVITY ═════════════════════════════════════ -->
+<div id="panel-mine" class="panel">
+  <div class="sec-hdr"><h2 id="mine-heading">My Orders</h2></div>
+  <div id="mine-list"></div>
+</div>
+
+<!-- ══ PANEL: OVERVIEW ═══════════════════════════════════════ -->
+<div id="panel-overview" class="panel">
+  <div class="kpi-grid" id="kpi-grid"></div>
+  <div class="card">
+    <div class="card-title">Live Activity Feed</div>
+    <div id="activity-feed">
+      <div class="empty"><div class="empty-icon">📋</div><div class="empty-msg">No activity yet</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite" aria-atomic="false"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════════════
+const PROFILES = {
+  jangwani:       { name: 'Jangwani Secondary School', type: 'school',    role: 'buyer',    tag: 'School',      location: 'Kinondoni, Dar es Salaam', color: 'purple' },
+  mnazi_clinic:   { name: 'Mnazi Mmoja Clinic',        type: 'clinic',    role: 'buyer',    tag: 'Clinic',      location: 'Ilala, Dar es Salaam',     color: 'teal' },
+  temeke_ward:    { name: 'Temeke Ward Office',         type: 'ward',      role: 'buyer',    tag: 'Ward Office', location: 'Temeke, Dar es Salaam',     color: 'blue' },
+  tabata_group:   { name: 'Tabata Women\'s Group',      type: 'community', role: 'buyer',    tag: 'Community',   location: 'Ilala, Dar es Salaam',     color: 'orange' },
+  morogoro_school:{ name: 'Morogoro Girls Secondary',  type: 'school',    role: 'buyer',    tag: 'School',      location: 'Morogoro Region',          color: 'purple' },
+  tanga_ward:     { name: 'Tanga Rural Ward 4',         type: 'ward',      role: 'buyer',    tag: 'Ward (Rural)',location: 'Tanga Region',             color: 'gold' },
+  mega_factory:   { name: 'Mega Hygiene Factory',       type: 'manufacturer',role:'supplier',tag: 'Manufacturer',location: 'Industrial Area, Dar es Salaam', color: 'green' },
+  dar_depot:      { name: 'Dandelion Dar Depot',        type: 'warehouse', role: 'supplier', tag: 'Depot',       location: 'Dar es Salaam',            color: 'teal' },
+  runner_amina:   { name: 'Amina Kimaro',               type: 'runner',    role: 'supplier', tag: 'Runner',      location: 'Kinondoni, Dar es Salaam', color: 'orange' },
+  runner_fatuma:  { name: 'Fatuma Salim',               type: 'runner',    role: 'supplier', tag: 'Runner',      location: 'Temeke, Dar es Salaam',    color: 'gold' },
+  duka_temeke:    { name: 'Duka ya Afya, Temeke',       type: 'duka',      role: 'supplier', tag: 'ADDO Duka',   location: 'Temeke, Dar es Salaam',    color: 'blue' },
+  admin:          { name: 'Dandelion Foundation',       type: 'admin',     role: 'admin',    tag: 'Admin',       location: 'Dar es Salaam',            color: 'green' },
+};
+
+const CATALOG = [
+  {
+    id: 'pads', name: 'Sanitary Pads', swahili: 'Taulo za Kike',
+    price: 500, unit: 'pack', icon: '🌸', color: 'purple',
+    desc: 'Ultra-thin day pads, 8-count. Price-capped at TZS 500.',
+    category: 'product',
+    canFulfill: ['mega_factory','dar_depot','runner_amina','runner_fatuma','duka_temeke']
+  },
+  {
+    id: 'pads_carton', name: 'Sanitary Pads — Carton', swahili: 'Taulo za Kike (Sanduku)',
+    price: 28000, unit: 'carton (60 packs)', icon: '📦', color: 'purple',
+    desc: 'Bulk school or ward order. 60 packs per carton.',
+    category: 'product',
+    canFulfill: ['mega_factory','dar_depot']
+  },
+  {
+    id: 'diapers', name: 'Diapers', swahili: 'Nepi za Watoto',
+    price: 3500, unit: 'pack (20 count)', icon: '👶', color: 'blue',
+    desc: 'Newborn–12M. MoH voucher price TZS 3,500.',
+    category: 'product',
+    canFulfill: ['mega_factory','dar_depot','duka_temeke']
+  },
+  {
+    id: 'cups', name: 'Menstrual Cup', swahili: 'Kikombe cha Hedhi',
+    price: 5000, unit: 'unit', icon: '💧', color: 'teal',
+    desc: 'Reusable silicone cup, 5-year lifespan. TZS 5,000.',
+    category: 'product',
+    canFulfill: ['mega_factory','dar_depot','duka_temeke']
+  },
+  {
+    id: 'dispenser_restock', name: 'Dispenser Restock', swahili: 'Kujaza Dispensa',
+    price: 2000, unit: 'visit', icon: '🏫', color: 'green',
+    desc: 'Runner visits, restocks coinless dispensers on campus.',
+    category: 'service',
+    canFulfill: ['runner_amina','runner_fatuma']
+  },
+  {
+    id: 'health_training', name: 'Health Worker Training', swahili: 'Mafunzo ya Afya',
+    price: 0, unit: 'session (free)', icon: '📚', color: 'gold',
+    desc: 'MHM + infant health, 2-hour certified session. Fully subsidized.',
+    category: 'service',
+    canFulfill: ['admin','mega_factory']
+  },
+  {
+    id: 'burn_cycle', name: 'Incinerator Service', swahili: 'Uchomaji Salama',
+    price: 500, unit: 'cycle', icon: '🔥', color: 'orange',
+    desc: '800°C dual-chamber clean-burn. Zero latrine blockages.',
+    category: 'service',
+    canFulfill: ['runner_amina','runner_fatuma','admin']
+  },
+  {
+    id: 'ussd_reorder', name: 'USSD Stock Reorder', swahili: 'Agiza Stoki *150*88#',
+    price: 0, unit: 'request (free)', icon: '📱', color: 'teal',
+    desc: 'Place a restock request via 2G USSD — no smartphone needed.',
+    category: 'service',
+    canFulfill: ['mega_factory','dar_depot']
+  },
+];
+
+// ── SHARED STATE ─────────────────────────────────────────────
+let orders = [];
+let activityFeed = [];
+let cart = {};
+let currentProfile = 'jangwani';
+let orderFilter = 'all';
+let orderCounter = 1001;
+
+// ── HELPERS ──────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+function rnd(n=6) { return Math.random().toString(36).slice(2, 2+n).toUpperCase(); }
+function fmtTZS(n) {
+  if (n === 0) return 'Free';
+  if (n >= 1000) return `TZS ${n.toLocaleString()}`;
+  return `TZS ${n}`;
+}
+function timeAgo(ts) {
+  const s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60)  return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s/60)}m ago`;
+  return `${Math.floor(s/3600)}h ago`;
+}
+function prof() { return PROFILES[currentProfile]; }
+function isBuyer() { return prof().role === 'buyer'; }
+function isSupplier() { return prof().role === 'supplier'; }
+function isAdmin() { return prof().role === 'admin'; }
+
+function statusBadge(status) {
+  const map = {
+    open:       ['b-open',   'Open'],
+    claimed:    ['b-claimed','Claimed'],
+    in_transit: ['b-transit','In Transit'],
+    delivered:  ['b-done',   'Delivered'],
+    cancelled:  ['b-cancel', 'Cancelled'],
+  };
+  const [cls, label] = map[status] || ['b-open','?'];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+function roleChip(profileId) {
+  const p = PROFILES[profileId];
+  if (!p) return '';
+  const colors = { purple:'var(--purple-lt);color:var(--purple)', teal:'var(--teal-lt);color:var(--teal)', blue:'var(--blue-lt);color:var(--blue)', gold:'var(--gold-lt);color:var(--gold)', green:'var(--green-lt);color:var(--green)', orange:'var(--orange-lt);color:var(--orange)' };
+  const c = colors[p.color] || colors.green;
+  return `<span class="role-chip" style="background:${c}">${p.tag}</span>`;
+}
+
+function log(msg, dotColor) {
+  activityFeed.unshift({ msg, dotColor: dotColor || 'var(--green)', time: Date.now() });
+  if (activityFeed.length > 40) activityFeed.pop();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, type='success') {
+  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`;
+  const ico = document.createElement('span');
+  ico.style.flexShrink = '0'; ico.textContent = icons[type] || 'ℹ️';
+  const t = document.createElement('span'); t.textContent = msg;
+  el.append(ico, t);
+  const dismiss = () => { el.classList.add('out'); setTimeout(() => el.remove(), 220); };
+  el.addEventListener('click', dismiss);
+  $('toasts').appendChild(el);
+  setTimeout(dismiss, 4200);
+}
+
+// ── PROFILE ──────────────────────────────────────────────────
+function setProfile(id) {
+  currentProfile = id;
+  const p = prof();
+  const tag = $('who-tag');
+  if (tag) {
+    tag.textContent = p.tag;
+    const colors = { purple:'var(--purple-lt);color:var(--purple)', teal:'var(--teal-lt);color:var(--teal)', blue:'var(--blue-lt);color:var(--blue)', gold:'var(--gold-lt);color:var(--gold)', green:'var(--green-lt);color:var(--green)', orange:'var(--orange-lt);color:var(--orange)' };
+    const c = colors[p.color] || colors.green;
+    tag.style.cssText = `background:${c};`;
+    tag.className = 'role-chip';
+  }
+  renderAll();
+}
+
+// ── TABS ──────────────────────────────────────────────────────
+function goTab(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ntab').forEach(b => b.classList.remove('on'));
+  const panel = $('panel-' + name);
+  if (panel) panel.classList.add('on');
+  if (btn) btn.classList.add('on');
+  renderAll();
+}
+
+// ── FILTER ────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  orderFilter = f;
+  document.querySelectorAll('#filter-row .oc-btn').forEach(b => b.className = 'oc-btn bg-ghost');
+  if (btn) btn.className = 'oc-btn bg-green';
+  renderOrderBoard();
+}
+
+// ── CATALOG ──────────────────────────────────────────────────
+function renderCatalog() {
+  const grid = $('catalog-grid');
+  if (!grid) return;
+  const p = prof();
+
+  // Buyers see catalog to order; suppliers see "what you can fulfill"
+  const colorMap = { purple:'var(--purple)', teal:'var(--teal)', blue:'var(--blue)', gold:'var(--gold)', green:'var(--green)', orange:'var(--orange)' };
+
+  grid.innerHTML = CATALOG.map(item => {
+    const col = colorMap[item.color] || 'var(--green)';
+    const inCart = cart[item.id] || 0;
+    const canFulfillThis = item.canFulfill.includes(currentProfile);
+    const showSupplierNote = isSupplier() && canFulfillThis ? `<div style="font-size:11px;color:var(--green);margin-top:2px;font-weight:600">You can fulfill this</div>` : '';
+
+    return `<div class="cat-card">
+      <div class="cat-top">
+        <div class="cat-icon" style="background:${col}1a">${item.icon}</div>
+        <div class="cat-info">
+          <div class="cat-name">${item.name}</div>
+          <div class="cat-swahili">${item.swahili}</div>
+          <div class="cat-desc">${item.desc}</div>
+          ${showSupplierNote}
+        </div>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:6px">
+        <div class="cat-price" style="color:${col}">${fmtTZS(item.price)}</div>
+        <div class="cat-unit">/ ${item.unit}</div>
+      </div>
+      ${isBuyer() || isAdmin() ? `
+      <div class="cat-footer">
+        <div class="qty-ctrl">
+          <button class="qty-btn" onclick="setQty('${item.id}', ${inCart - 1})">−</button>
+          <span class="qty-val" id="qty-${item.id}">${inCart}</span>
+          <button class="qty-btn" onclick="setQty('${item.id}', ${inCart + 1})">+</button>
+        </div>
+        <button class="add-btn ${inCart > 0 ? 'bg-green' : 'bg-ghost'}" onclick="setQty('${item.id}', ${inCart > 0 ? inCart : 1})">
+          ${inCart > 0 ? 'In Order ✓' : 'Add to Order'}
+        </button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Show/hide cart vs offer section
+  const cartSec = $('cart-section');
+  const offerSec = $('offer-section');
+  if (cartSec) cartSec.hidden = !(isBuyer() || isAdmin());
+  if (offerSec) offerSec.hidden = true; // simplified for now
+
+  const hint = $('catalog-role-hint');
+  if (hint) {
+    if (isSupplier()) hint.textContent = `Items highlighted in green are ones you can fulfill`;
+    else hint.textContent = 'Select items below and submit your order request';
+  }
+
+  renderCart();
+}
+
+// ── CART ──────────────────────────────────────────────────────
+function setQty(id, qty) {
+  qty = Math.max(0, qty);
+  if (qty === 0) delete cart[id];
+  else cart[id] = qty;
+  renderCatalog();
+}
+
+function renderCart() {
+  const container = $('cart-items');
+  if (!container) return;
+  const keys = Object.keys(cart).filter(k => cart[k] > 0);
+  if (keys.length === 0) {
+    container.innerHTML = `<div class="cart-empty">No items yet — add from the catalog above.</div>`;
+    const tv = $('cart-total-val'); if (tv) tv.textContent = 'TZS 0';
+    const sb = $('submit-btn'); if (sb) sb.disabled = true;
+    return;
+  }
+  let total = 0;
+  container.innerHTML = keys.map(id => {
+    const item = CATALOG.find(c => c.id === id);
+    if (!item) return '';
+    const qty = cart[id];
+    const subtotal = item.price * qty;
+    total += subtotal;
+    return `<div class="cart-item">
+      <div class="ci-name">${item.icon} ${item.name}<div class="ci-qty">${qty} × ${fmtTZS(item.price)}</div></div>
+      <div class="ci-price">${fmtTZS(subtotal)}</div>
+      <button class="ci-rm" onclick="setQty('${id}', 0)" title="Remove">×</button>
+    </div>`;
+  }).join('');
+  const tv = $('cart-total-val'); if (tv) tv.textContent = fmtTZS(total);
+  const sb = $('submit-btn'); if (sb) sb.disabled = false;
+}
+
+// ── SUBMIT ORDER ──────────────────────────────────────────────
+function submitOrder() {
+  const keys = Object.keys(cart).filter(k => cart[k] > 0);
+  if (keys.length === 0) { toast('Add at least one item to your order', 'warning'); return; }
+  const p = prof();
+  const notes = ($('order-notes') || {}).value || '';
+  const items = keys.map(id => {
+    const item = CATALOG.find(c => c.id === id);
+    return { catalog: item, qty: cart[id] };
+  });
+  const totalValue = items.reduce((s, i) => s + i.catalog.price * i.qty, 0);
+  const order = {
+    id: `ORD-${orderCounter++}`,
+    profileId: currentProfile,
+    profile: { ...p },
+    items,
+    totalValue,
+    notes: notes.trim(),
+    status: 'open',
+    claimedBy: null,
+    claimedProfileId: null,
+    createdAt: Date.now(),
+    claimedAt: null,
+    transitAt: null,
+    deliveredAt: null,
+  };
+  orders.unshift(order);
+  log(`${p.name} posted ${order.id} — ${items.length} item${items.length !== 1 ? 's' : ''}, ${fmtTZS(totalValue)}`, 'var(--gold)');
+  cart = {};
+  const notes_el = $('order-notes'); if (notes_el) notes_el.value = '';
+  toast(`Order ${order.id} submitted — now visible to all suppliers`, 'success');
+  goTab('orders', document.querySelector('.ntab[data-tab="orders"]'));
+  renderAll();
+}
+
+// ── FULFILLMENT ACTIONS ───────────────────────────────────────
+function claimOrder(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order || order.status !== 'open') return;
+  const p = prof();
+  order.status = 'claimed';
+  order.claimedBy = { ...p };
+  order.claimedProfileId = currentProfile;
+  order.claimedAt = Date.now();
+  log(`${p.name} claimed ${orderId} from ${order.profile.name}`, 'var(--blue)');
+  toast(`You claimed ${orderId}. Contact ${order.profile.name} to arrange delivery.`, 'success');
+  renderAll();
+}
+
+function markTransit(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order || order.status !== 'claimed') return;
+  order.status = 'in_transit';
+  order.transitAt = Date.now();
+  log(`${prof().name} marked ${orderId} in transit → ${order.profile.name}`, 'var(--orange)');
+  toast(`${orderId} marked in transit — buyer notified`, 'info');
+  renderAll();
+}
+
+function markDelivered(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order || !['claimed','in_transit'].includes(order.status)) return;
+  order.status = 'delivered';
+  order.deliveredAt = Date.now();
+  log(`${orderId} delivered to ${order.profile.name} by ${prof().name}`, 'var(--green)');
+  toast(`${orderId} marked delivered. Order complete.`, 'success');
+  renderAll();
+}
+
+function cancelOrder(orderId) {
+  const order = orders.find(o => o.id === orderId);
+  if (!order) return;
+  order.status = 'cancelled';
+  log(`${orderId} cancelled by ${prof().name}`, 'var(--red)');
+  toast(`Order ${orderId} cancelled`, 'warning');
+  renderAll();
+}
+
+// ── ORDER BOARD ───────────────────────────────────────────────
+function renderOrderBoard() {
+  const board = $('order-board');
+  if (!board) return;
+  const p = prof();
+  let visible = orders;
+  if (orderFilter !== 'all') visible = visible.filter(o => o.status === orderFilter);
+
+  const openCount = orders.filter(o => o.status === 'open').length;
+  const badge = $('board-open-badge');
+  if (badge) badge.textContent = `${openCount} open`;
+
+  if (visible.length === 0) {
+    board.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-msg">No orders here</div><div class="empty-sub">${orderFilter === 'all' ? 'Orders appear here when community members submit requests' : `No ${orderFilter} orders`}</div></div>`;
+    return;
+  }
+
+  board.innerHTML = visible.map(order => {
+    const canClaim  = isSupplier() && order.status === 'open' && order.canFulfillCheck !== false;
+    const isMyClaim = order.claimedProfileId === currentProfile;
+    const canTransit  = isMyClaim && order.status === 'claimed';
+    const canDeliver  = isMyClaim && ['claimed','in_transit'].includes(order.status);
+    const canCancel   = (order.profileId === currentProfile && order.status === 'open') || (isAdmin() && order.status !== 'delivered');
+    const hasItems = order.items.map(i => `<span class="oc-item">${i.catalog.icon} ${i.qty}× ${i.catalog.name}</span>`).join('');
+    return `<div class="order-card status-${order.status}">
+      <div class="oc-top">
+        <div>
+          <div class="oc-id">${order.id} · ${timeAgo(order.createdAt)}</div>
+          <div class="oc-from">${order.profile.name}</div>
+          <div class="oc-loc">${roleChip(order.profileId)} ${order.profile.location}</div>
+        </div>
+        ${statusBadge(order.status)}
+      </div>
+      <div class="oc-items">${hasItems}</div>
+      <div class="row" style="gap:12px">
+        <div class="oc-total">${fmtTZS(order.totalValue)}</div>
+      </div>
+      ${order.claimedBy ? `<div class="oc-fulfiller">Fulfiller: ${order.claimedBy.name} · ${order.claimedBy.tag}</div>` : ''}
+      ${order.notes ? `<div class="oc-notes">"${order.notes}"</div>` : ''}
+      <div class="oc-actions">
+        ${canClaim   ? `<button class="oc-btn bg-green"  onclick="claimOrder('${order.id}')">Claim &amp; Fulfill</button>` : ''}
+        ${canTransit ? `<button class="oc-btn bg-blue"   onclick="markTransit('${order.id}')">Mark In Transit</button>` : ''}
+        ${canDeliver ? `<button class="oc-btn bg-teal"   onclick="markDelivered('${order.id}')">Mark Delivered</button>` : ''}
+        ${canCancel  ? `<button class="oc-btn bg-ghost"  onclick="cancelOrder('${order.id}')">Cancel</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MY ACTIVITY ───────────────────────────────────────────────
+function renderMine() {
+  const list = $('mine-list');
+  const heading = $('mine-heading');
+  if (!list) return;
+  const p = prof();
+  let mine = [];
+  if (isBuyer()) {
+    if (heading) heading.textContent = 'My Order Requests';
+    mine = orders.filter(o => o.profileId === currentProfile);
+  } else if (isSupplier()) {
+    if (heading) heading.textContent = 'My Claimed Orders';
+    mine = orders.filter(o => o.claimedProfileId === currentProfile);
+  } else {
+    if (heading) heading.textContent = 'All Orders (Admin)';
+    mine = orders;
+  }
+  if (mine.length === 0) {
+    list.innerHTML = `<div class="empty"><div class="empty-icon">${isBuyer() ? '🛒' : '📦'}</div><div class="empty-msg">${isBuyer() ? 'No orders placed yet' : 'No orders claimed yet'}</div><div class="empty-sub">${isBuyer() ? 'Browse the catalog and submit your first request' : 'Visit the Order Board to claim open requests'}</div></div>`;
+    return;
+  }
+  list.innerHTML = mine.map(order => {
+    const isMyClaim = order.claimedProfileId === currentProfile;
+    const canTransit  = isMyClaim && order.status === 'claimed';
+    const canDeliver  = isMyClaim && ['claimed','in_transit'].includes(order.status);
+    const hasItems = order.items.map(i => `<span class="oc-item">${i.catalog.icon} ${i.qty}× ${i.catalog.name}</span>`).join('');
+    return `<div class="order-card status-${order.status}">
+      <div class="oc-top">
+        <div>
+          <div class="oc-id">${order.id} · ${timeAgo(order.createdAt)}</div>
+          <div class="oc-from">${isSupplier() ? order.profile.name : 'Your request'}</div>
+          ${isSupplier() ? `<div class="oc-loc">${roleChip(order.profileId)} ${order.profile.location}</div>` : ''}
+        </div>
+        ${statusBadge(order.status)}
+      </div>
+      <div class="oc-items">${hasItems}</div>
+      <div class="oc-total">${fmtTZS(order.totalValue)}</div>
+      ${order.claimedBy && isBuyer() ? `<div class="oc-fulfiller">Being fulfilled by: ${order.claimedBy.name}</div>` : ''}
+      ${order.notes ? `<div class="oc-notes">"${order.notes}"</div>` : ''}
+      <div class="oc-actions">
+        ${canTransit ? `<button class="oc-btn bg-blue" onclick="markTransit('${order.id}')">Mark In Transit</button>` : ''}
+        ${canDeliver ? `<button class="oc-btn bg-teal" onclick="markDelivered('${order.id}')">Mark Delivered</button>` : ''}
+        ${isBuyer() && order.status === 'open' ? `<button class="oc-btn bg-ghost" onclick="cancelOrder('${order.id}')">Cancel</button>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── OVERVIEW ──────────────────────────────────────────────────
+function renderOverview() {
+  const kpi = $('kpi-grid');
+  if (kpi) {
+    const open = orders.filter(o => o.status === 'open').length;
+    const claimed = orders.filter(o => o.status === 'claimed').length;
+    const transit = orders.filter(o => o.status === 'in_transit').length;
+    const done = orders.filter(o => o.status === 'delivered').length;
+    const totalVal = orders.filter(o => o.status === 'delivered').reduce((s,o) => s + o.totalValue, 0);
+    const uniqueBuyers = new Set(orders.map(o => o.profileId)).size;
+    kpi.innerHTML = [
+      { val: open,    label: 'Open Orders',    color: 'var(--gold)' },
+      { val: claimed, label: 'Claimed',         color: 'var(--blue)' },
+      { val: transit, label: 'In Transit',      color: 'var(--orange)' },
+      { val: done,    label: 'Delivered',        color: 'var(--green)' },
+      { val: uniqueBuyers, label: 'Communities', color: 'var(--purple)' },
+      { val: fmtTZS(totalVal), label: 'Value Delivered', color: 'var(--teal)', noNum: true },
+    ].map(k => `<div class="kpi"><div class="kpi-val" style="color:${k.color}">${k.val}</div><div class="kpi-label">${k.label}</div></div>`).join('');
+  }
+  const feed = $('activity-feed');
+  if (!feed) return;
+  if (activityFeed.length === 0) {
+    feed.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-msg">No activity yet</div></div>`;
+    return;
+  }
+  feed.innerHTML = activityFeed.map(a =>
+    `<div class="activity-item">
+      <div class="act-dot" style="background:${a.dotColor}"></div>
+      <div class="act-text">${a.msg}</div>
+      <div class="act-time">${timeAgo(a.time)}</div>
+    </div>`
+  ).join('');
+}
+
+// ── TAB COUNTS ────────────────────────────────────────────────
+function updateCounts() {
+  const open = orders.filter(o => o.status === 'open').length;
+  const toc = $('tab-open-count');
+  if (toc) { toc.textContent = open; toc.hidden = open === 0; }
+  const ob = $('open-count-badge');
+  if (ob) ob.textContent = `${open} open`;
+
+  let mineCount = 0;
+  if (isBuyer()) mineCount = orders.filter(o => o.profileId === currentProfile && ['open','claimed','in_transit'].includes(o.status)).length;
+  else if (isSupplier()) mineCount = orders.filter(o => o.claimedProfileId === currentProfile && o.status !== 'delivered').length;
+  const tmc = $('tab-mine-count');
+  if (tmc) { tmc.textContent = mineCount; tmc.hidden = mineCount === 0; }
+}
+
+// ── RENDER ALL ────────────────────────────────────────────────
+function renderAll() {
+  renderCatalog();
+  renderOrderBoard();
+  renderMine();
+  renderOverview();
+  updateCounts();
+}
+
+// ── SEED DATA (demo orders to show the board populated) ───────
+function seedDemoOrders() {
+  const seed = [
+    {
+      id: `ORD-${orderCounter++}`,
+      profileId: 'morogoro_school',
+      profile: PROFILES.morogoro_school,
+      items: [
+        { catalog: CATALOG.find(c => c.id === 'pads_carton'), qty: 3 },
+        { catalog: CATALOG.find(c => c.id === 'dispenser_restock'), qty: 1 },
+      ],
+      notes: 'Urgent — term starts Monday. Gate access from 7am.',
+      status: 'open',
+      claimedBy: null, claimedProfileId: null,
+      createdAt: Date.now() - 12 * 60000,
+      claimedAt: null, transitAt: null, deliveredAt: null,
+    },
+    {
+      id: `ORD-${orderCounter++}`,
+      profileId: 'mnazi_clinic',
+      profile: PROFILES.mnazi_clinic,
+      items: [
+        { catalog: CATALOG.find(c => c.id === 'diapers'), qty: 20 },
+        { catalog: CATALOG.find(c => c.id === 'health_training'), qty: 1 },
+      ],
+      notes: 'MoH voucher redemption batch. Training for 8 CHWs.',
+      status: 'claimed',
+      claimedBy: PROFILES.dar_depot,
+      claimedProfileId: 'dar_depot',
+      createdAt: Date.now() - 45 * 60000,
+      claimedAt: Date.now() - 30 * 60000,
+      transitAt: null, deliveredAt: null,
+    },
+    {
+      id: `ORD-${orderCounter++}`,
+      profileId: 'tanga_ward',
+      profile: PROFILES.tanga_ward,
+      items: [
+        { catalog: CATALOG.find(c => c.id === 'pads'), qty: 50 },
+        { catalog: CATALOG.find(c => c.id === 'burn_cycle'), qty: 2 },
+      ],
+      notes: 'Rural cross-subsidy zone. TAZARA delivery preferred.',
+      status: 'open',
+      claimedBy: null, claimedProfileId: null,
+      createdAt: Date.now() - 5 * 60000,
+      claimedAt: null, transitAt: null, deliveredAt: null,
+    },
+    {
+      id: `ORD-${orderCounter++}`,
+      profileId: 'tabata_group',
+      profile: PROFILES.tabata_group,
+      items: [
+        { catalog: CATALOG.find(c => c.id === 'cups'), qty: 15 },
+        { catalog: CATALOG.find(c => c.id === 'health_training'), qty: 1 },
+      ],
+      notes: 'Women\'s group meeting this weekend — can receive Saturday AM.',
+      status: 'in_transit',
+      claimedBy: PROFILES.runner_amina,
+      claimedProfileId: 'runner_amina',
+      createdAt: Date.now() - 3 * 3600000,
+      claimedAt: Date.now() - 2 * 3600000,
+      transitAt: Date.now() - 30 * 60000,
+      deliveredAt: null,
+    },
+  ];
+  seed.forEach(o => {
+    o.totalValue = o.items.reduce((s, i) => s + i.catalog.price * i.qty, 0);
+    orders.push(o);
+  });
+  log('Morogoro Girls Secondary posted ORD-1001 — 3× pad cartons + restock', 'var(--gold)');
+  log('Dar Depot claimed ORD-1002 from Mnazi Mmoja Clinic', 'var(--blue)');
+  log('Tanga Rural Ward 4 posted ORD-1003 — 50× pads (rural cross-subsidy)', 'var(--gold)');
+  log('Amina Kimaro marked ORD-1004 in transit → Tabata Women\'s Group', 'var(--orange)');
+}
+
+// ── BOOT ──────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  seedDemoOrders();
+  setProfile('jangwani');
+  setFilter('all', document.querySelector('#filter-row .oc-btn'));
+});
+</script>
+</body>
+</html>
