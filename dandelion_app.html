@@ -15,8 +15,8 @@
 }}
 :root[data-theme="dark"]{--bg:#0F172A;--sur:#1E293B;--sur2:#0F172A;--bdr:#334155;--tx:#F1F5F9;--tx2:#94A3B8;--tx3:#64748B;color-scheme:dark;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center;padding-block:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
-#phone{width:min(390px,100%);height:min(844px,calc(100vh - 40px));background:var(--sur);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;gap:18px;flex-wrap:wrap;padding-block:max(20px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+#phone{width:min(390px,100%);height:min(844px,calc(100vh - 40px));background:var(--sur);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;flex-shrink:0;}
 @media(max-width:440px){body{padding:0;}#phone{border-radius:0;height:100vh;}}
 #sb{background:var(--sur);padding:12px 20px 6px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--tx);flex-shrink:0;z-index:10;}
 .si{display:flex;gap:5px;align-items:center;font-size:11px}
@@ -1083,6 +1083,24 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   </div><!-- /screens -->
 </div><!-- /phone -->
 
+<!-- OBSERVER PHONE -->
+<div id="phone2" style="width:min(390px,100%);height:min(844px,calc(100vh - 40px));background:var(--sur);border-radius:40px;overflow:hidden;position:relative;box-shadow:0 25px 60px rgba(0,0,0,.3);display:flex;flex-direction:column;flex-shrink:0;">
+  <div style="background:var(--sur);padding:12px 20px 6px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--tx);flex-shrink:0;border-bottom:1px solid var(--bdr);">
+    <span>9:41</span>
+    <span style="font-size:12px;font-weight:600;color:var(--p)">🔭 Observer</span>
+    <span style="font-size:11px;font-weight:600">87%</span>
+  </div>
+  <div style="padding:10px 14px 8px;border-bottom:1px solid var(--bdr);display:flex;gap:6px;flex-shrink:0;">
+    <button onclick="setObsRole('consumer')" style="flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);color:var(--tx);cursor:pointer;font-family:inherit" id="obsbtn-consumer">Consumer</button>
+    <button onclick="setObsRole('runner')" style="flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);color:var(--tx);cursor:pointer;font-family:inherit" id="obsbtn-runner">Runner</button>
+    <button onclick="setObsRole('matron')" style="flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);color:var(--tx);cursor:pointer;font-family:inherit" id="obsbtn-matron">Matron</button>
+    <button onclick="setObsRole('operator')" style="flex:1;padding:7px 4px;font-size:11px;font-weight:600;border:1.5px solid var(--bdr);border-radius:8px;background:var(--sur2);color:var(--tx);cursor:pointer;font-family:inherit" id="obsbtn-operator">Operator</button>
+  </div>
+  <div id="obs-body" style="flex:1;overflow-y:auto;padding:16px;">
+    <div style="text-align:center;padding:40px 20px;color:var(--tx2)"><div style="font-size:44px;margin-bottom:10px">🔭</div><div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:6px">Observer Panel</div><p style="font-size:13px;line-height:1.5">Select a role above to watch their live state as actions happen in the main phone.</p></div>
+  </div>
+</div>
+
 <script>
 const S={
   role:null,user:{},hist:[],cur:'welcome',
@@ -1101,6 +1119,7 @@ const S={
   bodaLoadChecked:false,bodaPinAttempts:0,
   // Matron state
   matronCarrierAttempts:0,
+  obsRole:null,
 };
 
 const PRODS=[
@@ -1284,7 +1303,7 @@ function placeOrder(pid,q,m){
   const o={id,pid,pname:p.name,pemo:p.emoji,qty:q,price:p.price,total:p.price*q,method:m,status:'placed',consumer:S.user.name||'Fatuma',phone:S.user.phone||'0712 345 678',ward:S.user.ward||'Jangwani',placedAt:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),runner:null};
   S.orders.push(o);S.order=o;
   document.getElementById('op-open').textContent=S.orders.filter(x=>x.status!=='completed').length;
-  renderRunnerQ();renderMatronInc();
+  renderRunnerQ();renderMatronInc();refreshObs();
   showToast('M-Pesa push sent · Check your phone');
   setTimeout(()=>showTrack(o.id),700);
 }
@@ -1303,9 +1322,137 @@ function renderTrack(){
       ${o.runner?`<div style="font-size:12px;color:var(--tx2)">Runner: <strong style="color:var(--tx)">${o.runner}</strong></div>`:''}
       <div style="font-size:12px;color:var(--tx2);margin-top:3px">Placed today at ${o.placedAt}</div>
     </div>
-    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px;font-size:12px;color:var(--tx2)">💡 <strong>Try it:</strong> Switch to Runner → accept this order → deliver it → switch to Matron → confirm receipt.</div>`}
+    ${['delivered','completed'].includes(o.status)?`<div style="background:#D1FAE5;border:1px solid var(--a);border-radius:11px;padding:15px;margin-bottom:14px;text-align:center"><div style="font-size:30px">🎉</div><div style="font-size:15px;font-weight:600;color:#065F46;margin-top:7px">Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS ${o.total.toLocaleString()} charged to M-Pesa</div></div>`:`<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;color:var(--tx2);margin-bottom:9px">💡 <strong>Try it manually:</strong> Switch to Runner → accept this order → deliver it → Matron confirms receipt. Or run the simulation below.</div><button class="btn bp bsm" style="width:100%;padding:10px" onclick="demoSimulate('${o.id}')">▶ Simulate Full Delivery Flow</button></div>`}
     <button class="btn bs" onclick="nav('h-consumer')">Back to Shop</button>
   `;
+}
+
+function demoSimulate(id){
+  const o=S.orders.find(x=>x.id===id);if(!o||o.status!=='placed') return;
+  const steps=[
+    [800,'Runner Amina accepted your order','accepted'],
+    [2200,'Runner is en route to you','enroute'],
+    [4200,'Packs delivered · TZS '+((o.total)||0).toLocaleString()+' charged','delivered']
+  ];
+  steps.forEach(function(step){
+    var delay=step[0],msg=step[1],status=step[2];
+    setTimeout(function(){
+      o.status=status;
+      if(status==='accepted') o.runner='Amina';
+      renderTrack();refreshObs();
+      renderRunnerQ();
+      if(status==='delivered'){S.shift.sold+=o.qty;refreshShiftLedger();renderMatronInc();}
+      showToast(msg);
+    },delay);
+  });
+}
+
+var S_obsRole=null;
+function setObsRole(role){
+  S_obsRole=role;
+  ['consumer','runner','matron','operator'].forEach(function(r){
+    var b=document.getElementById('obsbtn-'+r);
+    if(b){b.style.background=r===role?'var(--p)':'var(--sur2)';b.style.color=r===role?'#fff':'var(--tx)';b.style.borderColor=r===role?'var(--p)':'var(--bdr)';}
+  });
+  refreshObs();
+}
+
+function refreshObs(){
+  var el=document.getElementById('obs-body');if(!el) return;
+  var role=S_obsRole;
+  if(!role){el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--tx2)"><div style="font-size:44px;margin-bottom:10px">🔭</div><div style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:6px">Observer Panel</div><p style="font-size:13px;line-height:1.5">Select a role above to watch their live state as actions happen in the main phone.</p></div>';return;}
+  var h='';
+  if(role==='consumer'){
+    var orders=S.orders.filter(function(o){return o.consumer===(S.user&&S.user.name||'Fatuma');});
+    if(orders.length===0){
+      h='<div style="text-align:center;padding:30px 16px;color:var(--tx2)"><div style="font-size:36px;margin-bottom:8px">📭</div><div style="font-size:14px;font-weight:600;color:var(--tx)">No orders placed</div><p style="font-size:12px;margin-top:4px">Consumer has not placed an order yet.</p></div>';
+    } else {
+      var o=orders[orders.length-1];
+      var steps=[{k:'placed',l:'Placed'},{k:'accepted',l:'Accepted'},{k:'enroute',l:'En route'},{k:'delivered',l:'Delivered'}];
+      var si=steps.findIndex(function(s){return s.k===o.status;});
+      h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Latest Order</div>';
+      h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:12px;padding:13px;margin-bottom:12px">';
+      h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="font-size:28px">'+o.pemo+'</div><div><div style="font-size:14px;font-weight:600">'+o.pname+' \xd7 '+o.qty+'</div><div style="font-size:11px;font-family:monospace;color:var(--tx2)">'+o.id+'</div></div></div>';
+      h+='<div class="sp" style="margin:10px 0">'+steps.map(function(s,i){return '<div class="step '+(i<si?'done':i===si?'cur':'')+'" style="flex:1"><div class="sd">'+(i<si?'✓':i+1)+'</div><div class="slb">'+s.l+'</div></div>';}).join('')+'</div>';
+      var statusText=o.status==='placed'?'Waiting for runner':o.status==='accepted'?'Runner accepted — en route soon':o.status==='enroute'?'Runner is on the way':(['delivered','completed'].includes(o.status)?'✓ Delivered':'Unknown');
+      var statusColor=['delivered','completed'].includes(o.status)?'var(--a)':'var(--p)';
+      h+='<div style="font-size:13px;font-weight:600;color:'+statusColor+'">'+statusText+'</div>';
+      if(o.runner) h+='<div style="font-size:11px;color:var(--tx2);margin-top:3px">Runner: '+o.runner+'</div>';
+      h+='</div>';
+      if(['delivered','completed'].includes(o.status)){
+        h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:11px;padding:14px;text-align:center"><div style="font-size:28px">🎉</div><div style="font-size:14px;font-weight:700;color:#065F46;margin-top:6px">Order Delivered!</div><div style="font-size:12px;color:#047857;margin-top:3px">TZS '+o.total.toLocaleString()+' charged to M-Pesa</div></div>';
+      }
+    }
+  } else if(role==='runner'){
+    var queue=S.orders.filter(function(o){return o.status==='placed';});
+    var inProgress=S.orders.filter(function(o){return o.status==='accepted'||o.status==='enroute';});
+    var done=S.orders.filter(function(o){return o.status==='delivered'||o.status==='completed';});
+    h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Runner Dashboard</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--w)">'+queue.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Queued</div></div>';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--p)">'+inProgress.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Active</div></div>';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:700;color:var(--a)">'+done.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Delivered</div></div>';
+    h+='</div>';
+    var sh=S.shift;
+    h+='<div style="background:linear-gradient(90deg,#4F46E5,#10B981);border-radius:11px;padding:13px;color:#fff;margin-bottom:12px">';
+    h+='<div style="font-size:11px;opacity:.8;text-transform:uppercase;letter-spacing:.05em">Shift Earnings</div>';
+    h+='<div style="font-size:22px;font-weight:700;margin-top:3px">TZS '+(sh.sold*200).toLocaleString()+'</div>';
+    h+='<div style="font-size:11px;opacity:.75;margin-top:2px">'+sh.sold+' / '+sh.quota+' packs \xb7 TZS '+(sh.sold*300).toLocaleString()+' to Kikoba</div>';
+    h+='</div>';
+    if(inProgress.length>0){
+      var cur=inProgress[0];
+      h+='<div style="background:var(--sur2);border:1.5px solid var(--p);border-radius:11px;padding:11px;margin-bottom:10px">';
+      h+='<div style="font-size:11px;color:var(--p);font-weight:600;margin-bottom:4px">🚀 In Progress</div>';
+      h+='<div style="font-size:13px;font-weight:600">'+cur.pemo+' '+cur.pname+' \xd7 '+cur.qty+'</div>';
+      h+='<div style="font-size:12px;color:var(--tx2);margin-top:2px">→ '+cur.consumer+' \xb7 '+cur.ward+' Ward</div>';
+      h+='</div>';
+    }
+  } else if(role==='matron'){
+    var incoming=S.orders.filter(function(o){return ['placed','accepted','enroute'].includes(o.status);});
+    var delivered2=S.orders.filter(function(o){return ['delivered','completed'].includes(o.status);});
+    h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Matron Dashboard</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--p)">'+incoming.length+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Incoming</div></div>';
+    h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--a)">'+delivered2.length+'</div><div style="font-size:10px;color:#047857;margin-top:2px">Received</div></div>';
+    h+='</div>';
+    var mStockEl=document.getElementById('m-stock');
+    var stockVal=mStockEl?parseInt(mStockEl.textContent||'148'):148;
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">';
+    h+='<div><div style="font-size:11px;color:var(--tx2)">Current stock</div><div style="font-size:22px;font-weight:700">'+stockVal+' packs</div></div>';
+    h+='<div style="font-size:28px">📦</div></div>';
+    if(incoming.length>0){
+      h+='<div style="font-size:12px;font-weight:600;color:var(--tx2);margin-bottom:7px">Awaiting</div>';
+      incoming.forEach(function(o){
+        var dot=o.status==='enroute'?'🟢':o.status==='accepted'?'🟡':'⚪';
+        var tagCls=o.status==='enroute'?'tg':o.status==='accepted'?'tb':'ty';
+        var tagTxt=o.status==='enroute'?'En route':o.status==='accepted'?'Accepted':'Placed';
+        h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:12px">';
+        h+=dot+' <strong>'+o.pemo+' '+o.pname+' \xd7 '+o.qty+'</strong> \xb7 '+o.consumer;
+        h+='<span class="tag '+tagCls+'" style="float:right;font-size:10px">'+tagTxt+'</span>';
+        h+='</div>';
+      });
+    }
+  } else if(role==='operator'){
+    var total=S.orders.length;
+    var open=S.orders.filter(function(o){return o.status==='placed';}).length;
+    var active=S.orders.filter(function(o){return ['accepted','enroute'].includes(o.status);}).length;
+    var comp=S.orders.filter(function(o){return ['delivered','completed'].includes(o.status);}).length;
+    h='<div style="font-size:12px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Operator Overview</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700">'+total+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Total</div></div>';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--w)">'+open+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Open</div></div>';
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--p)">'+active+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Active</div></div>';
+    h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;text-align:center"><div style="font-size:22px;font-weight:700;color:var(--a)">'+comp+'</div><div style="font-size:10px;color:var(--tx2);margin-top:2px">Delivered</div></div>';
+    h+='</div>';
+    var incidents=S.cvrVehicleState==='flagged'?1:0;
+    if(incidents>0){
+      h+='<div style="background:#FEE2E2;border:1.5px solid #FCA5A5;border-radius:10px;padding:11px;margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:#991B1B">⚠️ 1 Active Incident</div><div style="font-size:11px;color:#991B1B;margin-top:3px">Plant Gate: Vehicle verification failed \xb7 Wire held</div></div>';
+    } else {
+      h+='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:10px;padding:11px;margin-bottom:10px"><div style="font-size:12px;font-weight:600;color:#065F46">✓ No active incidents</div></div>';
+    }
+    h+='<div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:10px;padding:11px"><div style="font-size:11px;color:var(--tx2);margin-bottom:5px">M-Pesa Float</div><div style="font-size:18px;font-weight:700;color:var(--p)">TZS '+(15000+comp*500).toLocaleString()+'</div></div>';
+  }
+  el.innerHTML=h;
 }
 
 function showMyOrders(){
@@ -1413,6 +1560,8 @@ function acceptOrd(id){
   o.status='accepted';o.runner=S.user.name||'Amina';
   showToast('Order accepted! Deliver and tap to confirm.');
   renderRunnerQ();
+  if(S.order&&S.order.id===id) renderTrack();
+  refreshObs();
   S.order=o;S.dtaps=0;S.dlvStep=0;S.dlvScanned=0;S.dlvOtp='';
   renderDeliver();nav('deliver');
 }
@@ -1502,6 +1651,7 @@ function dlvOtpSubmit(){
     S.dlvStep=2;
     const o=S.order;
     if(o){o.status='delivered';S.shift.sold+=o.qty;refreshShiftLedger();renderMatronInc();}
+    renderTrack();refreshObs();
     showToast('OTP verified · TZS '+(S.order?S.order.qty*200:0).toLocaleString()+' → M-Pesa');
   } else {
     showToast('⚠️ Code mismatch — ask customer to re-check SMS');
@@ -1512,6 +1662,7 @@ function dlvOtpSubmit(){
 
 function doneDeliver(id){
   const o=S.orders.find(x=>x.id===id);if(o) o.status='delivered';
+  renderTrack();refreshObs();
   renderRunnerQ();S.hist=[];nav('h-runner');
 }
 
