@@ -406,6 +406,21 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
           <div class="st"><div class="sl">Disbursed</div><div class="sv" id="m-dis">312</div><div class="ss">this month</div></div>
         </div>
         <div class="sh">Incoming Deliveries</div>
+        <div style="border:1.5px solid var(--w);border-radius:12px;overflow:hidden;margin-bottom:10px" id="m-carrier-card">
+          <div style="background:#FEF3C7;padding:9px 12px;display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">🚲</span>
+            <div style="flex:1"><div style="font-size:12px;font-weight:600;color:#92400E">Boda Juma · C-0047 · 50 packs</div><div style="font-size:11px;color:#92400E;opacity:.8">Est. arrival 11 min · Route A7</div></div>
+            <span class="tag ty" style="font-size:10px">En route</span>
+          </div>
+          <div style="padding:10px 12px">
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:8px">Boda will show you a 5-digit code on their screen. Enter it below to confirm the right carrier delivered.</div>
+            <div style="display:flex;gap:7px;margin-bottom:7px">
+              <input class="fi" id="m-carrier-inp" placeholder="Enter 5-digit carrier code" inputmode="numeric" maxlength="5" style="font-family:monospace;font-size:16px;letter-spacing:.12em;flex:1">
+              <button class="btn bp bsm" onclick="matronConfirmCarrier()" style="white-space:nowrap;flex-shrink:0">Confirm</button>
+            </div>
+            <div id="m-carrier-result" style="font-size:11px"></div>
+          </div>
+        </div>
         <div id="m-inc"><div class="es"><div class="ei">🚚</div><div class="et">Nothing en route</div><p style="font-size:13px">Switch to Runner → complete a delivery → come back here.</p></div></div>
         <div class="sh">Recent Activity</div>
         <div class="oc"><div class="oh"><div><div class="ot">Delivery received</div><div class="od">50 packs · P-001 Classic</div></div><span class="tag tg">Confirmed</span></div><div style="font-size:11px;color:var(--tx3);margin-top:4px">Oct 18 · 10:23</div></div>
@@ -750,15 +765,41 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
             </div>
           </div>
           <div id="boda-load-result" style="padding:10px 12px">
-            <p style="font-size:11px;color:var(--tx2);margin-bottom:9px">Physically verify seal intact and item count before tapping below.</p>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
-              <button class="btn ba" style="padding:10px;font-size:12px" onclick="bodaLoadOk()">✓ Load matches</button>
-              <button class="btn bw" style="padding:10px;font-size:12px" onclick="bodaLoadMismatch()">⚠️ Discrepancy</button>
+            <div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Ask depot agent for the 4-digit release PIN. This proves you physically collected the load.</div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:8px">
+              <input class="oi" maxlength="1" id="bp0" oninput="bodaPinIn(0,this)" inputmode="numeric" style="width:44px;height:44px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--bdr);border-radius:10px;background:var(--sur);color:var(--tx);font-family:inherit">
+              <input class="oi" maxlength="1" id="bp1" oninput="bodaPinIn(1,this)" inputmode="numeric" style="width:44px;height:44px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--bdr);border-radius:10px;background:var(--sur);color:var(--tx);font-family:inherit">
+              <input class="oi" maxlength="1" id="bp2" oninput="bodaPinIn(2,this)" inputmode="numeric" style="width:44px;height:44px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--bdr);border-radius:10px;background:var(--sur);color:var(--tx);font-family:inherit">
+              <input class="oi" maxlength="1" id="bp3" oninput="bodaPinIn(3,this)" inputmode="numeric" style="width:44px;height:44px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--bdr);border-radius:10px;background:var(--sur);color:var(--tx);font-family:inherit">
             </div>
+            <div style="font-size:10px;color:var(--tx3);text-align:center;margin-bottom:8px">Demo: depot PIN is <strong>7723</strong></div>
+            <div id="boda-pin-result"></div>
+            <button class="btn bw" style="margin-top:9px;padding:9px;font-size:12px" onclick="bodaLoadMismatch()">⚠️ Report discrepancy instead</button>
           </div>
         </div>
         <button class="btn ba" id="boda-accept-btn" onclick="bodaAccept()" style="opacity:.35;pointer-events:none">Accept &amp; Navigate →</button>
         <button class="btn bs" style="margin-top:8px" onclick="back()">Decline</button>
+      </div>
+    </div>
+
+    <!-- BODA DROPOFF -->
+    <div class="sc" id="sc-boda-dropoff">
+      <div class="ph"><button class="bb" onclick="nav('h-boda')">←</button><h2>Deliver to Matron</h2></div>
+      <div class="pc">
+        <div style="background:var(--sur2);border:1px solid var(--bdr);border-radius:13px;padding:13px;margin-bottom:14px;font-size:12px;color:var(--tx2)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Consignment</span><span style="font-weight:600;color:var(--tx)">C-0047</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:5px"><span>Dropoff</span><span style="font-weight:600;color:var(--tx)">Jangwani Primary · Admin Block</span></div>
+          <div style="display:flex;justify-content:space-between"><span>Load</span><span style="font-weight:600;color:var(--tx)">50 × P-001 · Seal SL-C0047-A</span></div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--p),var(--pl));border-radius:14px;padding:22px 18px;text-align:center;margin-bottom:14px">
+          <div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Show this code to the matron</div>
+          <div style="font-size:42px;font-weight:700;color:#fff;letter-spacing:.18em;font-family:monospace">49312</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.65);margin-top:8px">She enters it in her app to confirm you delivered</div>
+        </div>
+        <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:11px;padding:10px 12px;margin-bottom:14px;font-size:11px;color:#92400E">
+          ⚠️ Do not hand over packs until matron has entered this code and you see "Receipt confirmed" in your app.
+        </div>
+        <div id="boda-dropoff-result"></div>
       </div>
     </div>
 
@@ -1003,15 +1044,29 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
               </div>
               <div id="cvr-settlement-body">
                 <div style="background:var(--sur2);border:1.5px solid var(--bdr);border-radius:11px;padding:11px 12px;margin-bottom:10px">
-                  <div style="font-size:10px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Step 1 of 2 · Verify Transport</div>
-                  <div style="font-size:13px;font-weight:600;margin-bottom:2px">Expected vehicle</div>
-                  <div style="font-family:monospace;font-size:12px;color:var(--p);margin-bottom:2px">T 412 DKN · Bakhresa Logistics</div>
-                  <div style="font-size:11px;color:var(--tx2)">Driver: DRV-BAKH-0842 · Placard: TRA-EX-2026-0841</div>
+                  <div style="font-size:10px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">Verify Transport · 2-Factor</div>
+                  <div style="display:flex;justify-content:space-between">
+                    <div><div style="font-size:10px;color:var(--tx2)">Expected plate</div><div style="font-family:monospace;font-size:15px;font-weight:700">T 412 DKN</div></div>
+                    <div style="text-align:right"><div style="font-size:10px;color:var(--tx2)">Expected driver code</div><div style="font-family:monospace;font-size:13px;font-weight:700">DRV-BAKH-0842</div></div>
+                  </div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-                  <button class="btn ba" style="padding:11px;font-size:13px" onclick="cvrVehicleConfirm()">✓ Correct vehicle</button>
-                  <button class="btn bw" style="padding:11px;font-size:13px" onclick="cvrVehicleOther()">⚠️ Different vehicle</button>
+                <div class="fg" id="cvr-plate-row" style="margin-bottom:8px">
+                  <label class="fl">Type plate number as shown on truck</label>
+                  <div style="display:flex;gap:7px">
+                    <input class="fi" id="cvr-plate-entry" placeholder="e.g. T 412 DKN" style="font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase()">
+                    <button class="btn bp bsm" onclick="cvrCheckPlate()" style="white-space:nowrap;flex-shrink:0">Check →</button>
+                  </div>
+                  <div id="cvr-plate-result" style="margin-top:5px;font-size:11px"></div>
                 </div>
+                <div class="fg" id="cvr-driver-row" style="display:none;margin-bottom:8px">
+                  <label class="fl">Enter driver code from their ID card</label>
+                  <div style="display:flex;gap:7px">
+                    <input class="fi" id="cvr-driver-entry" placeholder="e.g. DRV-BAKH-0842" style="font-family:monospace;flex:1" oninput="this.value=this.value.toUpperCase()">
+                    <button class="btn bp bsm" onclick="cvrCheckDriver()" style="white-space:nowrap;flex-shrink:0">Check →</button>
+                  </div>
+                  <div id="cvr-driver-result" style="margin-top:5px;font-size:11px"></div>
+                </div>
+                <div id="cvr-gate-row" style="display:none"></div>
               </div>
             </div>
           </div>
@@ -1543,6 +1598,30 @@ function mtap(i){
 
 function matronDone(){renderMatronInc();S.hist=[];nav('h-matron');}
 
+function matronConfirmCarrier(){
+  const inp=document.getElementById('m-carrier-inp');
+  const code=(inp&&inp.value.trim())||'';
+  const CORRECT='49312';
+  const res=document.getElementById('m-carrier-result');
+  if(code===CORRECT){
+    if(res) res.innerHTML='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:8px;padding:8px 10px;font-size:11px;color:#065F46;margin-top:5px">✓ Carrier confirmed · Boda Juma · It is safe to accept the packs</div>';
+    if(inp) inp.disabled=true;
+    const btn=document.querySelector('button[onclick="matronConfirmCarrier()"]');if(btn){btn.textContent='✓ Confirmed';btn.disabled=true;}
+    const card=document.getElementById('m-carrier-card');
+    if(card){
+      const tag=card.querySelector('.tag');
+      if(tag){tag.textContent='Verified';tag.className='tag tg';}
+    }
+    const mStock=document.getElementById('m-stock');
+    if(mStock) mStock.textContent=parseInt(mStock.textContent||148)+50;
+    showToast('✓ Carrier verified · 50 packs added to school stock');
+  } else if(code.length===5){
+    if(res) res.innerHTML='<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B;margin-top:5px">⚠️ Code does not match — do NOT accept packs. Call Kariakoo Depot to verify carrier identity.</div>';
+  } else {
+    showToast('Enter the 5-digit code from boda’s screen');
+  }
+}
+
 // ── NURSE ─────────────────────────────────────
 const NURSE_PATIENTS=[
   {id:'PAT-001',name:'Hadija Omar',infant:'Omar J., 2 months',milestone:'Pentavalent-1',card:'RCH-9041',voucher:null},
@@ -1756,10 +1835,9 @@ function dismissAlert(btn){btn.closest('.alert-card').remove();const c=document.
 
 // Boda
 function bodaAccept(){
-  if(!S.bodaLoadChecked){showToast('Verify the load manifest first');return;}
+  if(!S.bodaLoadChecked){showToast('Enter the depot release PIN first');return;}
   S.bodaLoadChecked=false;
-  showToast('✓ Accepted · Navigate to Kariakoo Depot →');
-  back();
+  nav('boda-dropoff');
 }
 
 // Batch quarantine (Scenario 50)
@@ -1773,33 +1851,48 @@ function triggerQuarantine(){
   },400);
 }
 
-// Converter vehicle verification
-function cvrVehicleConfirm(){
-  S.cvrVehicleState='confirmed';
-  const sb=document.getElementById('cvr-settlement-body');
-  if(!sb) return;
-  sb.innerHTML='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:9px;padding:8px 11px;margin-bottom:9px;font-size:11px;color:#065F46;display:flex;align-items:center;gap:6px"><span style="font-size:15px">✓</span> T 412 DKN confirmed at gate · Step 2 of 2</div>'
-    +'<button class="btn bp" id="cvr-gate-btn" onclick="gateOut()">Authorise Gate-Out &amp; Release TZS 19.95M →</button>';
+// Converter vehicle verification — 2-factor: plate match + driver code
+function cvrCheckPlate(){
+  const inp=document.getElementById('cvr-plate-entry');
+  if(!inp||!inp.value.trim()){showToast('Type the plate number first');return;}
+  const entered=inp.value.replace(/[\s\-]/g,'').toUpperCase();
+  const expected='T412DKN';
+  const res=document.getElementById('cvr-plate-result');
+  if(entered===expected){
+    res.innerHTML='<span style="color:#065F46;background:#D1FAE5;border-radius:6px;padding:4px 8px;display:inline-block">✓ Plate matches — T 412 DKN</span>';
+    inp.disabled=true;
+    const btn=document.querySelector('button[onclick="cvrCheckPlate()"]');if(btn) btn.disabled=true;
+    const dr=document.getElementById('cvr-driver-row');
+    if(dr){dr.style.display='block';setTimeout(function(){const e=document.getElementById('cvr-driver-entry');if(e) e.focus();},200);}
+  } else {
+    S.cvrActualPlate=inp.value.trim();
+    res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ Plate mismatch — expected T 412 DKN. Auto-flagging…</span>';
+    setTimeout(cvrAutoFlag,800);
+  }
 }
-function cvrVehicleOther(){
-  S.cvrVehicleState='flagging';
-  const sb=document.getElementById('cvr-settlement-body');
-  if(!sb) return;
-  sb.innerHTML='<div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:10px;padding:11px 12px">'
-    +'<div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:9px">⚠️ Different Vehicle — Report &amp; Hold Wire</div>'
-    +'<div class="fg" style="margin-bottom:7px"><label class="fl">Actual plate number</label>'
-    +'<input class="fi" id="cvr-plate-inp" placeholder="e.g. T 788 DCC" style="font-family:monospace"></div>'
-    +'<div class="fg" style="margin-bottom:10px"><label class="fl">Reason / notes</label>'
-    +'<input class="fi" id="cvr-reason-inp" placeholder="e.g. Driver says original truck broke down"></div>'
-    +'<button class="btn bw" style="margin-bottom:7px" onclick="cvrVehicleFlag()">Flag Discrepancy &amp; Hold Wire</button>'
-    +'<button class="btn bs" onclick="cvrVehicleReset()">← Back</button>'
-    +'</div>';
-  setTimeout(function(){const el=document.getElementById('cvr-plate-inp');if(el) el.focus();},200);
+function cvrCheckDriver(){
+  const inp=document.getElementById('cvr-driver-entry');
+  if(!inp||!inp.value.trim()){showToast('Enter driver code from their ID card');return;}
+  const entered=inp.value.replace(/[\s\-]/g,'').toUpperCase();
+  const expected='DRVBAKH0842';
+  const res=document.getElementById('cvr-driver-result');
+  if(entered===expected){
+    res.innerHTML='<span style="color:#065F46;background:#D1FAE5;border-radius:6px;padding:4px 8px;display:inline-block">✓ Driver verified — DRV-BAKH-0842</span>';
+    inp.disabled=true;
+    const btn=document.querySelector('button[onclick="cvrCheckDriver()"]');if(btn) btn.disabled=true;
+    S.cvrVehicleState='confirmed';
+    const gr=document.getElementById('cvr-gate-row');
+    if(gr){
+      gr.style.display='block';
+      gr.innerHTML='<div style="background:#D1FAE5;border:1px solid #6EE7B7;border-radius:9px;padding:9px 11px;margin:10px 0;font-size:11px;color:#065F46">✓ Plate verified · ✓ Driver verified — gate cleared</div>'
+        +'<button class="btn bp" id="cvr-gate-btn" onclick="gateOut()">Authorise Gate-Out &amp; Release TZS 19.95M →</button>';
+    }
+  } else {
+    res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ Driver code mismatch. Auto-flagging…</span>';
+    setTimeout(cvrAutoFlag,800);
+  }
 }
-function cvrVehicleFlag(){
-  const plate=(document.getElementById('cvr-plate-inp')||{}).value||'';
-  if(!plate.trim()){showToast('Enter the actual plate number');return;}
-  S.cvrActualPlate=plate.trim();
+function cvrAutoFlag(){
   S.cvrVehicleState='flagged';
   const incRef='INC-2026-'+Math.floor(1000+Math.random()*8999);
   const tag=document.getElementById('cvr-step5-tag');
@@ -1808,37 +1901,36 @@ function cvrVehicleFlag(){
   if(balEl){balEl.textContent='🔒 WIRE HELD';balEl.style.color='var(--d)';}
   const sb=document.getElementById('cvr-settlement-body');
   if(sb) sb.innerHTML='<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:10px;padding:11px 12px">'
-    +'<div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:5px">🔒 Wire Held — Discrepancy Logged</div>'
-    +'<div style="font-size:11px;color:#991B1B;margin-bottom:8px">TZS 19.95M is frozen until Operator releases the hold.</div>'
-    +'<div style="font-size:11px;color:var(--tx2);margin-bottom:2px">Flagged plate: <strong style="color:var(--tx);font-family:monospace">'+S.cvrActualPlate+'</strong></div>'
+    +'<div style="font-size:13px;font-weight:700;color:#991B1B;margin-bottom:5px">🔒 Wire Held — Verification Failed</div>'
+    +'<div style="font-size:11px;color:#991B1B;margin-bottom:8px">Plate or driver code did not match. TZS 19.95M frozen pending Operator review.</div>'
+    +'<div style="font-size:11px;color:var(--tx2);margin-bottom:2px">Flagged vehicle: <strong style="color:var(--tx);font-family:monospace">'+(S.cvrActualPlate||'unknown')+'</strong></div>'
     +'<div style="font-size:11px;color:var(--tx2);margin-bottom:9px">Incident ref: <strong style="color:var(--tx);font-family:monospace">'+incRef+'</strong></div>'
     +'<div style="font-size:11px;color:#065F46;background:#D1FAE5;border-radius:7px;padding:7px 9px">✓ Operator notified · SENTRY alert raised · Gate arm locked</div>'
     +'</div>';
-  showToast('⚠️ Discrepancy flagged · Wire held · Operator alerted');
-}
-function cvrVehicleReset(){
-  S.cvrVehicleState='pending';
-  const sb=document.getElementById('cvr-settlement-body');
-  if(!sb) return;
-  sb.innerHTML='<div style="background:var(--sur2);border:1.5px solid var(--bdr);border-radius:11px;padding:11px 12px;margin-bottom:10px">'
-    +'<div style="font-size:10px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Step 1 of 2 · Verify Transport</div>'
-    +'<div style="font-size:13px;font-weight:600;margin-bottom:2px">Expected vehicle</div>'
-    +'<div style="font-family:monospace;font-size:12px;color:var(--p);margin-bottom:2px">T 412 DKN · Bakhresa Logistics</div>'
-    +'<div style="font-size:11px;color:var(--tx2)">Driver: DRV-BAKH-0842 · Placard: TRA-EX-2026-0841</div>'
-    +'</div>'
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
-    +'<button class="btn ba" style="padding:11px;font-size:13px" onclick="cvrVehicleConfirm()">✓ Correct vehicle</button>'
-    +'<button class="btn bw" style="padding:11px;font-size:13px" onclick="cvrVehicleOther()">⚠️ Different vehicle</button>'
-    +'</div>';
+  showToast('⚠️ Verification failed · Wire held · Operator alerted');
 }
 
-// Boda load verification
-function bodaLoadOk(){
-  S.bodaLoadChecked=true;
-  const res=document.getElementById('boda-load-result');
-  if(res) res.innerHTML='<div style="background:#D1FAE5;border-radius:8px;padding:8px 10px;font-size:11px;color:#065F46">✓ Seal SL-C0047-A intact · 50 packs verified</div>';
-  const btn=document.getElementById('boda-accept-btn');
-  if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';}
+// Boda depot PIN verification
+function bodaPinIn(i,el){
+  el.value=el.value.replace(/\D/g,'').slice(-1);
+  if(el.value&&i<3) document.getElementById('bp'+(i+1)).focus();
+  let pin='';for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);pin+=c?c.value:'';}
+  if(pin.length===4){
+    const CORRECT='7723';
+    if(pin===CORRECT){
+      S.bodaLoadChecked=true;
+      const res=document.getElementById('boda-pin-result');
+      if(res) res.innerHTML='<div style="background:#D1FAE5;border-radius:8px;padding:8px 10px;font-size:11px;color:#065F46">✓ Depot PIN verified · Seal SL-C0047-A · 50 packs released to you</div>';
+      for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c) c.disabled=true;}
+      const btn=document.getElementById('boda-accept-btn');
+      if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';btn.textContent='Accept · Navigate to Jangwani →';}
+    } else {
+      const res=document.getElementById('boda-pin-result');
+      if(res) res.innerHTML='<div style="background:#FEE2E2;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B">⚠️ Wrong PIN — ask depot agent to re-check</div>';
+      for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c){c.value='';c.disabled=false;}}
+      document.getElementById('bp0').focus();
+    }
+  }
 }
 function bodaLoadMismatch(){
   const res=document.getElementById('boda-load-result');
