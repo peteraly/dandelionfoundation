@@ -1096,8 +1096,11 @@ const S={
   nurseStep:0,curPatId:null,
   // Converter state
   cvrStep:0,cvrGateout:false,cvrVehicleState:'pending',cvrActualPlate:'',
+  cvrPlateAttempts:0,cvrDriverAttempts:0,
   // Boda state
-  bodaLoadChecked:false,
+  bodaLoadChecked:false,bodaPinAttempts:0,
+  // Matron state
+  matronCarrierAttempts:0,
 };
 
 const PRODS=[
@@ -1616,9 +1619,21 @@ function matronConfirmCarrier(){
     if(mStock) mStock.textContent=parseInt(mStock.textContent||148)+50;
     showToast('✓ Carrier verified · 50 packs added to school stock');
   } else if(code.length===5){
-    if(res) res.innerHTML='<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B;margin-top:5px">⚠️ Code does not match — do NOT accept packs. Call Kariakoo Depot to verify carrier identity.</div>';
+    S.matronCarrierAttempts=(S.matronCarrierAttempts||0)+1;
+    const left=3-S.matronCarrierAttempts;
+    if(left>0){
+      const color=left===1?'#991B1B':'#92400E';
+      const bg=left===1?'#FEE2E2':'#FEF3C7';
+      const warn=left===1?'⚠️ Wrong code — 1 attempt remaining before auto-lock':'⚠️ Code mismatch — '+left+' attempts remaining — do NOT accept packs yet';
+      if(res) res.innerHTML='<div style="background:'+bg+';border:1px solid #FCA5A5;border-radius:8px;padding:8px 10px;font-size:11px;color:'+color+';margin-top:5px">'+warn+'</div>';
+      if(inp){inp.value='';inp.focus();}
+    } else {
+      if(res) res.innerHTML='<div style="background:#FEE2E2;border:1px solid #FCA5A5;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B;margin-top:5px">🔒 3 failed attempts — do NOT accept packs. Carrier identity unverified. Contact Kariakoo Depot (Ref: C-0047) to resolve.</div>';
+      if(inp) inp.disabled=true;
+      const btn=document.querySelector('button[onclick="matronConfirmCarrier()"]');if(btn){btn.textContent='Locked';btn.disabled=true;}
+    }
   } else {
-    showToast('Enter the 5-digit code from boda’s screen');
+    showToast(‘Enter the 5-digit code from boda’s screen’);
   }
 }
 
@@ -1866,8 +1881,18 @@ function cvrCheckPlate(){
     if(dr){dr.style.display='block';setTimeout(function(){const e=document.getElementById('cvr-driver-entry');if(e) e.focus();},200);}
   } else {
     S.cvrActualPlate=inp.value.trim();
-    res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ Plate mismatch — expected T 412 DKN. Auto-flagging…</span>';
-    setTimeout(cvrAutoFlag,800);
+    S.cvrPlateAttempts=(S.cvrPlateAttempts||0)+1;
+    const left=3-S.cvrPlateAttempts;
+    if(left>0){
+      const color=left===1?'#991B1B':'#92400E';
+      const bg=left===1?'#FEE2E2':'#FEF3C7';
+      const warn=left===1?'⚠️ 1 attempt remaining — next failure flags this shipment':'⚠️ Plate mismatch — '+left+' attempts remaining';
+      res.innerHTML='<span style="color:'+color+';background:'+bg+';border-radius:6px;padding:4px 8px;display:inline-block">'+warn+'</span>';
+      inp.value='';inp.focus();
+    } else {
+      res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ 3 failed attempts — flagging shipment…</span>';
+      setTimeout(cvrAutoFlag,800);
+    }
   }
 }
 function cvrCheckDriver(){
@@ -1888,8 +1913,18 @@ function cvrCheckDriver(){
         +'<button class="btn bp" id="cvr-gate-btn" onclick="gateOut()">Authorise Gate-Out &amp; Release TZS 19.95M →</button>';
     }
   } else {
-    res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ Driver code mismatch. Auto-flagging…</span>';
-    setTimeout(cvrAutoFlag,800);
+    S.cvrDriverAttempts=(S.cvrDriverAttempts||0)+1;
+    const left=3-S.cvrDriverAttempts;
+    if(left>0){
+      const color=left===1?'#991B1B':'#92400E';
+      const bg=left===1?'#FEE2E2':'#FEF3C7';
+      const warn=left===1?'⚠️ 1 attempt remaining — next failure flags this shipment':'⚠️ Driver code mismatch — '+left+' attempts remaining';
+      res.innerHTML='<span style="color:'+color+';background:'+bg+';border-radius:6px;padding:4px 8px;display:inline-block">'+warn+'</span>';
+      inp.value='';inp.focus();
+    } else {
+      res.innerHTML='<span style="color:#991B1B;background:#FEE2E2;border-radius:6px;padding:4px 8px;display:inline-block">⚠️ 3 failed attempts — flagging shipment…</span>';
+      setTimeout(cvrAutoFlag,800);
+    }
   }
 }
 function cvrAutoFlag(){
@@ -1925,10 +1960,20 @@ function bodaPinIn(i,el){
       const btn=document.getElementById('boda-accept-btn');
       if(btn){btn.style.opacity='1';btn.style.pointerEvents='auto';btn.textContent='Accept · Navigate to Jangwani →';}
     } else {
+      S.bodaPinAttempts=(S.bodaPinAttempts||0)+1;
+      const left=3-S.bodaPinAttempts;
       const res=document.getElementById('boda-pin-result');
-      if(res) res.innerHTML='<div style="background:#FEE2E2;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B">⚠️ Wrong PIN — ask depot agent to re-check</div>';
-      for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c){c.value='';c.disabled=false;}}
-      document.getElementById('bp0').focus();
+      if(left>0){
+        const color=left===1?'#991B1B':'#92400E';
+        const bg=left===1?'#FEE2E2':'#FEF3C7';
+        const warn=left===1?'⚠️ Wrong PIN — 1 attempt remaining before supervisor override required':'⚠️ Wrong PIN — '+left+' attempts remaining';
+        if(res) res.innerHTML='<div style="background:'+bg+';border-radius:8px;padding:8px 10px;font-size:11px;color:'+color+'">'+warn+'</div>';
+        for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c){c.value='';c.disabled=false;}}
+        document.getElementById('bp0').focus();
+      } else {
+        if(res) res.innerHTML='<div style="background:#FEE2E2;border-radius:8px;padding:8px 10px;font-size:11px;color:#991B1B">🔒 3 failed attempts — release held. Depot supervisor must re-issue PIN via the Operator dashboard.</div>';
+        for(let j=0;j<4;j++){const c=document.getElementById('bp'+j);if(c) c.disabled=true;}
+      }
     }
   }
 }
